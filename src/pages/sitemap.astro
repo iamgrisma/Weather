@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+
+export const prerender = false;
+
+const categories = [
+  {
+    title: 'Real-Time Hydrology & Flood Watch',
+    description: 'Continuous surveillance of river water levels, danger markers, and basin warnings.',
+    icon: 'waves',
+    links: [
+      { path: '/river-watch', label: 'River Watch Portal', desc: 'Real-time hydrological stations across all 6 river basins' },
+      { path: '/special-weather', label: 'Special Weather & Hazard Alerts', desc: 'Urgent emergency warnings and multi-day hazard maps' },
+    ],
+  },
+  {
+    title: 'Meteorological Forecasts & Observations',
+    description: 'Real-time city temperatures, precipitation probability, and weather bulletins.',
+    icon: 'cloud-sun',
+    links: [
+      { path: '/city-forecast', label: 'City Forecasts', desc: '3-day forecast across all major provincial hub cities' },
+      { path: '/weather', label: 'National Weather Overview', desc: 'Comprehensive national weather summaries' },
+      { path: '/bulletin', label: '3-Day Synoptic Bulletin', desc: 'Official morning and evening meteorological bulletins' },
+    ],
+  },
+  {
+    title: 'Specialized Mountain & Numerical Models',
+    description: 'High-altitude mountaineering weather and NWP numerical weather prediction maps.',
+    icon: 'layers',
+    links: [
+      { path: '/mountaineering', label: 'Himalayan Peak Weather', desc: 'Everest, Annapurna, Manaslu and high-altitude expedition forecasts' },
+      { path: '/nwp', label: 'NWP Numerical Models', desc: 'WRF numerical weather prediction model graphical charts' },
+    ],
+  },
+  {
+    title: 'Official Publications & Feeds',
+    description: 'Government press releases, developer API endpoints, and feeds.',
+    icon: 'document',
+    links: [
+      { path: '/press-releases', label: 'DHM Press Releases', desc: 'Official government publications, studies, and PDF notices' },
+      { path: '/api/data', label: 'Live Data API (JSON)', desc: 'Real-time edge-cached weather and river JSON feed' },
+      { path: '/sitemap.xml', label: 'XML Sitemap', desc: 'Canonical machine-readable XML sitemap index' },
+    ],
+  },
+];
+
+const title = 'HTML Sitemap & Directory | Nepal Weather & River Watch';
+const description = 'Complete visual directory of all real-time weather stations, flood alert networks, 3-day synoptic bulletins, and numerical weather model pages.';
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <div class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/" class="hover:underline">Home</a>
+      <span>/</span>
+      <span class="text-slate-600">Sitemap</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+      Visual Directory &amp; Sitemap
+    </h1>
+    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+      Browse all hydrological surveillance networks, weather forecasts, hazard advisories, and official publications.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+    {categories.map((cat) => (
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100 mb-4">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 shrink-0">
+              <Icon name={cat.icon} class="w-4 h-4" />
+            </span>
+            <div>
+              <h2 class="text-base font-bold text-slate-900">{cat.title}</h2>
+              <p class="text-xs text-slate-400">{cat.description}</p>
+            </div>
+          </div>
+          <ul class="space-y-2.5">
+            {cat.links.map((link) => (
+              <li>
+                <a
+                  href={link.path}
+                  class="group flex flex-col p-2.5 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/40 transition-colors"
+                >
+                  <span class="text-sm font-bold text-slate-800 group-hover:text-blue-700 flex items-center justify-between">
+                    <span>{link.label}</span>
+                    <span class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                  </span>
+                  <span class="text-xs text-slate-500 mt-0.5">{link.desc}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    ))}
+  </div>
+</BaseLayout>

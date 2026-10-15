@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+export const prerender = false;
+
+const categories = [
+  {
+    title: 'नदी जलसतह तथा बाढी निगरानी',
+    description: 'नदीहरूको प्रत्यक्ष जलसतह, खतरा तह तथा बाढी जोखिम पूर्वानुमान।',
+    icon: 'waves',
+    links: [
+      { path: '/ne/river-watch', label: 'नदी बाढी मापन केन्द्र', desc: 'नेपालका ६ वटै प्रमुख नदी बेसिनका स्वचालित मापन केन्द्रहरू' },
+      { path: '/ne/special-weather', label: 'विशेष मौसमी तथा विपद् चेतावनी', desc: 'आपतकालीन मौसमी सूचना र बहु-दिने जोखिम नक्साहरू' },
+    ],
+  },
+  {
+    title: 'मौसम पूर्वानुमान तथा अवलोकन',
+    description: 'सहरहरूको तापक्रम, वर्षाको सम्भावना तथा ३ दिने मौसमी बुलेटिन।',
+    icon: 'cloud-sun',
+    links: [
+      { path: '/ne/city-forecast', label: 'सहरहरूको मौसमी पूर्वानुमान', desc: 'प्रमुख सहरहरूको ३ दिने विस्तृत मौसमी अवस्था' },
+      { path: '/ne/weather', label: 'राष्ट्रिय मौसमी विवरण', desc: 'नेपालभरिको दैनिक तापक्रम र वर्षाको विवरण' },
+      { path: '/ne/bulletin', label: '३ दिने मौसमी बुलेटिन', desc: 'मौसम पूर्वानुमान महाशाखाबाट जारी आधिकारिक बुलेटिन' },
+    ],
+  },
+  {
+    title: 'पर्वतारोहण तथा संख्यात्मक मोडलहरू',
+    description: 'उच्च हिमाली मौसम तथा NWP संख्यात्मक मौसम पूर्वानुमान नक्साहरू।',
+    icon: 'layers',
+    links: [
+      { path: '/ne/mountaineering', label: 'हिमाली मौसम पूर्वानुमान', desc: 'सगरमाथा, अन्नपूर्ण, मनास्लु लगायतका हिमालहरूको मौसम' },
+      { path: '/ne/nwp', label: 'NWP संख्यात्मक मोडलहरू', desc: 'WRF संख्यात्मक मौसम पूर्वानुमानका नक्सा तथा चार्टहरू' },
+    ],
+  },
+  {
+    title: 'आधिकारिक सूचना तथा डाटा फिड',
+    description: 'सरकारी प्रेस विज्ञप्ति तथा प्रत्यक्ष डाटा API।',
+    icon: 'document',
+    links: [
+      { path: '/ne/press-releases', label: 'प्रेस विज्ञप्ति अभिलेख', desc: 'जल तथा मौसम विज्ञान विभागका आधिकारिक प्रतिवेदनहरू' },
+      { path: '/api/data', label: 'प्रत्यक्ष डाटा API (JSON)', desc: 'रियल-टाइम एज-क्यास्ड मौसम तथा नदी डाटा' },
+      { path: '/sitemap.xml', label: 'XML साइटम्याप', desc: 'सर्च इन्जिनहरूको लागि आधिकारिक XML अनुक्रमणिका' },
+    ],
+  },
+];
+
+const title = 'साइटम्याप तथा अनुक्रमणिका | HTML Sitemap';
+const description = 'नेपाल जल तथा मौसम प्रत्यक्ष पूर्वसूचना पोर्टलको सम्पूर्ण पृष्ठ, नदी अनुगमन, मौसमी बुलेटिन तथा संख्यात्मक मोडलहरूको श्रेणीगत सूची।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <div class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">साइटम्याप</span>
+    </div>
+    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+      दृश्यात्मक साइटम्याप तथा निर्देशिका
+    </h1>
+    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+      सबै नदी मापन केन्द्रहरू, मौसमी पूर्वानुमान, विपद् चेतावनी तथा आधिकारिक प्रतिवेदनहरूको प्रत्यक्ष सूची।
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
+    {categories.map((cat) => (
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100 mb-4">
+            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 shrink-0">
+              <Icon name={cat.icon} class="w-4 h-4" />
+            </span>
+            <div>
+              <h2 class="text-base font-bold text-slate-900">{cat.title}</h2>
+              <p class="text-xs text-slate-400">{cat.description}</p>
+            </div>
+          </div>
+          <ul class="space-y-2.5">
+            {cat.links.map((link) => (
+              <li>
+                <a
+                  href={link.path}
+                  class="group flex flex-col p-2.5 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/40 transition-colors"
+                >
+                  <span class="text-sm font-bold text-slate-800 group-hover:text-blue-700 flex items-center justify-between">
+                    <span>{link.label}</span>
+                    <span class="text-xs text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                  </span>
+                  <span class="text-xs text-slate-500 mt-0.5">{link.desc}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    ))}
+  </div>
+</BaseLayout>

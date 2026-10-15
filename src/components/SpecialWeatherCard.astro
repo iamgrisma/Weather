@@ -35,14 +35,27 @@ const latest = items[0] || null;
             {isNe ? (activeNotice.nepaliTitle || activeNotice.title) : (activeNotice.title || activeNotice.nepaliTitle)}
           </h3>
           {activeNotice.url && (
-            <a
-              href={activeNotice.url.startsWith('http') ? activeNotice.url : `https://dhm.gov.np/${activeNotice.url}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 mt-2.5 text-xs sm:text-sm font-bold text-red-700 hover:text-red-900 underline"
-            >
-              <span>{isNe ? 'विस्तृत विवरण हेर्नुहोस् →' : 'View official announcement →'}</span>
-            </a>
+            <div class="mt-3">
+              {activeNotice.url.match(/\.(jpe?g|png|webp)$/i) && (
+                <div class="mb-3 max-w-xl overflow-hidden rounded-xl border border-red-200 bg-white shadow-2xs">
+                  <img
+                    src={getProxiedImageUrl(activeNotice.url.startsWith('http') ? activeNotice.url : `https://dhm.gov.np/mfd/api/image/${activeNotice.url.replace(/^\/+/, '')}`)}
+                    onerror={`this.onerror=null;this.src='${activeNotice.url.startsWith('http') ? activeNotice.url : 'https://dhm.gov.np/mfd/api/image/' + activeNotice.url.replace(/^\/+/, '')}'`}
+                    alt={activeNotice.title}
+                    loading="lazy"
+                    class="w-full h-auto max-h-[420px] object-contain"
+                  />
+                </div>
+              )}
+              <a
+                href={activeNotice.url.startsWith('http') ? activeNotice.url : `https://dhm.gov.np/mfd/api/image/${activeNotice.url.replace(/^\/+/, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-red-700 hover:text-red-900 underline"
+              >
+                <span>{isNe ? 'आधिकारिक बुलेटिन पूर्ण आकारमा हेर्नुहोस् ↗' : 'View official bulletin full size ↗'}</span>
+              </a>
+            </div>
           )}
         </div>
       </div>

@@ -12,6 +12,7 @@ const routes = [
   { path: '/city-forecast', priority: '0.8', changefreq: 'hourly' },
   { path: '/special-weather', priority: '0.7', changefreq: 'daily' },
   { path: '/press-releases', priority: '0.7', changefreq: 'daily' },
+  { path: '/sitemap', priority: '0.6', changefreq: 'weekly' },
 ];
 
 export const GET: APIRoute = () => {
@@ -19,6 +20,7 @@ export const GET: APIRoute = () => {
   const now = new Date().toISOString();
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
 

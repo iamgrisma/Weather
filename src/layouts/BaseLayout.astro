@@ -28,6 +28,8 @@ const nePath = isNe ? cleanPath : (cleanPath === '/' ? '/ne' : `/ne${cleanPath}`
 
 const host = Astro.url.hostname;
 const isProduction = host === 'weather.topnepali.com';
+const allowAdSense = isProduction && !isNe;
+const allowTrackers = isProduction;
 ---
 
 <!doctype html>
@@ -69,6 +71,49 @@ const isProduction = host === 'weather.topnepali.com';
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+
+    <!-- Google AdSense (Strictly English Production Only; zero ads on /ne or preview) -->
+    {allowAdSense && (
+      <>
+        <meta name="google-adsense-account" content="ca-pub-5410507143596599" />
+        <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+        <script
+          is:inline
+          defer
+          crossorigin="anonymous"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5410507143596599"
+        ></script>
+      </>
+    )}
+    {!allowAdSense && (
+      <script is:inline>
+        window.adsbygoogle = Object.freeze({ push: function() {}, loaded: true });
+        try {
+          var h = window.location.hostname.toLowerCase();
+          if (h.includes('workers.dev') || h.includes('pages.dev') || h.includes('localhost') || h === '127.0.0.1') {
+            document.querySelectorAll('ins.adsbygoogle, script[src*="adsbygoogle"], meta[name="google-adsense-account"]').forEach(function(el) {
+              el.remove();
+            });
+          }
+        } catch(e) {}
+      </script>
+    )}
+
+    <!-- Google Analytics GA4 (Production Only; English & Nepali) -->
+    {allowTrackers && (
+      <>
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+        <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-K2R0GSQE0M"></script>
+        <script is:inline>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-K2R0GSQE0M');
+        </script>
+      </>
+    )}
 
     <!-- Solid Unicode System Font Stack & Tailwind Styles -->
     <style is:global>
@@ -229,6 +274,10 @@ const isProduction = host === 'weather.topnepali.com';
           </p>
         </div>
         <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-3 gap-y-1 sm:justify-end">
+          <a href={isNe ? '/ne/sitemap' : '/sitemap'} class="font-medium hover:text-blue-600 transition">
+            {isNe ? 'साइटम्याप' : 'Sitemap'}
+          </a>
+          <span class="text-slate-300">•</span>
           <span class="inline-flex items-center gap-1.5 font-medium">
             <span class="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
             {isNe ? 'बाढी आपतकालीन हटलाइन: ११५५ (टोल फ्री)' : 'Emergency Flood Hotline: 1155 (Toll Free)'}

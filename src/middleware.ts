@@ -7,8 +7,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // 1. In-memory trailing slash normalization (Zero redirect hops)
   if (url.pathname !== '/' && url.pathname.endsWith('/')) {
-    const cleanPath = url.pathname.slice(0, -1);
-    return context.rewrite(cleanPath);
+    const cleanPath = url.pathname.replace(/\/+$/, '') || '/';
+    const target = cleanPath + (url.search || '');
+    const rewritten = await context.rewrite(target);
+    if (!isProd) {
+      rewritten.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+    }
+    return rewritten;
   }
 
   const response = await next();

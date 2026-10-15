@@ -13,8 +13,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const env = getEdgeEnv(locals);
     const url = new URL(request.url);
 
-    // Read scope from query param or JSON body
-    let scope: RefreshScope = (url.searchParams.get('scope') as RefreshScope) || 'river';
+    // Default to 'all' so a single unified cron ping to /api/refresh updates all feeds
+    const rawScope = url.searchParams.get('scope') as RefreshScope | null;
+    let scope: RefreshScope = rawScope || 'all';
     const force = url.searchParams.get('force') === 'true';
 
     try {

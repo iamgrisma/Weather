@@ -577,11 +577,22 @@ export async function fetchLiveSpecialWeather(): Promise<NepalWeatherSnapshot['s
       const popups = await popupRes.json();
       if (Array.isArray(popups) && popups.length > 0) {
         const p = popups[0];
+        let rawUrl = p.url ? String(p.url).trim() : undefined;
+        let formattedUrl = rawUrl;
+        if (rawUrl) {
+          if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+            formattedUrl = rawUrl;
+          } else if (rawUrl.startsWith('popup/')) {
+            formattedUrl = `https://dhm.gov.np/mfd/api/image/${rawUrl}`;
+          } else {
+            formattedUrl = `https://dhm.gov.np/mfd/api/image/popup/${rawUrl}`;
+          }
+        }
         activeNotice = {
           id: String(p.id || ''),
           title: String(p.title || '').trim(),
           nepaliTitle: p.nepali_title ? String(p.nepali_title).trim() : undefined,
-          url: p.url ? String(p.url).trim() : undefined,
+          url: formattedUrl,
           createdAt: p.create_at ? String(p.create_at) : undefined,
         };
       }
