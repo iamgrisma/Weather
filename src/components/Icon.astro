@@ -31,7 +31,8 @@ interface Props {
     | 'cloud-sun'
     | 'info'
     | 'lightbulb'
-    | 'clipboard-list';
+    | 'clipboard-list'
+    | 'chevron-down';
   class?: string;
   size?: number | string;
 }
@@ -307,5 +308,11 @@ const { name, class: className = 'w-4 h-4', size = 20 } = Astro.props;
     <path d="M12 16h4" />
     <path d="M8 11h.01" />
     <path d="M8 16h.01" />
+  </svg>
+)}
+
+{name === 'chevron-down' && (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class={className} aria-hidden="true">
+    <path d="m6 9 6 6 6-6" />
   </svg>
 )}

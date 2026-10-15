@@ -602,17 +602,19 @@ export async function fetchLiveSpecialWeather(): Promise<NepalWeatherSnapshot['s
     if (recentRes && recentRes.ok) {
       const recentList = await recentRes.json();
       if (Array.isArray(recentList)) {
-        // Fetch full detail with warning maps for top 3 items
         const topSlice = recentList.slice(0, 8);
+        const detailPromises = topSlice.map((item) =>
+          item.id
+            ? fetchWithTimeout(`https://dhm.gov.np/mfd/api/page/${item.id}`)
+                .then((r) => (r.ok ? r.json() : {}))
+                .catch(() => ({}))
+            : Promise.resolve({})
+        );
+        const details = await Promise.all(detailPromises);
+
         for (let i = 0; i < topSlice.length; i++) {
           const item = topSlice[i];
-          let detailData: any = {};
-          if (i < 3 && item.id) {
-            try {
-              const dRes = await fetchWithTimeout(`https://dhm.gov.np/mfd/api/page/${item.id}`);
-              if (dRes.ok) detailData = await dRes.json();
-            } catch {}
-          }
+          const detailData = details[i] || {};
 
           const rawImages = detailData.weather_map_images || item.weather_map_images || [];
           const weatherMapImages = Array.isArray(rawImages)

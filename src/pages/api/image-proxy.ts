@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ request, redirect }) => {
       signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; NepalWeatherEdgeBot/1.0; +https://weather.topnepali.com)',
-        Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,application/pdf,*/*;q=0.8',
       },
     }).finally(() => clearTimeout(timeout));
 
