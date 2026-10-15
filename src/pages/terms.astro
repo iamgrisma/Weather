@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+
+export const prerender = false;
+
+const title = 'Terms of Service | Nepal Weather & River Watch Portal | Top Nepali';
+const description = 'Terms of service and acceptable use policy for Nepal Weather & River Watch Portal by Top Nepali. Data availability, emergency reliance, and intellectual property.';
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <!-- Semantic Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/" class="hover:underline">Home</a>
+      <span>/</span>
+      <span class="text-slate-600">Terms of Service</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+        <Icon name="document" class="w-5 h-5 text-white" />
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+        Terms of Service
+      </h1>
+    </div>
+    <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+      Terms governing public access and usage of the Nepal Weather digital portal.
+    </p>
+  </header>
+
+  <!-- Content Section -->
+  <article class="space-y-6 text-sm text-slate-700 leading-relaxed">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        1. Agreement to Terms
+      </h2>
+      <p>
+        By accessing or using <strong>Nepal Weather &amp; River Watch</strong> (<a href="https://weather.topnepali.com" class="text-blue-600 font-bold hover:underline">weather.topnepali.com</a>), you agree to comply with and be bound by these Terms of Service and all applicable laws of Nepal. If you do not agree, please do not use this portal.
+      </p>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        2. Public Information &amp; Data Integrity
+      </h2>
+      <p class="mb-3">
+        This platform aggregates public hydrometeorological data provided by the <strong>Department of Hydrology and Meteorology (DHM)</strong> and the <strong>Meteorological Forecasting Division (MFD)</strong> of Nepal.
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
+        <li>While we maintain rigorous 10-minute cache synchronization and edge uptime, automated remote telemetry sensors may occasionally undergo telemetry packet loss or field maintenance.</li>
+        <li>Official governmental hazard sirens and direct district administration broadcasts take precedence during active national emergency declarations.</li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        3. Acceptable Use
+      </h2>
+      <p class="mb-3">
+        You may access and utilize this portal for personal, humanitarian, scientific research, and educational purposes. You agree not to:
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
+        <li>Launch Denial of Service (DoS/DDoS) attacks or deliberately overload edge API endpoints.</li>
+        <li>Misrepresent portal data to create unauthorized mass public panic.</li>
+        <li>Scrape or mirror the portal in a manner that degrades service availability for citizens during emergency flood events.</li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        4. Intellectual Property &amp; Attribution
+      </h2>
+      <p>
+        All site layout code, design systems, vector graphics, and data visualization software are the intellectual property of Top Nepali. The raw weather measurements remain under the stewardship of the Government of Nepal (DHM/MFD).
+      </p>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        5. Limitation of Liability
+      </h2>
+      <p>
+        In no event shall Top Nepali or its contributors be held liable for any damages resulting from reliance on the meteorological or river sensor readings displayed on this portal. Always cross-verify critical life-safety choices with official local disaster authorities and the flood hotline (1155).
+      </p>
+    </section>
+  </article>
+</BaseLayout>

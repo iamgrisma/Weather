@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+export const prerender = false;
+
+const title = 'अस्वीकरण (Disclaimer) | नेपाल जल तथा मौसम पोर्टल';
+const description = 'नेपाल जल तथा मौसम पोर्टलको आधिकारिक अस्वीकरण। स्वचालित सेन्सर तथ्याङ्कको प्रकृति, विपद् निर्णय र आपतकालीन निर्देशनहरू।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Semantic Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">अस्वीकरण</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/20">
+        <Icon name="alert-triangle" class="w-5 h-5 text-white" />
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+        मौसम तथा बाढी सम्बन्धी अस्वीकरण (Disclaimer)
+      </h1>
+    </div>
+    <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+      स्वचालित सेन्सर तथ्याङ्क, मौसमी सम्भाव्यता र जीवन सुरक्षा सम्बन्धी अत्यावश्यक जानकारी।
+    </p>
+  </header>
+
+  <!-- Content Section -->
+  <article class="space-y-6 text-sm text-slate-700 leading-relaxed">
+    <section class="rounded-2xl border-2 border-amber-300 bg-amber-50/50 p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-amber-950 mb-2">
+        १. स्वचालित टेलिमेट्री सेन्सरको प्राविधिक वास्तविकता
+      </h2>
+      <p class="text-xs sm:text-sm text-amber-900 leading-relaxed">
+        नेपालका विकट पहाडी तथा हिमाली नदीहरूमा जडान गरिएका स्वचालित जलसतह मापन यन्त्र (Water Level Gauge) तथा मौसमी केन्द्रहरू अत्यन्तै प्रतिकूल मौसममा सञ्चालन हुन्छन्। भीषण चट्याङ, पहिरो, गेग्रान वा सोलार ब्याट्री अभावका कारण कहिलेकाहीं केही केन्द्रहरूको तथ्याङ्क प्रसारणमा अस्थायी अवरोध आउन सक्छ।
+      </p>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        २. आपतकालीन उद्धार तथा सुरक्षा निर्देशन
+      </h2>
+      <p class="mb-3">
+        यो पोर्टल नागरिक सचेतना तथा विपद् पूर्वतयारीमा सहयोग पुर्‍याउन तयार पारिएको हो।
+      </p>
+      <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-xs sm:text-sm text-red-950 font-semibold mb-3">
+        बाढीको प्रत्यक्ष खतरा देखिएमा वा सरकारी साइरन बजेमा मोबाइल स्क्रिनको तथ्याङ्क कुरेर नबसी तुरुन्तै सुरक्षित र अग्लो स्थानतर्फ जानुहोला। स्थानीय प्रशासन तथा सुरक्षाकर्मीको निर्देशन नै सर्वोपरि हुन्छ।
+      </div>
+      <p class="text-xs text-slate-500">
+        बाढीको आपतकालीन अवस्थामा सधैं आधिकारिक टोल-फ्री हटलाइन <strong>११५५</strong> मा सिधै सम्पर्क गर्नुहोस्।
+      </p>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        ३. हिमाल आरोहण तथा उडान सम्बन्धी जानकारी
+      </h2>
+      <p class="mb-3">
+        हिमाली क्षेत्रको मौसम स्थानीय हावा र उपत्यकाको बनावटका कारण केही मिनेटमै फेरिन सक्छ।
+      </p>
+      <p class="text-xs sm:text-sm text-slate-600">
+        हिमाल आरोहण दल, पदयात्री र हेलिकप्टर/विमान चालकहरूले उडान वा आरोहण अघि त्रिभुवन अन्तर्राष्ट्रिय विमानस्थलस्थित मौसम पूर्वानुमान महाशाखाको आधिकारिक डेस्क (०१-४११३१९१) मा अनिवार्य सम्पर्क गर्न अनुरोध गरिन्छ।
+      </p>
+    </section>
+  </article>
+</BaseLayout>

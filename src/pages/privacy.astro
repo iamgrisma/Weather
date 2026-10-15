@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+
+export const prerender = false;
+
+const title = 'Privacy Policy | Nepal Weather & River Watch Portal | Top Nepali';
+const description = 'Privacy policy and data protection practices of Nepal Weather & River Watch Portal by Top Nepali. Zero personal data collection, cookies, and analytics policy.';
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <!-- Semantic Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/" class="hover:underline">Home</a>
+      <span>/</span>
+      <span class="text-slate-600">Privacy Policy</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+        <Icon name="check" class="w-5 h-5 text-white" />
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+        Privacy Policy
+      </h1>
+    </div>
+    <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+      Effective Date: October 2026 • Published by Top Nepali Network
+    </p>
+  </header>
+
+  <!-- Content Section -->
+  <article class="space-y-6 text-sm text-slate-700 leading-relaxed">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        1. Our Core Privacy Commitment: Zero Personal Data Collection
+      </h2>
+      <p class="mb-3">
+        <strong>Nepal Weather &amp; River Watch</strong> (<a href="https://weather.topnepali.com" class="text-blue-600 font-bold hover:underline">weather.topnepali.com</a>) is committed to protecting your privacy. We believe that public emergency weather and river flood information should be universally accessible without surveillance or registration hurdles.
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
+        <li><strong>No Account Registration</strong>: You do not need to create an account, log in, or provide your name, phone number, or email to access live weather or flood alerts.</li>
+        <li><strong>Zero Location Tracking</strong>: We do NOT track or store your exact GPS coordinates or device location. Province and basin filters are handled entirely on your browser.</li>
+        <li><strong>Zero Data Selling</strong>: We never sell, monetize, or trade visitor data or browsing history to data brokers.</li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        2. Web Analytics (Google Analytics 4)
+      </h2>
+      <p class="mb-3">
+        To understand aggregate portal performance, peak visitor traffic during monsoon flood crises, and bandwidth distribution, we utilize <strong>Google Analytics 4 (GA4)</strong>.
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600 mb-3">
+        <li>GA4 collects aggregated metrics (e.g. general geographic region, browser type, pages viewed).</li>
+        <li>IP anonymization is enabled by default.</li>
+        <li><strong>Strict Staging Isolation</strong>: Analytics scripts run exclusively on our production domain (<code class="bg-slate-100 px-1 py-0.5 rounded text-xs">weather.topnepali.com</code>). All staging or preview environments (<code class="bg-slate-100 px-1 py-0.5 rounded text-xs">*.pages.dev</code>, <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">*.workers.dev</code>, <code class="bg-slate-100 px-1 py-0.5 rounded text-xs">localhost</code>) are strictly isolated with zero trackers.</li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        3. Advertising Governance (Google AdSense)
+      </h2>
+      <p class="mb-3">
+        To sustain the server infrastructure, automated edge-caching workers, and continuous bandwidth required for real-time sensor processing, standard non-intrusive advertisements may appear on English production pages through Google AdSense.
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
+        <li>Google AdSense uses cookies to serve ads based on prior visits to websites.</li>
+        <li>You may opt out of personalized advertising by visiting <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Google Ads Settings</a>.</li>
+        <li><strong>Strict Language &amp; Environment Isolation</strong>: AdSense scripts are completely omitted from the Nepali edition (<code class="bg-slate-100 px-1 py-0.5 rounded text-xs">/ne/*</code>) and all non-production environments to avoid invalid activity.</li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        4. Edge Infrastructure &amp; Technical Logs
+      </h2>
+      <p class="mb-3">
+        Our services are deployed via Cloudflare's global edge network. Cloudflare may process transient technical HTTP request headers (IP address, user-agent, requested URL) to defend against DDoS attacks, safeguard network stability, and deliver low-latency caching in Nepal.
+      </p>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        5. Contact Us Regarding Privacy
+      </h2>
+      <p class="text-xs sm:text-sm">
+        If you have questions or concerns regarding our privacy practices, please contact us at: <a href="mailto:contact@topnepali.com" class="text-blue-600 font-bold hover:underline">contact@topnepali.com</a>.
+      </p>
+    </section>
+  </article>
+</BaseLayout>

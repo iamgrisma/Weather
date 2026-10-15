@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+export const prerender = false;
+
+const title = 'सेवाका सर्तहरू (Terms of Service) | नेपाल जल तथा मौसम पोर्टल';
+const description = 'नेपाल जल तथा मौसम पोर्टल प्रयोगका सर्तहरू। सार्वजनिक डाटाको उपयोग, विपद् पूर्वतयारी र प्रयोगकर्ताको जिम्मेवारी सम्बन्धी नियमहरू।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Semantic Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">सेवाका सर्तहरू</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+        <Icon name="document" class="w-5 h-5 text-white" />
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+        सेवाका सर्तहरू (Terms of Service)
+      </h1>
+    </div>
+    <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+      नेपाल जल तथा मौसम पोर्टल प्रयोग गर्दा लागू हुने नियम र सर्तहरू।
+    </p>
+  </header>
+
+  <!-- Content Section -->
+  <article class="space-y-6 text-sm text-slate-700 leading-relaxed">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        १. सर्तहरूको स्वीकृति
+      </h2>
+      <p>
+        <strong>नेपाल वेदर पोर्टल</strong> (<a href="https://weather.topnepali.com/ne" class="text-blue-600 font-bold hover:underline">weather.topnepali.com</a>) प्रयोग गर्दा तपाईं यी सर्तहरू तथा नेपालका प्रचलित कानुनहरू मान्न सहमत हुनुहुन्छ। यदि तपाईं यी सर्तहरूमा सहमत हुनुहुन्न भने कृपया यो वेबसाइट प्रयोग नगर्नुहोला।
+      </p>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        २. सार्वजनिक सूचना तथा तथ्याङ्कको प्रकृति
+      </h2>
+      <p class="mb-3">
+        यस पोर्टलमा प्रदर्शित सम्पूर्ण मौसम तथा बाढी सम्बन्धी विवरण नेपाल सरकारको <strong>जल तथा मौसम विज्ञान विभाग (DHM)</strong> र <strong>मौसम पूर्वानुमान महाशाखा (MFD)</strong> द्वारा सार्वजनिक गरिएका आधिकारिक फिडहरूमा आधारित छन्।
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
+        <li>बाढी-पहिरो वा भीषण मौसमी आपतकालको समयमा स्थानीय प्रशासन, जिल्ला विपद् व्यवस्थापन समिति र सरकारी साइरनको आधिकारिक निर्देशन नै अन्तिम र सर्वोपरि हुनेछ।</li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        ३. प्रयोगका सीमाहरू
+      </h2>
+      <p class="mb-3">
+        प्रयोगकर्ताहरूले यस पोर्टलको डाटा व्यक्तिगत जानकारी, शैक्षिक अध्ययन वा मानवीय उद्धार प्रयोजनका लागि निःशुल्क प्रयोग गर्न सक्नेछन्। तर:
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
+        <li>पोर्टलको सर्भरमा अनावश्यक भार पार्ने गरी अनधिकृत स्क्र्यापिङ वा DDoS आक्रमण गर्न पाइने छैन।</li>
+        <li>पोर्टलको डाटा तोडमरोड गरी सर्वसाधारणमा त्रास सिर्जना हुने गरी गलत प्रचार गर्न पाइने छैन।</li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        ४. दायित्वको सीमा
+      </h2>
+      <p>
+        यस पोर्टलमा दिइएका तथ्याङ्कलाई नागरिक सतर्कताका लागि अधिकतम शुद्ध बनाउने प्रयास गरिएको छ। यद्यपि प्रविधि वा टेलिमेट्री सेन्सरमा आउन सक्ने अस्थायी गडबडीका कारण हुन पुग्ने कुनै पनि प्रत्यक्ष वा अप्रत्यक्ष क्षतिको दायित्व Top Nepali ले लिने छैन।
+      </p>
+    </section>
+  </article>
+</BaseLayout>

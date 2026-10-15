@@ -13,6 +13,11 @@ const routes = [
   { path: '/special-weather', priority: '0.7', changefreq: 'daily' },
   { path: '/press-releases', priority: '0.7', changefreq: 'daily' },
   { path: '/sitemap', priority: '0.6', changefreq: 'weekly' },
+  { path: '/about', priority: '0.6', changefreq: 'monthly' },
+  { path: '/contact', priority: '0.6', changefreq: 'monthly' },
+  { path: '/privacy', priority: '0.4', changefreq: 'yearly' },
+  { path: '/terms', priority: '0.4', changefreq: 'yearly' },
+  { path: '/disclaimer', priority: '0.4', changefreq: 'yearly' },
 ];
 
 export const GET: APIRoute = () => {

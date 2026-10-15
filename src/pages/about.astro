@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+
+export const prerender = false;
+
+const title = 'About Us | Nepal Weather & River Watch Portal | Top Nepali';
+const description = 'Learn about Nepal Weather & River Watch Portal by Top Nepali. Providing real-time hydrological telemetry, flood alerts, and high-altitude meteorological data across Nepal.';
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <!-- Semantic Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/" class="hover:underline">Home</a>
+      <span>/</span>
+      <span class="text-slate-600">About Us</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+        <Icon name="info" class="w-5 h-5 text-white" />
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+        About Nepal Weather & River Watch
+      </h1>
+    </div>
+    <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+      An open digital public surveillance initiative by Top Nepali delivering real-time flood early warnings and high-altitude meteorological intelligence.
+    </p>
+  </header>
+
+  <!-- Content Section -->
+  <article class="space-y-6 text-sm text-slate-700 leading-relaxed">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-lg font-black text-slate-900 mb-3 flex items-center gap-2">
+        <Icon name="waves" class="w-5 h-5 text-blue-600" />
+        <span>Our Mission &amp; Purpose</span>
+      </h2>
+      <p class="mb-3">
+        Nepal's diverse topography—ranging from the low-lying southern Terai plains (60m) to the highest summits of the Himalayas (8,848.86m)—makes it exceptionally vulnerable to rapid flash floods, glacial lake outburst floods (GLOFs), cloudbursts, and severe weather disruptions.
+      </p>
+      <p>
+        <strong>Nepal Weather &amp; River Watch</strong> (<a href="https://weather.topnepali.com" class="text-blue-600 font-bold hover:underline">weather.topnepali.com</a>) was created by <strong>Top Nepali</strong> to bridge the critical gap between raw scientific hydrometeorological telemetry and the public. We process live data from automated sensor stations, synoptic forecast models, and river radar feeds into accessible, zero-latency dashboards accessible on any mobile device.
+      </p>
+    </section>
+
+    <!-- Key Pillars Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center gap-2 mb-2 font-black text-slate-900">
+          <Icon name="alert-triangle" class="w-4 h-4 text-red-600" />
+          <h3>River Watch &amp; Flood Alerts</h3>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Real-time surveillance of 165 river monitoring stations across the Koshi, Gandaki, Karnali, Mahakali, Bagmati, and West Rapti basins with automated warning and danger threshold tracking.
+        </p>
+      </section>
+
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center gap-2 mb-2 font-black text-slate-900">
+          <Icon name="mountain" class="w-4 h-4 text-indigo-600" />
+          <h3>High Himalayan Telemetry</h3>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Specialized atmospheric metrics across 3,000m, 5,500m (Base Camp), 7,000m, and 9,000m (Summit Ridges) covering Everest, Annapurna, Manaslu, and high-altitude trekking corridors.
+        </p>
+      </section>
+
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center gap-2 mb-2 font-black text-slate-900">
+          <Icon name="layers" class="w-4 h-4 text-emerald-600" />
+          <h3>Multi-Model Predictions</h3>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Integration of WRF Numerical Weather Prediction (NWP) models, 3-day synoptic hazard bulletins, and live city forecast matrices across all 7 provinces.
+        </p>
+      </section>
+    </div>
+
+    <!-- Official Data Attribution -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-lg font-black text-slate-900 mb-3 flex items-center gap-2">
+        <Icon name="document" class="w-5 h-5 text-slate-700" />
+        <span>Official Data Feeds &amp; Institutional Attribution</span>
+      </h2>
+      <p class="mb-3">
+        All hydrological observations, sensor measurements, river stage hydrographs, and meteorological forecasts displayed on this portal originate directly from official government feeds operated by:
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600 mb-4">
+        <li><strong>Department of Hydrology and Meteorology (DHM)</strong>, Ministry of Energy, Water Resources and Irrigation, Government of Nepal.</li>
+        <li><strong>Meteorological Forecasting Division (MFD)</strong>, Tribhuvan International Airport, Kathmandu.</li>
+        <li><strong>Flood Forecasting Division (Hydrology Section)</strong>, Babarmahal, Kathmandu.</li>
+        <li><strong>National Disaster Risk Reduction and Management Authority (NDRRMA)</strong>, Ministry of Home Affairs, Singha Durbar.</li>
+      </ul>
+      <p class="text-xs text-slate-500">
+        We express our gratitude to the hydrologists, meteorologists, and field technicians whose automated sensor networks safeguard lives across Nepal.
+      </p>
+    </section>
+
+    <!-- Part of Top Nepali -->
+    <section class="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-blue-950 mb-2">
+        A Digital Initiative by Top Nepali
+      </h2>
+      <p class="text-xs sm:text-sm text-blue-900 leading-relaxed">
+        <strong>Nepal Weather</strong> is part of the <strong>Top Nepali</strong> knowledge and public service digital network (<a href="https://topnepali.com" target="_blank" rel="noopener noreferrer" class="font-bold underline">topnepali.com</a>). Top Nepali focuses on high-performance, mobile-first information platforms empowering citizens with election results, legislative transparency, educational resources, and live disaster resilience tools.
+      </p>
+    </section>
+  </article>
+</BaseLayout>

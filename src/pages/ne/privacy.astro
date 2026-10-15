@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+export const prerender = false;
+
+const title = 'गोपनीयता नीति (Privacy Policy) | नेपाल जल तथा मौसम पोर्टल';
+const description = 'नेपाल जल तथा मौसम पोर्टलको गोपनीयता नीति। प्रयोगकर्ताको व्यक्तिगत विवरण संकलन नगरिने, कुकिज र विज्ञापन सञ्चालन सम्बन्धी जानकारी।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Semantic Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">गोपनीयता नीति</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+        <Icon name="check" class="w-5 h-5 text-white" />
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+        गोपनीयता नीति (Privacy Policy)
+      </h1>
+    </div>
+    <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+      लागू मिति: अक्टोबर २०२६ • Top Nepali नेटवर्कद्वारा प्रकाशित
+    </p>
+  </header>
+
+  <!-- Content Section -->
+  <article class="space-y-6 text-sm text-slate-700 leading-relaxed">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        १. व्यक्तिगत विवरण संकलन नगरिने हाम्रो प्रतिबद्धता
+      </h2>
+      <p class="mb-3">
+        <strong>नेपाल वेदर पोर्टल</strong> (<a href="https://weather.topnepali.com/ne" class="text-blue-600 font-bold hover:underline">weather.topnepali.com</a>) प्रयोगकर्ताहरूको व्यक्तिगत गोपनीयताको पूर्ण सम्मान गर्दछ। सार्वजनिक सुरक्षा, बाढी सतर्कता र मौसम पूर्वानुमान सूचना कुनै पनि व्यक्तिगत विवरण नलिई निःशुल्क र खुला रूपमा उपलब्ध हुनुपर्छ भन्ने हाम्रो मान्यता छ।
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600">
+        <li><strong>कुनै दर्ता आवश्यक छैन</strong>: यो पोर्टल प्रयोग गर्न कुनै खाता बनाउनु पर्दैन र नाम, फोन नम्बर वा इमेल दिनु पर्दैन।</li>
+        <li><strong>GPS लोकेसन ट्र्याकिङ छैन</strong>: हामी तपाईंको उपकरणको वास्तविक GPS स्थान ट्र्याक वा भण्डारण गर्दैनौं।</li>
+        <li><strong>डाटा बिक्री छैन</strong>: प्रयोगकर्ताको कुनै पनि डाटा तेस्रो पक्ष वा डाटा ब्रोकरलाई बिक्री गरिँदैन।</li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        २. वेब एनालिटिक्स (Google Analytics 4)
+      </h2>
+      <p class="mb-3">
+        मनसुनको समयमा पोर्टलको सर्भर लोड, ट्राफिक र कार्यसम्पादनको निगरानी गर्न हामी Google Analytics 4 प्रयोग गर्दछौं। यसले सामूहिक रूपमा ब्राउजरको प्रकार र हेरिएका पृष्ठहरूको सामान्य जानकारी मात्र संकलन गर्दछ जसमा व्यक्तिगत पहिचान हुँदैन।
+      </p>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        ३. विज्ञापन सञ्चालन (Google AdSense)
+      </h2>
+      <p class="mb-3">
+        सर्भर खर्च र २४ घण्टे अटोमेटेड डाटा प्रोसेसिङ प्रणालीलाई निरन्तरता दिन अंग्रेजी संस्करणका पृष्ठहरूमा मर्यादित डिजिटल विज्ञापन राखिन सक्छ। नेपाली संस्करण (<code class="bg-slate-100 px-1 py-0.5 rounded text-xs">/ne/*</code>) मा विज्ञापन स्क्रिप्ट पूर्णतया निष्क्रिय राखिएको छ।
+      </p>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3">
+        ४. सम्पर्क
+      </h2>
+      <p class="text-xs sm:text-sm">
+        गोपनीयता नीति सम्बन्धी कुनै प्रश्न भएमा हामीलाई इमेल गर्न सक्नुहुन्छ: <a href="mailto:contact@topnepali.com" class="text-blue-600 font-bold hover:underline">contact@topnepali.com</a>।
+      </p>
+    </section>
+  </article>
+</BaseLayout>

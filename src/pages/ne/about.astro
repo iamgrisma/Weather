@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+export const prerender = false;
+
+const title = 'हाम्रो बारेमा (About Us) | नेपाल जल तथा मौसम पोर्टल | Top Nepali';
+const description = 'नेपाल जल तथा मौसम प्रत्यक्ष पूर्वसूचना पोर्टलको बारेमा। जल तथा मौसम विज्ञान विभागको आधिकारिक डाटामा आधारित २४ सै घण्टा बाढी तथा मौसमी सतर्कता प्रणाली।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Semantic Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">हाम्रो बारेमा</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+        <Icon name="info" class="w-5 h-5 text-white" />
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+        हाम्रो बारेमा (About Nepal Weather)
+      </h1>
+    </div>
+    <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+      Top Nepali द्वारा सञ्चालित नेपालको पहिलो उच्च गतिको प्रत्यक्ष नदी जलसतह तथा मौसमी पूर्वसूचना पोर्टल।
+    </p>
+  </header>
+
+  <!-- Content Section -->
+  <article class="space-y-6 text-sm text-slate-700 leading-relaxed">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-lg font-black text-slate-900 mb-3 flex items-center gap-2">
+        <Icon name="waves" class="w-5 h-5 text-blue-600" />
+        <span>उद्देश्य तथा परिकल्पना</span>
+      </h2>
+      <p class="mb-3">
+        नेपालको भौगोलिक विविधता—तराईको ६० मिटर उचाइदेखि संसारकै सर्वोच्च शिखर सगरमाथा (८,८४८.८६ मिटर) सम्म—मौसम र बाढीको दृष्टिकोणले निकै संवेदनशील छ। मनसुनको समयमा आउने अचानक बाढी (Flash Flood), पहिरो तथा उच्च हिमाली क्षेत्रको तीव्र मौसम परिवर्तनले बर्सेनि जनधनको ठूलो क्षति पुर्‍याउँदै आएको छ।
+      </p>
+      <p>
+        <strong>नेपाल वेदर पोर्टल</strong> (<a href="https://weather.topnepali.com/ne" class="text-blue-600 font-bold hover:underline">weather.topnepali.com</a>) नागरिकहरूलाई कुनै पनि ढिलाइ नगरी मोबाइलमै आधिकारिक बाढी सतर्कता, नदीको जलसतह र मौसमको प्रत्यक्ष जानकारी उपलब्ध गराउने उद्देश्यले स्थापना गरिएको खुला डिजिटल सेवा हो।
+      </p>
+    </section>
+
+    <!-- Key Pillars Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center gap-2 mb-2 font-black text-slate-900">
+          <Icon name="alert-triangle" class="w-4 h-4 text-red-600" />
+          <h3>नदी तथा बाढी निगरानी</h3>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          कोशी, गण्डकी, कर्णाली, महाकाली, बागमती र पश्चिम राप्ती बेसिनका १६५ भन्दा बढी केन्द्रहरूको प्रत्यक्ष जलसतह र चेतावनी तहको २४ घण्टा अपडेट।
+        </p>
+      </section>
+
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center gap-2 mb-2 font-black text-slate-900">
+          <Icon name="mountain" class="w-4 h-4 text-indigo-600 shrink-0" />
+          <h3>उच्च हिमाली मौसमी तह</h3>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          सगरमाथा, अन्नपूर्ण, मनास्लु लगायतका हिमालहरूको ३००० मिटर, ५५०० मिटर (आधार शिविर), ७००० मिटर र ९००० मिटर (शिखर) तहको वायुगति, दिशा र तापक्रम।
+        </p>
+      </section>
+
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center gap-2 mb-2 font-black text-slate-900">
+          <Icon name="layers" class="w-4 h-4 text-emerald-600" />
+          <h3>सहर तथा मोडेल पूर्वानुमान</h3>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          देशका १९ प्रमुख सहरहरूको बहुदिने मौसम, WRF गणितीय पूर्वानुमान नक्सा र जल तथा मौसम विज्ञान विभागका ३ दिने आधिकारिक बुलेटिनहरू।
+        </p>
+      </section>
+    </div>
+
+    <!-- Official Data Sources -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+      <h2 class="text-lg font-black text-slate-900 mb-3 flex items-center gap-2">
+        <Icon name="document" class="w-5 h-5 text-slate-700" />
+        <span>आधिकारिक तथ्याङ्क स्रोत तथा आभार</span>
+      </h2>
+      <p class="mb-3">
+        यस पोर्टलमा प्रदर्शित सम्पूर्ण मौसम पूर्वानुमान, नदी जलसतह र बाढी चेतावनी नेपाल सरकारका आधिकारिक निकायहरूद्वारा सञ्चालित स्वचालित सेन्सर तथा विश्लेषणबाट प्राप्त हुन्छ:
+      </p>
+      <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-600 mb-4">
+        <li><strong>जल तथा मौसम विज्ञान विभाग (DHM)</strong>, ऊर्जा, जलस्रोत तथा सिँचाइ मन्त्रालय, नेपाल सरकार।</li>
+        <li><strong>मौसम पूर्वानुमान महाशाखा (MFD)</strong>, त्रिभुवन अन्तर्राष्ट्रिय विमानस्थल, काठमाडौं।</li>
+        <li><strong>बाढी पूर्वानुमान शाखा</strong>, बबरमहल, काठमाडौं।</li>
+        <li><strong>राष्ट्रिय विपद् जोखिम न्यूनीकरण तथा व्यवस्थापन प्राधिकरण (NDRRMA)</strong>, गृह मन्त्रालय।</li>
+      </ul>
+      <p class="text-xs text-slate-500">
+        नागरिकको ज्यान र सम्पत्तिको सुरक्षाका लागि निरन्तर कार्यरत सम्पूर्ण जल तथा मौसमविद् र प्राविधिकहरूप्रति हामी हार्दिक कृतज्ञता व्यक्त गर्दछौं।
+      </p>
+    </section>
+
+    <!-- Part of Top Nepali -->
+    <section class="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 sm:p-8 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-blue-950 mb-2">
+        Top Nepali सञ्जालको एक डिजिटल पहल
+      </h2>
+      <p class="text-xs sm:text-sm text-blue-900 leading-relaxed">
+        <strong>Nepal Weather</strong> पोर्टल <strong>Top Nepali</strong> (<a href="https://topnepali.com" target="_blank" rel="noopener noreferrer" class="font-bold underline">topnepali.com</a>) मिडिया तथा नलेज नेटवर्कको एक अङ्ग हो। Top Nepali ले नागरिकहरूलाई निर्वाचन परिणाम, संवैधानिक तथा कानुनी सूचना, र विपद् पूर्वतयारीमा सहज डिजिटल पहुँच प्रदान गर्दै आएको छ।
+      </p>
+    </section>
+  </article>
+</BaseLayout>

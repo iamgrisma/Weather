@@ -6,6 +6,8 @@ interface Props {
   description: string;
   lang?: 'en' | 'ne';
   canonicalPath?: string;
+  schema?: Record<string, any> | Record<string, any>[];
+  ogImage?: string;
 }
 
 const {
@@ -13,6 +15,8 @@ const {
   description,
   lang = 'en',
   canonicalPath = Astro.url.pathname,
+  schema,
+  ogImage = 'https://weather.topnepali.com/favicon.svg',
 } = Astro.props;
 
 const isNe = lang === 'ne';
@@ -30,6 +34,69 @@ const host = Astro.url.hostname;
 const isProduction = host === 'weather.topnepali.com';
 const allowAdSense = isProduction && !isNe;
 const allowTrackers = isProduction;
+
+// Schema.org Structured Data
+const defaultSchemas: Record<string, any>[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Nepal Weather & River Watch',
+    alternateName: ['Nepal Weather', 'Top Nepali Weather', 'नेपाल जल तथा मौसम'],
+    url: siteUrl,
+    inLanguage: ['en', 'ne'],
+    publisher: {
+      '@type': 'Organization',
+      name: 'Top Nepali',
+      url: 'https://topnepali.com',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/favicon.svg`,
+      },
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': cleanPath.includes('/about')
+      ? 'AboutPage'
+      : cleanPath.includes('/contact')
+      ? 'ContactPage'
+      : 'WebPage',
+    name: title,
+    description: description,
+    url: canonicalUrl,
+    inLanguage: lang,
+    isPartOf: {
+      '@type': 'WebSite',
+      url: siteUrl,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: isNe ? 'गृहपृष्ठ' : 'Home',
+          item: isNe ? `${siteUrl}/ne` : siteUrl,
+        },
+        ...(cleanPath !== '/' && cleanPath !== '/ne'
+          ? [
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: title.split('|')[0].trim(),
+                item: canonicalUrl,
+              },
+            ]
+          : []),
+      ],
+    },
+  },
+];
+
+const allSchemas = [
+  ...defaultSchemas,
+  ...(Array.isArray(schema) ? schema : schema ? [schema] : []),
+];
 ---
 
 <!doctype html>
@@ -67,10 +134,18 @@ const allowTrackers = isProduction;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Nepal Weather & River Watch" />
+    <meta property="og:site_name" content="Nepal Weather & River Watch | Top Nepali" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={isNe ? 'ne_NP' : 'en_US'} />
+    <meta property="og:locale:alternate" content={isNe ? 'en_US' : 'ne_NP'} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@topnepali" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(allSchemas)} />
 
     <!-- Google AdSense (Strictly English Production Only; zero ads on /ne or preview) -->
     {allowAdSense && (
@@ -260,32 +335,156 @@ const allowTrackers = isProduction;
       <slot />
     </main>
 
-    <!-- Footer -->
-    <footer class="mt-12 border-t border-slate-200 bg-white py-8 text-xs text-slate-500">
-      <div class="mx-auto max-w-6xl px-4 sm:px-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="font-bold text-slate-800">
-            {isNe ? 'नेपाल जल तथा मौसम प्रत्यक्ष पूर्वसूचना' : 'Nepal Real-Time Weather & River Watch Portal'}
-          </p>
-          <p class="mt-0.5 text-[11px] text-slate-500">
-            {isNe
-              ? 'जल तथा मौसम विज्ञान विभाग (DHM) र मौसम पूर्वानुमान महाशाखा (MFD) को आधिकारिक डाटामा आधारित।'
-              : 'Direct live feeds from the Department of Hydrology & Meteorology (DHM) and Meteorological Forecasting Division (MFD).'}
-          </p>
+    <!-- Multi-Column Responsive Footer -->
+    <footer class="mt-16 border-t border-slate-200 bg-white pt-10 pb-8 text-xs text-slate-500">
+      <div class="mx-auto max-w-6xl px-4 sm:px-6">
+        <!-- 3-Column Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-slate-100">
+          <!-- Column 1: Brand & Regional Telemetry Authority -->
+          <div class="space-y-3">
+            <div class="flex items-center gap-2.5">
+              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+                <Icon name="waves" class="w-4 h-4 text-white" />
+              </span>
+              <div>
+                <span class="text-sm font-black text-slate-900 tracking-tight block">
+                  {isNe ? 'नेपाल जल तथा मौसम पोर्टल' : 'Nepal Weather & River Watch'}
+                </span>
+                <span class="text-[11px] font-semibold text-blue-700">
+                  {isNe ? 'प्रत्यक्ष बाढी तथा मौसमी पूर्वसूचना' : 'Real-Time Hydrology & Meteorology'}
+                </span>
+              </div>
+            </div>
+            <p class="text-[11px] leading-relaxed text-slate-500">
+              {isNe
+                ? 'जल तथा मौसम विज्ञान विभाग (DHM) र मौसम पूर्वानुमान महाशाखा (MFD) को प्रत्यक्ष सेन्सर तथ्याङ्क। नेपालका ७ प्रदेश, ७७ जिल्ला र १६५ नदी बेसिनहरूको निरन्तर डिजिटल पूर्वसूचना।'
+                : 'Automated real-time early warning network providing live telemetry across 165 river basins, 77 districts, 7 provinces, and 8,000m+ Himalayan climbing peaks using official DHM & MFD sensor feeds.'}
+            </p>
+            <div class="pt-1 flex items-center gap-2 text-[11px] font-bold text-slate-600">
+              <span class="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>{isNe ? 'प्रणाली सक्रिय (Edge Network)' : 'Edge Telemetry Network Active'}</span>
+            </div>
+          </div>
+
+          <!-- Column 2: Observatories & Forecast Hubs -->
+          <div>
+            <h4 class="text-xs font-black uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
+              <Icon name="layers" class="w-3.5 h-3.5 text-blue-600" />
+              <span>{isNe ? 'मुख्य मौसमी तथा बाढी केन्द्र' : 'Observatories & Forecast Hubs'}</span>
+            </h4>
+            <ul class="space-y-2 text-[11px]">
+              <li>
+                <a href={isNe ? '/ne/river-watch' : '/river-watch'} class="hover:text-blue-600 hover:underline flex items-center justify-between">
+                  <span>{isNe ? 'प्रत्यक्ष नदी जलसतह तथा बाढी निगरानी' : 'Live River Watch & Flood Alerts'}</span>
+                  <span class="text-slate-300">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href={isNe ? '/ne/special-weather' : '/special-weather'} class="hover:text-blue-600 hover:underline flex items-center justify-between">
+                  <span>{isNe ? 'विशेष मौसमी चेतावनी तथा नक्सा' : 'Special Weather & Hazard Bulletins'}</span>
+                  <span class="text-slate-300">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href={isNe ? '/ne/mountaineering' : '/mountaineering'} class="hover:text-blue-600 hover:underline flex items-center justify-between">
+                  <span>{isNe ? 'हिमाल आरोहण तथा उच्च हिमाली तह' : 'High Himalayan Peaks & Telemetry'}</span>
+                  <span class="text-slate-300">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href={isNe ? '/ne/city-forecast' : '/city-forecast'} class="hover:text-blue-600 hover:underline flex items-center justify-between">
+                  <span>{isNe ? '१९ प्रमुख सहरहरूको मौसमी पूर्वानुमान' : '19 Major Cities Weather Forecast'}</span>
+                  <span class="text-slate-300">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href={isNe ? '/ne/bulletin' : '/bulletin'} class="hover:text-blue-600 hover:underline flex items-center justify-between">
+                  <span>{isNe ? '३ दिने राष्ट्रिय मौसमी बुलेटिन' : '3-Day Synoptic Weather Bulletins'}</span>
+                  <span class="text-slate-300">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href={isNe ? '/ne/nwp' : '/nwp'} class="hover:text-blue-600 hover:underline flex items-center justify-between">
+                  <span>{isNe ? 'NWP गणितीय मौसम मोडेल नक्सा' : 'NWP Numerical Weather Prediction'}</span>
+                  <span class="text-slate-300">↗</span>
+                </a>
+              </li>
+              <li>
+                <a href={isNe ? '/ne/press-releases' : '/press-releases'} class="hover:text-blue-600 hover:underline flex items-center justify-between">
+                  <span>{isNe ? 'आधिकारिक सरकारी प्रेस विज्ञप्ति' : 'Official DHM Press Releases'}</span>
+                  <span class="text-slate-300">↗</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 3: Emergency Hotlines & Contacts -->
+          <div>
+            <h4 class="text-xs font-black uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
+              <Icon name="alert-triangle" class="w-3.5 h-3.5 text-red-600" />
+              <span>{isNe ? 'आपतकालीन हटलाइन तथा सहयोग' : 'Emergency Helplines & Data'}</span>
+            </h4>
+            <div class="space-y-2.5 text-[11px]">
+              <div class="rounded-xl border border-red-200 bg-red-50/60 p-2.5">
+                <span class="font-bold text-red-900 block">
+                  {isNe ? 'बाढी आपतकालीन हटलाइन (Toll Free):' : 'Emergency Flood Toll-Free Hotline:'}
+                </span>
+                <span class="text-base font-black text-red-700 tracking-wider">1155</span>
+                <p class="text-[10px] text-red-800/80 mt-0.5">
+                  {isNe ? 'मनसुन तथा बाढी जोखिममा २४ सै घण्टा खुला' : '24/7 National Emergency Flood Siren Support'}
+                </p>
+              </div>
+              <div class="rounded-xl border border-slate-200 bg-slate-50 p-2.5">
+                <span class="font-bold text-slate-800 block">
+                  {isNe ? 'मौसम पूर्वानुमान महाशाखा सोधपुछ:' : 'MFD Weather Forecast Inquiries:'}
+                </span>
+                <span class="font-mono font-bold text-slate-900">01-4113191 / 01-4113192</span>
+              </div>
+              <div class="flex items-center justify-between pt-1 text-[10px] text-slate-400">
+                <a href="/api/data" class="hover:text-blue-600 hover:underline">
+                  {isNe ? 'ओपन डाटा API (JSON)' : 'Open Data Feed (JSON)'}
+                </a>
+                <a href={isNe ? '/ne/sitemap' : '/sitemap'} class="hover:text-blue-600 hover:underline">
+                  {isNe ? 'दृश्य साइटम्याप' : 'Visual Sitemap'}
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-3 gap-y-1 sm:justify-end">
-          <a href={isNe ? '/ne/sitemap' : '/sitemap'} class="font-medium hover:text-blue-600 transition">
-            {isNe ? 'साइटम्याप' : 'Sitemap'}
-          </a>
-          <span class="text-slate-300">•</span>
-          <span class="inline-flex items-center gap-1.5 font-medium">
-            <span class="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-            {isNe ? 'बाढी आपतकालीन हटलाइन: ११५५ (टोल फ्री)' : 'Emergency Flood Hotline: 1155 (Toll Free)'}
-          </span>
-          <span class="text-slate-300 hidden sm:inline">•</span>
-          <span class="font-medium text-slate-500">
-            {isNe ? 'मौसम सोधपुछ: ०१-४११३१९१' : 'MFD Forecast: 01-4113191'}
-          </span>
+
+        <!-- Responsive Footerbar -->
+        <div class="pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-[11px]">
+          <!-- First: Footer Menu of Legal Pages -->
+          <nav class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-slate-600 font-medium" aria-label="Footer Legal Menu">
+            <a href={isNe ? '/ne/about' : '/about'} class="hover:text-blue-600 transition">
+              {isNe ? 'हाम्रो बारेमा (About)' : 'About Us'}
+            </a>
+            <span class="text-slate-300">•</span>
+            <a href={isNe ? '/ne/contact' : '/contact'} class="hover:text-blue-600 transition">
+              {isNe ? 'सम्पर्क (Contact)' : 'Contact'}
+            </a>
+            <span class="text-slate-300">•</span>
+            <a href={isNe ? '/ne/privacy' : '/privacy'} class="hover:text-blue-600 transition">
+              {isNe ? 'गोपनीयता नीति (Privacy)' : 'Privacy Policy'}
+            </a>
+            <span class="text-slate-300">•</span>
+            <a href={isNe ? '/ne/terms' : '/terms'} class="hover:text-blue-600 transition">
+              {isNe ? 'सेवाका सर्तहरू (Terms)' : 'Terms of Service'}
+            </a>
+            <span class="text-slate-300">•</span>
+            <a href={isNe ? '/ne/disclaimer' : '/disclaimer'} class="hover:text-blue-600 transition">
+              {isNe ? 'अस्वीकरण (Disclaimer)' : 'Disclaimer'}
+            </a>
+            <span class="text-slate-300">•</span>
+            <a href={isNe ? '/ne/sitemap' : '/sitemap'} class="hover:text-blue-600 transition">
+              {isNe ? 'साइटम्याप (Sitemap)' : 'Sitemap'}
+            </a>
+          </nav>
+
+          <!-- Next: Copyright Notice -->
+          <div class="text-slate-400 font-normal shrink-0">
+            © {new Date().getFullYear()} <strong class="font-semibold text-slate-700">Nepal Weather</strong>. A part of <a href="https://topnepali.com" target="_blank" rel="noopener noreferrer" class="font-semibold text-blue-600 hover:underline">Top Nepali</a>. All rights reserved.
+          </div>
         </div>
       </div>
     </footer>

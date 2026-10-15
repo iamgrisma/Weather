@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+
+export const prerender = false;
+
+const title = 'सम्पर्क तथा आपतकालीन हटलाइन (Contact) | नेपाल जल तथा मौसम पोर्टल';
+const description = 'नेपाल जल तथा मौसम पोर्टल तथा सरकारी आपतकालीन हटलाइनहरू। बाढी नियन्त्रण ११५५, विपद् प्राधिकरण ११४९, र मौसम सोधपुछ सम्पर्क।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Semantic Header -->
+  <header class="mb-8">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">सम्पर्क</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+        <Icon name="megaphone" class="w-5 h-5 text-white" />
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+        सम्पर्क तथा आपतकालीन हटलाइन
+      </h1>
+    </div>
+    <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+      नेपाल सरकारका बाढी तथा विपद् आपतकालीन हटलाइन, मौसम पूर्वानुमान महाशाखा र प्राविधिक सहयोग सम्पर्क।
+    </p>
+  </header>
+
+  <!-- Emergency Hotlines Alert Box -->
+  <section class="mb-8 rounded-2xl border-2 border-red-500 bg-red-50/70 p-6 sm:p-8 shadow-sm">
+    <div class="flex items-start gap-3">
+      <Icon name="alert-triangle" class="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+      <div>
+        <h2 class="text-base sm:text-lg font-black text-red-950 mb-1">
+          बाढी तथा विपद् आपतकालीन हटलाइनहरू (२४ सै घण्टा खुला)
+        </h2>
+        <p class="text-xs sm:text-sm text-red-900 mb-4">
+          तपाईंको क्षेत्रमा अचानक नदीको जलसतह बढेमा वा बाढी-पहिरोको प्रत्यक्ष जोखिम देखिएमा तुरुन्तै यी नम्बरहरूमा सम्पर्क गर्नुहोस्:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div class="rounded-xl border border-red-200 bg-white p-4 shadow-2xs">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">बाढी टोल-फ्री हटलाइन</span>
+            <span class="text-2xl font-black text-red-600 block mt-1">११५५</span>
+            <span class="text-[11px] text-slate-500 mt-0.5 block">जल तथा मौसम विज्ञान विभाग</span>
+          </div>
+
+          <div class="rounded-xl border border-red-200 bg-white p-4 shadow-2xs">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">विपद् व्यवस्थापन (NDRRMA)</span>
+            <span class="text-2xl font-black text-red-600 block mt-1">११४९</span>
+            <span class="text-[11px] text-slate-500 mt-0.5 block">राष्ट्रिय आपतकालीन कार्यसञ्चालन केन्द्र</span>
+          </div>
+
+          <div class="rounded-xl border border-red-200 bg-white p-4 shadow-2xs">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">नेपाल प्रहरी आपतकालीन</span>
+            <span class="text-2xl font-black text-red-600 block mt-1">१००</span>
+            <span class="text-[11px] text-slate-500 mt-0.5 block">उद्धार तथा पहिलो प्रतिकार्य</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Institutional & Media Contact Details -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3 flex items-center gap-2">
+        <Icon name="city" class="w-5 h-5 text-blue-600" />
+        <span>आधिकारिक मौसम सोधपुछ (DHM / MFD)</span>
+      </h2>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+        दैनिक मौसम पूर्वानुमान, उडान मौसम र हिमाल आरोहण मौसमी जानकारीका लागि:
+      </p>
+
+      <ul class="space-y-3 text-xs sm:text-sm">
+        <li class="flex items-start gap-2.5">
+          <Icon name="map-pin" class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+          <div>
+            <strong>मौसम पूर्वानुमान महाशाखा (MFD)</strong>
+            <p class="text-xs text-slate-500">त्रिभुवन अन्तर्राष्ट्रिय विमानस्थल, सिनामंगल, काठमाडौं</p>
+          </div>
+        </li>
+        <li class="flex items-center gap-2.5">
+          <Icon name="info" class="w-4 h-4 text-slate-400 shrink-0" />
+          <div>
+            <strong>मौसम सोधपुछ फोन:</strong>
+            <span class="font-mono text-slate-700 ml-1">०१-४११३१९१ / ०१-४११३१९२</span>
+          </div>
+        </li>
+        <li class="flex items-center gap-2.5">
+          <Icon name="waves" class="w-4 h-4 text-slate-400 shrink-0" />
+          <div>
+            <strong>बाढी पूर्वानुमान शाखा:</strong>
+            <span class="font-mono text-slate-700 ml-1">०१-४२५९८३३ / बबरमहल</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-base sm:text-lg font-black text-slate-900 mb-3 flex items-center gap-2">
+        <Icon name="lightbulb" class="w-5 h-5 text-amber-500" />
+        <span>Top Nepali प्राविधिक सम्पर्क</span>
+      </h2>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+        वेबसाइट सम्बन्धी सुझाव, डाटा इन्टिग्रेशन वा प्राविधिक त्रुटि रिपोर्टका लागि:
+      </p>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div class="rounded-xl bg-slate-50 p-3.5 border border-slate-100">
+          <span class="text-xs text-slate-400 block font-semibold">इमेल सम्पर्क:</span>
+          <a href="mailto:contact@topnepali.com" class="text-blue-600 font-bold hover:underline">contact@topnepali.com</a>
+        </div>
+        <div class="rounded-xl bg-slate-50 p-3.5 border border-slate-100">
+          <span class="text-xs text-slate-400 block font-semibold">डिजिटल सञ्जाल:</span>
+          <a href="https://topnepali.com" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold hover:underline">topnepali.com</a>
+        </div>
+        <p class="text-[11px] text-slate-400">
+          नेपालमा विपद् पूर्वतयारी र नागरिक सुरक्षालाई बलियो बनाउन हामी स्थानीय तह र अनुसन्धान संस्थाहरूसँग सहकार्य गर्न सदैव तत्पर छौं।
+        </p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
