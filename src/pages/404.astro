@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+export const prerender = false;
+Astro.response.status = 404;
+---
+
+<BaseLayout
+  title="Page Not Found (404) | Nepal Weather & River Watch"
+  description="The requested page could not be found."
+  lang="en"
+>
+  <div class="mx-auto max-w-lg py-16 text-center">
+    <div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-3xl font-black text-slate-400">
+      404
+    </div>
+    <h1 class="mt-4 text-2xl font-black text-slate-900">
+      Page Not Found
+    </h1>
+    <p class="mt-2 text-xs text-slate-500">
+      The page or station you are looking for does not exist or has been relocated.
+    </p>
+    <div class="mt-6 flex justify-center gap-3">
+      <a
+        href="/"
+        class="rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-blue-700 transition"
+      >
+        Back to Overview
+      </a>
+      <a
+        href="/river-watch"
+        class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition"
+      >
+        View River Watch
+      </a>
+    </div>
+  </div>
+</BaseLayout>

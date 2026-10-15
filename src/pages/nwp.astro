@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RefreshBar from '../components/RefreshBar.astro';
+import NwpInteractiveMap from '../components/NwpInteractiveMap.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'Numerical Weather Prediction (NWP) WRF Models | Nepal DHM Geoserver';
+const description = 'High-resolution atmospheric modeling products including GIDC WRF, WRFDA, GFS, and MFD UEMS for temperature, precipitation, and wind circulations across Nepal.';
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/" class="hover:underline">Home</a>
+      <span>/</span>
+      <span class="text-slate-600">NWP Models</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="inline-flex h-3.5 w-3.5 rounded-full bg-indigo-600"></span>
+      <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+        Numerical Weather Prediction (NWP) Models
+      </h1>
+    </div>
+    <p class="text-sm font-semibold text-slate-500 mt-1">
+      Operational mesoscale and global atmospheric modeling layers (WRF, WRFDA, GFS, UEMS) computed for Nepal and the Himalayan region via MFD Geoserver.
+    </p>
+  </div>
+
+  <RefreshBar
+    fetchedAt={snapshot.nwpModels?.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.nwpModels?.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="nwp"
+    lang="en"
+  />
+
+  <!-- Interactive OpenStreetMap with DHM Geoserver WMS Radar Overlays -->
+  <NwpInteractiveMap lang="en" />
+</BaseLayout>

@@ -1,0 +1,402 @@
+---
+import type { RiverStation } from '../lib/dhm/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  stations: RiverStation[];
+  lang?: 'en' | 'ne';
+  limit?: number;
+  pageSize?: number;
+}
+
+const { stations, lang = 'en', limit, pageSize = 15 } = Astro.props;
+const isNe = lang === 'ne';
+
+// Sort: DANGER first, then WARNING, then by name
+const sorted = [...stations].sort((a, b) => {
+  const score = (s: RiverStation) => (s.status === 'DANGER' ? 3 : s.status === 'WARNING' ? 2 : 1);
+  const diff = score(b) - score(a);
+  if (diff !== 0) return diff;
+  return a.name.localeCompare(b.name);
+});
+
+// If limit is set (e.g., landing page), we only render those rows.
+// Otherwise, we paginate with pageSize (default 15).
+const isSummaryMode = typeof limit === 'number' && limit > 0;
+const initialRenderList = isSummaryMode ? sorted.slice(0, limit) : sorted.slice(0, pageSize);
+
+// Distinct basins for filter dropdown
+const basins = Array.from(new Set(stations.map((s) => s.basin).filter(Boolean))).sort();
+
+// Compact serializable station representation for client-side pagination
+const clientStations = isSummaryMode ? [] : sorted.map((s) => ({
+  id: s.id,
+  name: s.name,
+  index: s.stationIndex || '',
+  basin: s.basin,
+  district: s.district || '',
+  wl: s.waterLevel,
+  wr: s.warningLevel,
+  dl: s.dangerLevel,
+  steady: s.steady,
+  status: s.status,
+}));
+---
+
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" id="river-table-container">
+  <div class="border-b border-slate-200 px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h3 class="text-base font-bold text-slate-900">
+        {isNe ? 'नदी जलसतह मापन (River Watch Observations)' : 'River Water Level Observations'}
+      </h3>
+      <p class="text-xs text-slate-500">
+        {isNe
+          ? `कुल ${stations.length} वटा स्वचालित तथा म्यानुअल केन्द्रहरू`
+          : `Tracking ${stations.length} hydrological monitoring stations across major river basins`}
+      </p>
+    </div>
+
+    {!isSummaryMode && (
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Basin Filter Dropdown -->
+        <select
+          id="river-basin-filter"
+          class="rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs text-slate-700 focus:border-blue-500 focus:bg-white focus:outline-none"
+        >
+          <option value="">{isNe ? 'सबै बेसिन (All Basins)' : 'All Basins'}</option>
+          {basins.map((b) => (
+            <option value={b}>{b}</option>
+          ))}
+        </select>
+
+        <!-- Status Filter Dropdown -->
+        <select
+          id="river-status-filter"
+          class="rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs text-slate-700 focus:border-blue-500 focus:bg-white focus:outline-none"
+        >
+          <option value="">{isNe ? 'सबै अवस्था (All Status)' : 'All Status'}</option>
+          <option value="DANGER">{isNe ? 'खतरा मात्र (Danger)' : 'Danger Only'}</option>
+          <option value="WARNING">{isNe ? 'सतर्कता मात्र (Warning)' : 'Warning Only'}</option>
+          <option value="NORMAL">{isNe ? 'सामान्य मात्र (Normal)' : 'Normal Only'}</option>
+        </select>
+
+        <!-- Search Input -->
+        <input
+          type="search"
+          id="river-search-input"
+          placeholder={isNe ? 'नदी वा केन्द्र खोज्नुहोस्...' : 'Search station or district...'}
+          class="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none"
+        />
+      </div>
+    )}
+  </div>
+
+  <!-- Datum Explanatory Banner -->
+  <div class="border-b border-slate-100 bg-slate-50/70 px-5 py-2.5 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-2">
+      <span class="font-bold text-slate-700 flex items-center gap-1.5"><Icon name="info" class="w-3.5 h-3.5 text-slate-600 shrink-0" /> {isNe ? 'जलसतह मापन पद्धति (Measurement Datums):' : 'Measurement Datums:'}</span>
+      <span>
+        {isNe 
+          ? 'पहाडी तथा तराईका मुख्य नदीहरूमा पिँधबाट जल गहिराई (Gauge Depth, ०–१५ मिटर) नापिन्छ भने काठमाडौँ उपत्यका तथा पुलहरूमा समुद्र सतहबाट पानीको उचाई (MSL, ५०–१४००+ मिटर) अंकित हुन्छ।'
+          : 'Major rivers use relative Riverbed Gauge Depth (0–15m), while Kathmandu Valley & highway bridges use Mean Sea Level elevation (MSL, 50–1,400+m a.s.l.).'}
+      </span>
+    </div>
+    <span class="text-slate-400 text-[10px]">Hazard is determined relative to station threshold</span>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-xs border-collapse" id="river-table">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 font-semibold text-slate-600">
+          <th class="py-3 px-4 w-4/12">{isNe ? 'मापन केन्द्र (Station)' : 'Station'}</th>
+          <th class="py-3 px-4 w-2/12">{isNe ? 'बेसिन / जिल्ला' : 'Basin / District'}</th>
+          <th class="py-3 px-4 w-2/12 text-right">{isNe ? 'जलसतह (Water Level)' : 'Water Level'}</th>
+          <th class="py-3 px-4 w-2/12 text-center">{isNe ? 'प्रवृत्ति (Trend)' : 'Trend'}</th>
+          <th class="py-3 px-4 w-2/12 text-center">{isNe ? 'अवस्था (Status)' : 'Status'}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-slate-700" id="river-table-tbody">
+        {initialRenderList.map((st) => {
+          const isMsl = (st.waterLevel !== null && st.waterLevel > 50) || (st.warningLevel !== null && st.warningLevel > 50);
+          return (
+          <tr class="hover:bg-slate-50/80 transition-colors station-row">
+            <td class="py-3 px-4 font-medium text-slate-900">
+              <div class="flex flex-col">
+                <span>{st.name}</span>
+                {st.stationIndex && (
+                  <span class="text-[10px] text-slate-400 font-mono">Index: #{st.stationIndex}</span>
+                )}
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <span class="font-semibold text-slate-800">{st.basin}</span>
+              {st.district && <span class="text-slate-400 text-[11px] block">{st.district}</span>}
+            </td>
+            <td class="py-3 px-4 text-right font-mono font-bold">
+              {st.waterLevel !== null ? (
+                <span class={st.status === 'DANGER' ? 'text-red-600 text-sm' : st.status === 'WARNING' ? 'text-amber-600 text-sm' : 'text-slate-800'}>
+                  {st.waterLevel.toFixed(2)} m
+                  {isMsl && (
+                    <span class="ml-1 text-[9px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 rounded px-1 py-0.5" title="Meters above Mean Sea Level (MSL)">MSL</span>
+                  )}
+                </span>
+              ) : (
+                <span class="text-slate-400">-</span>
+              )}
+              {(st.warningLevel || st.dangerLevel) && (
+                <div class="text-[10px] font-normal text-slate-400 mt-0.5">
+                  Warn: {st.warningLevel ?? '-'} | Dang: {st.dangerLevel ?? '-'}
+                </div>
+              )}
+            </td>
+            <td class="py-3 px-4 text-center">
+              {st.steady === 'RISING' ? (
+                <span class="inline-flex items-center gap-0.5 font-bold text-red-600">
+                  <span class="text-base leading-none">↑</span> {isNe ? 'बढ्दो' : 'Rising'}
+                </span>
+              ) : st.steady === 'FALLING' ? (
+                <span class="inline-flex items-center gap-0.5 font-medium text-blue-600">
+                  <span class="text-base leading-none">↓</span> {isNe ? 'घट्दो' : 'Falling'}
+                </span>
+              ) : st.steady === 'STEADY' ? (
+                <span class="inline-flex items-center gap-0.5 font-medium text-slate-500">
+                  <span class="text-base leading-none">→</span> {isNe ? 'स्थिर' : 'Steady'}
+                </span>
+              ) : (
+                <span class="text-slate-400">-</span>
+              )}
+            </td>
+            <td class="py-3 px-4 text-center">
+              {st.status === 'DANGER' ? (
+                <span class="inline-block rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-bold text-red-700 shadow-sm">
+                  {isNe ? 'खतरा (Danger)' : 'Danger'}
+                </span>
+              ) : st.status === 'WARNING' ? (
+                <span class="inline-block rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-800 shadow-sm">
+                  {isNe ? 'सतर्कता (Warning)' : 'Warning'}
+                </span>
+              ) : (
+                <span class="inline-block rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                  {isNe ? 'सामान्य' : 'Normal'}
+                </span>
+              )}
+            </td>
+          </tr>
+        );
+      })}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls for Full Mode -->
+  {!isSummaryMode && (
+    <div class="border-t border-slate-200 bg-slate-50/50 px-5 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-slate-600">
+      <div id="river-pagination-info" class="font-medium">
+        Showing 1 to {Math.min(pageSize, sorted.length)} of {sorted.length} stations
+      </div>
+      <div class="flex items-center gap-1.5" id="river-pagination-buttons">
+        <button
+          type="button"
+          id="river-prev-btn"
+          class="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          disabled
+        >
+          {isNe ? '← अघिल्लो' : '← Previous'}
+        </button>
+        <span id="river-page-badge" class="px-2 font-bold text-slate-800">
+          Page 1
+        </span>
+        <button
+          type="button"
+          id="river-next-btn"
+          class="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {isNe ? 'पछिल्लो →' : 'Next →'}
+        </button>
+      </div>
+    </div>
+  )}
+
+  <!-- Link for Summary Mode -->
+  {isSummaryMode && (
+    <div class="border-t border-slate-200 bg-slate-50/50 px-5 py-3 text-center">
+      <a
+        href={isNe ? '/ne/river-watch' : '/river-watch'}
+        class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:underline"
+      >
+        <Icon name="search" class="w-3.5 h-3.5" />
+        {isNe
+          ? `सबै ${stations.length} वटा केन्द्रहरूको विस्तृत विवरण तथा खोजी हेर्नुहोस् →`
+          : `Explore and search all ${stations.length} stations in River Watch →`}
+      </a>
+    </div>
+  )}
+</div>
+
+{!isSummaryMode && (
+  <script id="full-stations-data" type="application/json" set:html={JSON.stringify(clientStations)}></script>
+)}
+
+<script>
+  function setupRiverTablePagination() {
+    const dataEl = document.getElementById('full-stations-data');
+    const tbody = document.getElementById('river-table-tbody');
+    const searchInput = document.getElementById('river-search-input') as HTMLInputElement | null;
+    const basinFilter = document.getElementById('river-basin-filter') as HTMLSelectElement | null;
+    const statusFilter = document.getElementById('river-status-filter') as HTMLSelectElement | null;
+    const prevBtn = document.getElementById('river-prev-btn') as HTMLButtonElement | null;
+    const nextBtn = document.getElementById('river-next-btn') as HTMLButtonElement | null;
+    const pageBadge = document.getElementById('river-page-badge');
+    const pageInfo = document.getElementById('river-pagination-info');
+
+    if (!dataEl || !tbody) return;
+
+    let allStations: any[] = [];
+    try {
+      allStations = JSON.parse(dataEl.textContent || '[]');
+    } catch {
+      return;
+    }
+
+    let currentPage = 1;
+    const pageSize = 15;
+    let filteredList = [...allStations];
+
+    function applyFilters() {
+      const q = (searchInput?.value || '').trim().toLowerCase();
+      const basin = (basinFilter?.value || '').trim();
+      const status = (statusFilter?.value || '').trim();
+
+      filteredList = allStations.filter((st) => {
+        if (q) {
+          const matchName = st.name.toLowerCase().includes(q);
+          const matchBasin = st.basin.toLowerCase().includes(q);
+          const matchDistrict = st.district.toLowerCase().includes(q);
+          if (!matchName && !matchBasin && !matchDistrict) return false;
+        }
+        if (basin && st.basin !== basin) return false;
+        if (status) {
+          if (status === 'DANGER' && st.status !== 'DANGER') return false;
+          if (status === 'WARNING' && st.status !== 'WARNING') return false;
+          if (status === 'NORMAL' && (st.status === 'DANGER' || st.status === 'WARNING')) return false;
+        }
+        return true;
+      });
+
+      currentPage = 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      if (!tbody) return;
+      const total = filteredList.length;
+      const maxPages = Math.ceil(total / pageSize) || 1;
+      if (currentPage > maxPages) currentPage = maxPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIdx = (currentPage - 1) * pageSize;
+      const endIdx = Math.min(startIdx + pageSize, total);
+      const pageItems = filteredList.slice(startIdx, endIdx);
+
+      if (pageItems.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400">
+              No matching hydrological stations found.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = pageItems.map((st) => {
+          const isMsl = (st.wl !== null && st.wl > 50) || (st.wr && st.wr > 50);
+          const mslBadge = isMsl ? '<span class="ml-1 text-[9px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 rounded px-1 py-0.5" title="Meters above Mean Sea Level (MSL)">MSL</span>' : '';
+          const wlStr = st.wl !== null ? `${st.wl.toFixed(2)} m${mslBadge}` : '-';
+          const wlColor = st.status === 'DANGER' ? 'text-red-600 text-sm' : st.status === 'WARNING' ? 'text-amber-600 text-sm' : 'text-slate-800';
+          
+          let trendHtml = '<span class="text-slate-400">-</span>';
+          if (st.steady === 'RISING') {
+            trendHtml = '<span class="inline-flex items-center gap-0.5 font-bold text-red-600"><span class="text-base leading-none">↑</span> Rising</span>';
+          } else if (st.steady === 'FALLING') {
+            trendHtml = '<span class="inline-flex items-center gap-0.5 font-medium text-blue-600"><span class="text-base leading-none">↓</span> Falling</span>';
+          } else if (st.steady === 'STEADY') {
+            trendHtml = '<span class="inline-flex items-center gap-0.5 font-medium text-slate-500"><span class="text-base leading-none">→</span> Steady</span>';
+          }
+
+          let statusHtml = '<span class="inline-block rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Normal</span>';
+          if (st.status === 'DANGER') {
+            statusHtml = '<span class="inline-block rounded-full bg-red-100 px-2.5 py-1 text-[11px] font-bold text-red-700 shadow-sm">Danger</span>';
+          } else if (st.status === 'WARNING') {
+            statusHtml = '<span class="inline-block rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-800 shadow-sm">Warning</span>';
+          }
+
+          const thresholdsHtml = (st.wr || st.dl)
+            ? `<div class="text-[10px] font-normal text-slate-400 mt-0.5">Warn: ${st.wr ?? '-'} | Dang: ${st.dl ?? '-'}</div>`
+            : '';
+
+          return `
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-3 px-4 font-medium text-slate-900">
+                <div class="flex flex-col">
+                  <span>${st.name}</span>
+                  ${st.index ? `<span class="text-[10px] text-slate-400 font-mono">Index: #${st.index}</span>` : ''}
+                </div>
+              </td>
+              <td class="py-3 px-4">
+                <span class="font-semibold text-slate-800">${st.basin}</span>
+                ${st.district ? `<span class="text-slate-400 text-[11px] block">${st.district}</span>` : ''}
+              </td>
+              <td class="py-3 px-4 text-right font-mono font-bold">
+                <span class="${wlColor}">${wlStr}</span>
+                ${thresholdsHtml}
+              </td>
+              <td class="py-3 px-4 text-center">${trendHtml}</td>
+              <td class="py-3 px-4 text-center">${statusHtml}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      if (pageInfo) {
+        pageInfo.textContent = total > 0
+          ? `Showing ${startIdx + 1} to ${endIdx} of ${total} stations`
+          : 'Showing 0 stations';
+      }
+      if (pageBadge) {
+        pageBadge.textContent = `Page ${currentPage} of ${maxPages}`;
+      }
+      if (prevBtn) {
+        prevBtn.disabled = currentPage <= 1;
+      }
+      if (nextBtn) {
+        nextBtn.disabled = currentPage >= maxPages;
+      }
+    }
+
+    searchInput?.addEventListener('input', applyFilters);
+    basinFilter?.addEventListener('change', applyFilters);
+    statusFilter?.addEventListener('change', applyFilters);
+
+    prevBtn?.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+      }
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const maxPages = Math.ceil(filteredList.length / pageSize) || 1;
+      if (currentPage < maxPages) {
+        currentPage++;
+        renderTable();
+      }
+    });
+
+    renderTable();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupRiverTablePagination);
+  } else {
+    setupRiverTablePagination();
+  }
+</script>

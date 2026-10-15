@@ -1,0 +1,75 @@
+---
+import type { ManualWeatherStation } from '../lib/dhm/types';
+
+interface Props {
+  stations: ManualWeatherStation[];
+  issueDate?: string;
+  lang?: 'en' | 'ne';
+}
+
+const { stations, issueDate, lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+
+const sorted = [...stations].sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <div class="border-b border-slate-200 px-5 py-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h3 class="text-base font-bold text-slate-900">
+        {isNe ? 'दैनिक मौसम मापन (Daily Manual Weather Observations)' : 'Daily Weather Station Observations'}
+      </h3>
+      <p class="text-xs text-slate-500">
+        {issueDate ? (isNe ? `बुलेटिन मिति: ${new Date(issueDate).toLocaleDateString()}` : `Bulletin Date: ${new Date(issueDate).toLocaleDateString()}`) : 'Meteorological Forecasting Division (MFD)'}
+      </p>
+    </div>
+    <span class="inline-block rounded-md bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue-700">
+      {stations.length} {isNe ? 'केन्द्रहरू' : 'Stations'}
+    </span>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-xs border-collapse">
+      <thead>
+        <tr class="border-b border-slate-200 bg-slate-50 font-semibold text-slate-600">
+          <th class="py-3 px-4 w-5/12">{isNe ? 'केन्द्रको नाम (City / Station)' : 'City / Station'}</th>
+          <th class="py-3 px-4 w-2/12 text-right">{isNe ? 'न्यूनतम तापक्रम (Min Temp)' : 'Min Temp'}</th>
+          <th class="py-3 px-4 w-2/12 text-right">{isNe ? 'अधिकतम तापक्रम (Max Temp)' : 'Max Temp'}</th>
+          <th class="py-3 px-4 w-3/12 text-right">{isNe ? 'वर्षा (24h Rainfall)' : '24h Rainfall'}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-slate-700">
+        {sorted.map((st) => (
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="py-3 px-4 font-medium text-slate-900">
+              {st.name}
+            </td>
+            <td class="py-3 px-4 text-right font-mono">
+              {st.minTemp !== null ? (
+                <span class="text-blue-600 font-semibold">{st.minTemp.toFixed(1)}°C</span>
+              ) : (
+                <span class="text-slate-400">-</span>
+              )}
+            </td>
+            <td class="py-3 px-4 text-right font-mono">
+              {st.maxTemp !== null ? (
+                <span class="text-amber-600 font-semibold">{st.maxTemp.toFixed(1)}°C</span>
+              ) : (
+                <span class="text-slate-400">-</span>
+              )}
+            </td>
+            <td class="py-3 px-4 text-right font-mono">
+              {st.rainfall24h !== null ? (
+                <span class={st.rainfall24h > 0 ? 'text-blue-600 font-bold' : 'text-slate-500'}>
+                  {st.rainfall24h.toFixed(1)} mm
+                </span>
+              ) : (
+                <span class="text-slate-400">0.0 mm</span>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>

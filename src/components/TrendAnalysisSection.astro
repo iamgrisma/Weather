@@ -1,0 +1,316 @@
+---
+import type { ManualWeatherStation, RiverStation } from '../lib/dhm/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  manualStations?: ManualWeatherStation[];
+  riverStations?: RiverStation[];
+  lang?: 'en' | 'ne';
+}
+
+const { manualStations = [], riverStations = [], lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+
+// 1. Compute 24-hour Synoptic Extrema from manual stations
+const validMax = manualStations.filter((s) => typeof s.maxTemp === 'number' && !isNaN(s.maxTemp));
+const validMin = manualStations.filter((s) => typeof s.minTemp === 'number' && !isNaN(s.minTemp));
+const validRain = manualStations.filter((s) => typeof s.rainfall24h === 'number' && !isNaN(s.rainfall24h));
+
+const warmestStation = validMax.length
+  ? [...validMax].sort((a, b) => (b.maxTemp ?? 0) - (a.maxTemp ?? 0))[0]
+  : null;
+
+const coldestStation = validMin.length
+  ? [...validMin].sort((a, b) => (a.minTemp ?? 0) - (b.minTemp ?? 0))[0]
+  : null;
+
+const highestRainStation = validRain.length
+  ? [...validRain].sort((a, b) => (b.rainfall24h ?? 0) - (a.rainfall24h ?? 0))[0]
+  : null;
+
+const tempSpread =
+  warmestStation?.maxTemp !== null && coldestStation?.minTemp !== null && warmestStation && coldestStation
+    ? (warmestStation.maxTemp! - coldestStation.minTemp!).toFixed(1)
+    : null;
+
+const topWarmest = [...validMax].sort((a, b) => (b.maxTemp ?? 0) - (a.maxTemp ?? 0)).slice(0, 4);
+const topColdest = [...validMin].sort((a, b) => (a.minTemp ?? 0) - (b.minTemp ?? 0)).slice(0, 4);
+
+// 2. Compute River Basin Trends from 337 telemetry stations
+const totalRiverCount = riverStations.length;
+const risingCount = riverStations.filter((s) => s.steady === 'RISING').length;
+const fallingCount = riverStations.filter((s) => s.steady === 'FALLING').length;
+const steadyCount = riverStations.filter((s) => s.steady === 'STEADY' || (!s.steady && s.status === 'BELOW WARNING LEVEL')).length;
+const dangerCount = riverStations.filter((s) => s.status === 'DANGER' || (s.waterLevel !== null && s.dangerLevel !== null && s.waterLevel >= s.dangerLevel)).length;
+const warningCount = riverStations.filter((s) => s.status === 'WARNING' || (s.waterLevel !== null && s.warningLevel !== null && s.waterLevel >= s.warningLevel)).length;
+
+// Basin groupings
+const BASIN_KEYS = ['Koshi', 'Narayani', 'Karnali', 'Mahakali', 'West Rapti', 'Bagmati'];
+const basinStats = BASIN_KEYS.map((basinName) => {
+  const stations = riverStations.filter(
+    (s) => s.basin && s.basin.toLowerCase().includes(basinName.toLowerCase())
+  );
+  const dangerInBasin = stations.filter(
+    (s) => (s.dangerLevel && s.waterLevel && s.waterLevel >= s.dangerLevel) || s.status === 'DANGER'
+  ).length;
+  const warningInBasin = stations.filter(
+    (s) => (s.warningLevel && s.waterLevel && s.waterLevel >= s.warningLevel) || s.status === 'WARNING'
+  ).length;
+
+  return {
+    name: basinName,
+    count: stations.length,
+    danger: dangerInBasin,
+    warning: warningInBasin,
+    status: dangerInBasin > 0 ? 'danger' : warningInBasin > 0 ? 'warning' : 'normal',
+  };
+});
+---
+
+<div class="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 shadow-sm mb-8" id="trend-analysis-section">
+  <!-- Section Title & Meta -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 border-b border-slate-100 gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-600"></span>
+        <span class="text-xs font-black uppercase tracking-wider text-emerald-700">
+          {isNe ? 'ऐतिहासिक तथ्याङ्क तथा दैनिक प्रवृत्ति विश्लेषण' : '24-Hour Synoptic & Hydrological Analytics'}
+        </span>
+      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">
+        {isNe ? 'राष्ट्रिय तापमान तथा नदी जलप्रवाह विश्लेषण' : 'National Extrema & River Basin Trends'}
+      </h2>
+    </div>
+
+    <div>
+      <span class="rounded-xl bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 text-xs font-bold text-emerald-800">
+        {isNe ? 'DHM प्रत्यक्ष सेन्सर विश्लेषण' : 'Automated DHM Telemetry Analytics'}
+      </span>
+    </div>
+  </div>
+
+  <!-- Part 1: National 24-Hour Weather Extrema Cards -->
+  <div class="py-5 border-b border-slate-100">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-black uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+        <Icon name="thermometer" class="w-4 h-4 text-slate-500" />
+        <span>{isNe ? '२४ घण्टे राष्ट्रिय मौसमी चरम विन्दुहरू (Extrema)' : '24-Hour National Weather Extrema'}</span>
+      </h3>
+      <span class="text-xs font-semibold text-slate-400">
+        {manualStations.length} {isNe ? 'मौसम केन्द्रहरू' : 'Synoptic Stations'}
+      </span>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <!-- Warmest -->
+      <div class="rounded-2xl border border-amber-200/70 bg-gradient-to-br from-amber-50 to-orange-50/50 p-4 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-800 uppercase tracking-wide">
+              {isNe ? 'सबैभन्दा तातो' : 'Warmest Station'}
+            </span>
+            <Icon name="flame" class="w-5 h-5 text-amber-600" />
+          </div>
+          <div class="mt-2">
+            <span class="text-2xl sm:text-3xl font-black font-mono text-amber-950">
+              {warmestStation?.maxTemp !== null && warmestStation ? `${warmestStation.maxTemp}°C` : '--'}
+            </span>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-amber-200/60">
+          <span class="text-xs font-black text-amber-900 block truncate">
+            {warmestStation?.name || '--'}
+          </span>
+          <span class="text-[11px] text-amber-700 font-medium">
+            {isNe ? 'अधिकतम मापन' : 'Peak Daytime Temperature'}
+          </span>
+        </div>
+      </div>
+
+      <!-- Coldest -->
+      <div class="rounded-2xl border border-sky-200/70 bg-gradient-to-br from-sky-50 to-blue-50/50 p-4 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-sky-800 uppercase tracking-wide">
+              {isNe ? 'सबैभन्दा चिसो' : 'Coldest Station'}
+            </span>
+            <Icon name="snowflake" class="w-5 h-5 text-sky-600" />
+          </div>
+          <div class="mt-2">
+            <span class="text-2xl sm:text-3xl font-black font-mono text-sky-950">
+              {coldestStation?.minTemp !== null && coldestStation ? `${coldestStation.minTemp}°C` : '--'}
+            </span>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-sky-200/60">
+          <span class="text-xs font-black text-sky-900 block truncate">
+            {coldestStation?.name || '--'}
+          </span>
+          <span class="text-[11px] text-sky-700 font-medium">
+            {isNe ? 'न्यूनतम मापन' : 'Night Minimum Temperature'}
+          </span>
+        </div>
+      </div>
+
+      <!-- Thermal Spread -->
+      <div class="rounded-2xl border border-purple-200/70 bg-gradient-to-br from-purple-50 to-indigo-50/50 p-4 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-purple-800 uppercase tracking-wide">
+              {isNe ? 'तापमान भिन्नता' : 'Thermal Spread'}
+            </span>
+            <Icon name="trending-up" class="w-5 h-5 text-purple-600" />
+          </div>
+          <div class="mt-2">
+            <span class="text-2xl sm:text-3xl font-black font-mono text-purple-950">
+              {tempSpread ? `Δ ${tempSpread}°C` : '--'}
+            </span>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-purple-200/60">
+          <span class="text-xs font-black text-purple-900 block">
+            {isNe ? 'तराई vs उच्च हिमाल' : 'Terai vs High Himalayas'}
+          </span>
+          <span class="text-[11px] text-purple-700 font-medium">
+            {isNe ? 'भौगोलिक विविधता' : 'Orographic Temperature Gradient'}
+          </span>
+        </div>
+      </div>
+
+      <!-- Max 24h Rain -->
+      <div class="rounded-2xl border border-teal-200/70 bg-gradient-to-br from-teal-50 to-emerald-50/50 p-4 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-teal-800 uppercase tracking-wide">
+              {isNe ? 'अधिकतम वर्षा' : 'Peak 24h Rain'}
+            </span>
+            <Icon name="cloud-rain" class="w-5 h-5 text-teal-600" />
+          </div>
+          <div class="mt-2">
+            <span class="text-2xl sm:text-3xl font-black font-mono text-teal-950">
+              {highestRainStation?.rainfall24h !== null && highestRainStation ? `${highestRainStation.rainfall24h} mm` : '0.0 mm'}
+            </span>
+          </div>
+        </div>
+        <div class="mt-3 pt-2 border-t border-teal-200/60">
+          <span class="text-xs font-black text-teal-900 block truncate">
+            {highestRainStation?.name || '--'}
+          </span>
+          <span class="text-[11px] text-teal-700 font-medium">
+            {isNe ? '२४ घण्टामा संचित' : '24h Precipitation Gauge'}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparative Rankings Chips -->
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <span class="text-xs font-bold text-amber-900 shrink-0 flex items-center gap-1">
+          <Icon name="flame" class="w-3.5 h-3.5 text-amber-600" />
+          <span>{isNe ? 'शीर्ष तातो स्थानहरू:' : 'Top Warmest Stations:'}</span>
+        </span>
+        <div class="flex flex-wrap items-center gap-1.5">
+          {topWarmest.map((st) => (
+            <span class="rounded-md bg-white border border-slate-200 px-2 py-0.5 text-xs font-medium text-slate-800 shadow-2xs">
+              <span class="font-bold">{st.name}:</span> <span class="font-mono font-bold text-amber-700">{st.maxTemp}°C</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <span class="text-xs font-bold text-sky-900 shrink-0 flex items-center gap-1">
+          <Icon name="snowflake" class="w-3.5 h-3.5 text-sky-600" />
+          <span>{isNe ? 'शीर्ष चिसो स्थानहरू:' : 'Top Coldest Stations:'}</span>
+        </span>
+        <div class="flex flex-wrap items-center gap-1.5">
+          {topColdest.map((st) => (
+            <span class="rounded-md bg-white border border-slate-200 px-2 py-0.5 text-xs font-medium text-slate-800 shadow-2xs">
+              <span class="font-bold">{st.name}:</span> <span class="font-mono font-bold text-sky-700">{st.minTemp}°C</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Part 2: River Flow Hydrological Trajectory & Basin Watch -->
+  <div class="pt-5">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+      <div>
+        <h3 class="text-sm font-black uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+          <Icon name="waves" class="w-4 h-4 text-blue-600" />
+          <span>{isNe ? 'नदी जलप्रवाह गति तथा बेसिन स्थिति' : 'River Basin Telemetry & Hydrological Trajectory'}</span>
+        </h3>
+        <p class="text-xs text-slate-500 font-medium mt-0.5">
+          {isNe
+            ? '३३७ स्वचालित नदी स्टेशनहरूको वास्तविक जलस्तर तथा बहावको प्रवृत्ति'
+            : 'Aggregated flow status across 337 telemetry stations and major river networks'}
+        </p>
+      </div>
+
+      <!-- Flow Trajectory Status Counters -->
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="rounded-xl bg-emerald-50 border border-emerald-200 px-2.5 py-1 text-xs font-bold text-emerald-800 flex items-center gap-1">
+          <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+          <span>{steadyCount} {isNe ? 'स्थिर' : 'Steady'}</span>
+        </span>
+        <span class="rounded-xl bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-bold text-amber-800 flex items-center gap-1">
+          <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+          <span>{risingCount} {isNe ? 'बढ्दो' : 'Rising'}</span>
+        </span>
+        <span class="rounded-xl bg-blue-50 border border-blue-200 px-2.5 py-1 text-xs font-bold text-blue-800 flex items-center gap-1">
+          <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+          <span>{fallingCount} {isNe ? 'घट्दो' : 'Falling'}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Basin Health Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      {basinStats.map((basin) => (
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 flex flex-col justify-between hover:bg-white hover:shadow-xs transition">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-black text-slate-900 block truncate">{basin.name}</span>
+              <span class={`h-2 w-2 rounded-full ${basin.status === 'danger' ? 'bg-red-600 animate-ping' : basin.status === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'}`}></span>
+            </div>
+            <span class="text-[11px] text-slate-500 font-semibold block">
+              {basin.count} {isNe ? 'स्टेशनहरू' : 'Stations'}
+            </span>
+          </div>
+
+          <div class="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between">
+            <span class={`text-[11px] font-black uppercase ${basin.status === 'danger' ? 'text-red-700' : basin.status === 'warning' ? 'text-amber-700' : 'text-emerald-700'}`}>
+              {basin.status === 'danger'
+                ? (isNe ? 'खतरा' : 'Danger')
+                : basin.status === 'warning'
+                ? (isNe ? 'चेतावनी' : 'Warning')
+                : (isNe ? 'सामान्य' : 'Normal')}
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">OK</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Quick Footer Link to Dedicated River Watch -->
+    <div class="mt-4 flex items-center justify-between bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-xs">
+      <div class="flex items-center gap-2 text-slate-600 font-medium">
+        <span class="font-bold text-slate-800">{isNe ? 'बाढी अनुगमन स्थिति:' : 'Flood Monitoring Index:'}</span>
+        <span>
+          {dangerCount === 0 && warningCount === 0
+            ? (isNe ? 'सबै नदीहरू चेतावनी तहभन्दा तल सामान्य अवस्थामा छन्।' : 'All major river systems are below warning thresholds.')
+            : (isNe ? `${dangerCount} नदी खतरा र ${warningCount} चेतावनी स्तरमा छन्।` : `${dangerCount} rivers in danger and ${warningCount} in warning state.`)}
+        </span>
+      </div>
+      <a
+        href="/river-watch"
+        class="font-black text-blue-700 hover:text-blue-900 flex items-center gap-1 shrink-0 ml-2"
+      >
+        <span>{isNe ? 'सम्पूर्ण ३३७ स्टेशनको विवरण →' : 'Full Telemetry Map & Table →'}</span>
+      </a>
+    </div>
+  </div>
+</div>

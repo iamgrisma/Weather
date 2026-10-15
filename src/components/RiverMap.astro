@@ -1,0 +1,507 @@
+---
+import type { RiverStation } from '../lib/dhm/types';
+
+interface Props {
+  stations: RiverStation[];
+  lang?: 'en' | 'ne';
+}
+
+const { stations, lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+
+// Filter stations with valid coordinates and encode into compact tuple format:
+// [id, name, basin, district, lat, lon, wl, wr, dl, steadyCode, statusCode]
+// steadyCode: 1 = RISING, 2 = FALLING, 0 = STEADY/OTHER
+// statusCode: 2 = DANGER, 1 = WARNING, 0 = NORMAL
+const compactStations = stations
+  .filter((s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude))
+  .map((s) => [
+    s.id,
+    s.name,
+    s.basin,
+    s.district || '',
+    Math.round(s.latitude! * 10000) / 10000,
+    Math.round(s.longitude! * 10000) / 10000,
+    s.waterLevel !== null ? Math.round(s.waterLevel * 100) / 100 : null,
+    s.warningLevel !== null ? Math.round(s.warningLevel * 100) / 100 : null,
+    s.dangerLevel !== null ? Math.round(s.dangerLevel * 100) / 100 : null,
+    s.steady === 'RISING' ? 1 : s.steady === 'FALLING' ? 2 : 0,
+    s.status === 'DANGER' ? 2 : s.status === 'WARNING' ? 1 : 0,
+  ]);
+
+const dangerCount = compactStations.filter((s) => s[10] === 2).length;
+const warningCount = compactStations.filter((s) => s[10] === 1).length;
+---
+
+<div class="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" id="river-map-wrapper">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 mb-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-red-600 animate-ping"></span>
+        <h3 class="text-base font-black text-slate-900 tracking-tight">
+          {isNe ? 'प्रत्यक्ष नदी जलसतह तथा बाढी मापन नक्सा (River Watch Map)' : 'Live River Watch & Flood Station Map'}
+        </h3>
+      </div>
+      <p class="text-xs text-slate-500 mt-0.5">
+        {isNe
+          ? `नक्सामा देशभरका ${compactStations.length} वटा जलमापन केन्द्रहरू अंकित छन्।`
+          : `Interactive map tracking ${compactStations.length} hydrological monitoring stations across Nepal.`}
+      </p>
+    </div>
+
+    <!-- Map Filter Pills -->
+    <div class="flex flex-wrap items-center gap-1.5" id="map-filter-buttons">
+      <button
+        type="button"
+        data-filter="all"
+        class="map-filter-btn cursor-pointer rounded-lg bg-blue-600 px-3 py-1 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700"
+      >
+        {isNe ? `सबै (${compactStations.length})` : `All (${compactStations.length})`}
+      </button>
+
+      {dangerCount > 0 && (
+        <button
+          type="button"
+          data-filter="danger"
+          class="map-filter-btn cursor-pointer rounded-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700 border-2 border-red-500 transition hover:bg-red-200 shadow-sm"
+        >
+          <span class="inline-block h-2 w-2 rounded-full bg-red-600 mr-1 animate-ping"></span>
+          {isNe ? `खतरा (${dangerCount})` : `Danger (${dangerCount})`}
+        </button>
+      )}
+
+      {warningCount > 0 && (
+        <button
+          type="button"
+          data-filter="warning"
+          class="map-filter-btn cursor-pointer rounded-lg bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-300 transition hover:bg-amber-200"
+        >
+          {isNe ? `सतर्कता (${warningCount})` : `Warning (${warningCount})`}
+        </button>
+      )}
+
+      <button
+        type="button"
+        data-filter="Koshi"
+        class="map-filter-btn cursor-pointer rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+      >
+        Koshi
+      </button>
+      <button
+        type="button"
+        data-filter="Narayani"
+        class="map-filter-btn cursor-pointer rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+      >
+        Narayani
+      </button>
+      <button
+        type="button"
+        data-filter="Karnali"
+        class="map-filter-btn cursor-pointer rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+      >
+        Karnali
+      </button>
+      <button
+        type="button"
+        data-filter="Bagmati"
+        class="map-filter-btn cursor-pointer rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+      >
+        Bagmati
+      </button>
+    </div>
+  </div>
+
+  <!-- Leaflet Map Container with pre-reserved aspect ratio to eliminate CLS -->
+  <div class="relative w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-100" style="height: 480px; min-height: 480px;">
+    <div id="nepal-river-map" class="h-full w-full z-10"></div>
+    <div id="map-loading" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-50/90 backdrop-blur-sm text-xs font-semibold text-slate-600">
+      <div class="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mb-2"></div>
+      Loading interactive station map and location points...
+    </div>
+  </div>
+
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500">
+    <div class="flex items-center gap-4">
+      <span class="flex items-center gap-1.5">
+        <span class="inline-flex h-3.5 w-3.5 rounded-full bg-red-600 border-2 border-white shadow ring-2 ring-red-400"></span>
+        <strong class="text-red-700 font-bold">{isNe ? 'खतरा तह पार (High Danger Point)' : 'High Danger Point'}</strong>
+      </span>
+      <span class="flex items-center gap-1.5">
+        <span class="inline-flex h-3 w-3 rounded-full bg-amber-500 border-2 border-white shadow"></span>
+        <strong class="text-amber-700 font-bold">{isNe ? 'सतर्कता तह (Warning Point)' : 'Warning Point'}</strong>
+      </span>
+      <span class="flex items-center gap-1.5">
+        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-blue-500 border border-white shadow"></span>
+        <strong class="text-slate-600">{isNe ? 'सामान्य (Normal Flow)' : 'Normal Flow'}</strong>
+      </span>
+    </div>
+    <span class="text-slate-400">Click any marker or alert card to zoom in directly</span>
+  </div>
+</div>
+
+<!-- Embedded Compact Station Data -->
+<script id="station-map-data" type="application/json" set:html={JSON.stringify(compactStations)}></script>
+
+<style is:global>
+  @keyframes danger-halo-animation {
+    0% {
+      stroke-width: 2px;
+      stroke-opacity: 0.9;
+    }
+    50% {
+      stroke-width: 8px;
+      stroke-opacity: 0.3;
+    }
+    100% {
+      stroke-width: 2px;
+      stroke-opacity: 0.9;
+    }
+  }
+  .danger-marker-halo {
+    animation: danger-halo-animation 1.6s infinite ease-in-out;
+  }
+</style>
+
+<script is:inline>
+  let nepalMapInstance = null;
+  let leafletLoaded = false;
+  let hasDangerStations = false;
+
+  // Global Station Zoom Handler available immediately
+  window.zoomToStation = function(stationId) {
+    const mapWrapper = document.getElementById('river-map-wrapper');
+    if (mapWrapper) {
+      mapWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function executeZoom() {
+      if (window._internalZoomToStation) {
+        window._internalZoomToStation(stationId);
+      }
+    }
+    if (nepalMapInstance && window._internalZoomToStation) {
+      executeZoom();
+    } else {
+      loadLeafletAssets(() => {
+        initNepalRiverMap();
+        setTimeout(executeZoom, 300);
+      });
+    }
+  };
+
+  function loadLeafletAssets(callback) {
+    if (window.L) {
+      callback();
+      return;
+    }
+
+    if (window._leafletLoading) {
+      window._leafletCallbacks = window._leafletCallbacks || [];
+      window._leafletCallbacks.push(callback);
+      return;
+    }
+    window._leafletLoading = true;
+    window._leafletCallbacks = [callback];
+
+    function onLeafletReady() {
+      window._leafletLoading = false;
+      leafletLoaded = true;
+      const cbs = window._leafletCallbacks || [];
+      window._leafletCallbacks = [];
+      cbs.forEach((cb) => {
+        try { cb(); } catch (e) { console.error('Leaflet ready callback error', e); }
+      });
+    }
+
+    // Load CSS once
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    // Load JS with cdnjs fallback
+    if (!document.getElementById('leaflet-js')) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = onLeafletReady;
+      script.onerror = () => {
+        console.warn('Leaflet unpkg load failed, falling back to cdnjs...');
+        const fallback = document.createElement('script');
+        fallback.id = 'leaflet-js-fallback';
+        fallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+        fallback.onload = onLeafletReady;
+        document.head.appendChild(fallback);
+      };
+      document.head.appendChild(script);
+    }
+  }
+
+  function initNepalRiverMap() {
+    if (nepalMapInstance) return;
+
+    const mapEl = document.getElementById('nepal-river-map');
+    const dataEl = document.getElementById('station-map-data');
+    const loadingEl = document.getElementById('map-loading');
+
+    if (!mapEl || !dataEl || typeof L === 'undefined') return;
+
+    let stationsRaw = [];
+    try {
+      stationsRaw = JSON.parse(dataEl.textContent || '[]');
+    } catch (e) {
+      console.error('Failed to parse station map data', e);
+      return;
+    }
+
+    // Convert compact tuples back to objects
+    const stations = stationsRaw.map((s) => ({
+      id: s[0],
+      name: s[1],
+      basin: s[2],
+      district: s[3],
+      lat: s[4],
+      lon: s[5],
+      wl: s[6],
+      wr: s[7],
+      dl: s[8],
+      steady: s[9] === 1 ? 'RISING' : s[9] === 2 ? 'FALLING' : 'STEADY',
+      status: s[10] === 2 ? 'DANGER' : s[10] === 1 ? 'WARNING' : 'NORMAL',
+    }));
+
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    // Center on active danger station if exists, else nationwide center [28.25, 84.15]
+    const dangerStation = stations.find((s) => s.status === 'DANGER');
+    hasDangerStations = !!dangerStation;
+    const defaultCenter = dangerStation ? [dangerStation.lat, dangerStation.lon] : [28.25, 84.15];
+    const defaultZoom = dangerStation ? 9 : 7;
+
+    const map = L.map('nepal-river-map', {
+      center: defaultCenter,
+      zoom: defaultZoom,
+      minZoom: 6,
+      maxZoom: 15,
+      scrollWheelZoom: false,
+    });
+    nepalMapInstance = map;
+
+    // OpenStreetMap basemap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors | DHM Nepal',
+      maxZoom: 18,
+    }).addTo(map);
+
+    const markersLayer = L.layerGroup().addTo(map);
+    const markerRegistry = [];
+
+    // Internal zoom handler called by global window.zoomToStation
+    window._internalZoomToStation = function(stationId) {
+      const reg = markerRegistry.find((r) => r.id === stationId);
+      if (reg) {
+        map.setView([reg.data.lat, reg.data.lon], 11, { animate: true });
+        reg.marker.openPopup();
+      }
+    };
+
+    // Render Point Markers - SORTED so DANGER markers are appended last (always on top in SVG DOM)
+    function renderMarkers(filter) {
+      markersLayer.clearLayers();
+      markerRegistry.length = 0;
+
+      // Sort stations: NORMAL first, WARNING next, DANGER last
+      const sortedStations = [...stations].sort((a, b) => {
+        const order = { 'NORMAL': 0, 'WARNING': 1, 'DANGER': 2 };
+        return (order[a.status] || 0) - (order[b.status] || 0);
+      });
+
+      sortedStations.forEach((st) => {
+        if (filter === 'danger' && st.status !== 'DANGER') return;
+        if (filter === 'warning' && st.status !== 'WARNING') return;
+        if (['Koshi', 'Narayani', 'Karnali', 'Bagmati'].includes(filter) && !st.basin.includes(filter)) return;
+
+        let mainMarker;
+
+        if (st.status === 'DANGER') {
+          // 1. Outer Danger Pulsating Halo Ring (non-interactive so clicks pass to core)
+          const halo = L.circleMarker([st.lat, st.lon], {
+            radius: 22,
+            fillColor: '#ef4444',
+            color: '#dc2626',
+            weight: 2,
+            opacity: 0.9,
+            fillOpacity: 0.3,
+            className: 'danger-marker-halo',
+            interactive: false,
+          });
+          markersLayer.addLayer(halo);
+
+          // 2. High-Visibility Red Core Dot
+          mainMarker = L.circleMarker([st.lat, st.lon], {
+            radius: 12,
+            fillColor: '#dc2626',
+            color: '#ffffff',
+            weight: 3.5,
+            opacity: 1,
+            fillOpacity: 1,
+          });
+        } else if (st.status === 'WARNING') {
+          mainMarker = L.circleMarker([st.lat, st.lon], {
+            radius: 8,
+            fillColor: '#f59e0b',
+            color: '#ffffff',
+            weight: 2.5,
+            opacity: 1,
+            fillOpacity: 0.9,
+          });
+        } else {
+          mainMarker = L.circleMarker([st.lat, st.lon], {
+            radius: 5.5,
+            fillColor: '#3b82f6',
+            color: '#ffffff',
+            weight: 1.5,
+            opacity: 0.9,
+            fillOpacity: 0.75,
+          });
+        }
+
+        const statusBadge = st.status === 'DANGER'
+          ? '<span style="background:#fee2e2;color:#b91c1c;padding:3px 9px;border-radius:999px;font-weight:900;font-size:11px;">HIGH DANGER</span>'
+          : st.status === 'WARNING'
+          ? '<span style="background:#fef3c7;color:#b45309;padding:3px 9px;border-radius:999px;font-weight:bold;font-size:11px;">WARNING</span>'
+          : '<span style="background:#ecfdf5;color:#047857;padding:2px 8px;border-radius:999px;font-weight:600;font-size:10px;">NORMAL</span>';
+
+        const trendIcon = st.steady === 'RISING' ? '<span style="color:#dc2626;font-weight:bold;">↑ Rising</span>'
+          : st.steady === 'FALLING' ? '<span style="color:#2563eb;font-weight:bold;">↓ Falling</span>'
+          : '<span style="color:#64748b;">→ Steady</span>';
+
+        const isMsl = (st.wl !== null && st.wl > 50) || (st.wr && st.wr > 50);
+        const datumLabel = isMsl
+          ? '<span style="font-size:10px;color:#64748b;font-weight:bold;margin-left:2px;">m (MSL)</span>'
+          : '<span style="font-size:10px;color:#64748b;font-weight:bold;margin-left:2px;">m</span>';
+        const datumNote = isMsl
+          ? '<div style="font-size:9px;color:#64748b;margin-top:3px;padding-top:3px;border-top:1px dashed #e2e8f0;">Datum: Elevation above sea level (m a.s.l.)</div>'
+          : '';
+
+        const excessText = (st.status === 'DANGER' && st.wl !== null && st.dl !== null && st.wl >= st.dl)
+          ? `<div style="color:#b91c1c;font-weight:bold;font-size:11px;margin-top:2px;display:flex;align-items:center;gap:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> Exceeds Danger Level by +${(st.wl - st.dl).toFixed(2)} m!</div>`
+          : '';
+
+        const popupContent = `
+          <div style="font-family:system-ui,-apple-system,sans-serif;min-width:220px;padding:3px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              ${statusBadge}
+              <span style="font-size:11px;color:#64748b;font-weight:bold;">${st.basin} Basin</span>
+            </div>
+            <h4 style="font-weight:bold;font-size:14px;color:#0f172a;margin:0 0 3px 0;">${st.name}</h4>
+            <div style="font-size:11px;color:#64748b;margin-bottom:8px;">${st.district ? 'District: ' + st.district : ''}</div>
+            
+            <div style="background:#f8fafc;padding:8px;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <span style="font-size:11px;color:#64748b;">Water Level:</span>
+                <span style="font-size:16px;font-weight:bold;font-family:monospace;color:${st.status === 'DANGER' ? '#dc2626' : '#0f172a'};">${st.wl !== null ? st.wl.toFixed(2) : 'N/A'}${datumLabel}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-top:2px;">
+                <span>Warn: ${st.wr !== null ? st.wr + 'm' : '-'}</span>
+                <span>Dang: ${st.dl !== null ? st.dl + 'm' : '-'}</span>
+              </div>
+              ${excessText}
+              ${datumNote}
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#334155;">
+              <span>Trend: ${trendIcon}</span>
+              <span style="font-size:10px;color:#64748b;font-family:monospace;">${st.lat.toFixed(3)}°N, ${st.lon.toFixed(3)}°E</span>
+            </div>
+          </div>
+        `;
+
+        mainMarker.bindPopup(popupContent);
+        markersLayer.addLayer(mainMarker);
+        if (st.status === 'DANGER') {
+          mainMarker.bringToFront();
+        }
+        markerRegistry.push({ id: st.id, marker: mainMarker, data: st });
+      });
+    }
+
+    renderMarkers('all');
+
+    // Auto-open danger popup if danger station exists on load
+    if (dangerStation) {
+      setTimeout(() => {
+        const dReg = markerRegistry.find((r) => r.id === dangerStation.id);
+        if (dReg) {
+          dReg.marker.bringToFront();
+          dReg.marker.openPopup();
+        }
+      }, 500);
+    }
+
+    // Filter Buttons
+    const filterButtons = document.querySelectorAll('.map-filter-btn');
+    filterButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach((b) => {
+          b.classList.remove('bg-blue-600', 'text-white');
+          b.classList.add('bg-slate-100', 'text-slate-700');
+        });
+        btn.classList.remove('bg-slate-100', 'text-slate-700');
+        btn.classList.add('bg-blue-600', 'text-white');
+
+        const filter = btn.getAttribute('data-filter') || 'all';
+        renderMarkers(filter);
+
+        if (filter === 'danger' && dangerStation) {
+          map.setView([dangerStation.lat, dangerStation.lon], 11, { animate: true });
+          const dReg = markerRegistry.find((r) => r.id === dangerStation.id);
+          if (dReg) {
+            dReg.marker.bringToFront();
+            dReg.marker.openPopup();
+          }
+        }
+      });
+    });
+  }
+
+  // Eager load when there are danger stations, otherwise lazy load when user scrolls near
+  function setupMap() {
+    const dataEl = document.getElementById('station-map-data');
+    let hasDanger = false;
+    if (dataEl) {
+      try {
+        const stationsRaw = JSON.parse(dataEl.textContent || '[]');
+        hasDanger = stationsRaw.some((s) => s[10] === 2);
+      } catch (e) {}
+    }
+
+    if (hasDanger) {
+      // Eagerly load Leaflet map when there is an active flood danger
+      loadLeafletAssets(initNepalRiverMap);
+    } else {
+      const wrapper = document.getElementById('river-map-wrapper');
+      if (!wrapper) return;
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            if (entries[0].isIntersecting) {
+              observer.disconnect();
+              loadLeafletAssets(initNepalRiverMap);
+            }
+          },
+          { rootMargin: '300px' }
+        );
+        observer.observe(wrapper);
+      } else {
+        loadLeafletAssets(initNepalRiverMap);
+      }
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupMap);
+  } else {
+    setupMap();
+  }
+</script>

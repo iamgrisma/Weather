@@ -1,0 +1,306 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import AlertBanner from '../components/AlertBanner.astro';
+import RefreshBar from '../components/RefreshBar.astro';
+import DangerAlertList from '../components/DangerAlertList.astro';
+import WeatherHeroSwitcher from '../components/WeatherHeroSwitcher.astro';
+import TrendAnalysisSection from '../components/TrendAnalysisSection.astro';
+import EcosystemHubCards from '../components/EcosystemHubCards.astro';
+import PressReleasesList from '../components/PressReleasesList.astro';
+import { getProxiedImageUrl } from '../lib/utils/image';
+import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'Nepal Real-Time Weather & River Watch Portal | DHM & MFD Live Data';
+const description = 'Live flood monitoring, river water levels, special weather warnings, 3-day synoptic bulletins, city forecasts, and NWP modeling across Nepal.';
+
+const bulletin = snapshot.threeDayBulletin?.data || null;
+const latestAdvisory = snapshot.specialWeather?.items?.[0] || null;
+const activeNotice = snapshot.specialWeather?.activeNotice || null;
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <!-- Page Header -->
+  <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-xs font-black uppercase tracking-wider text-emerald-700">Official Operational Surveillance</span>
+      </div>
+      <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+        Nepal Live Weather & River Watch Portal
+      </h1>
+      <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">
+        Aggregated national telemetry of river hydrographs, emergency flood alerts, synoptic bulletins, WRF NWP models, and city forecasts.
+      </p>
+    </div>
+  </div>
+
+  <!-- Key Metrics Bar -->
+  <div class="mb-6 grid grid-cols-2 gap-3.5 sm:grid-cols-4">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
+      <span class="text-xs font-black uppercase tracking-wider text-slate-500">Active Flood Danger</span>
+      <div class="mt-1.5 flex items-baseline gap-2">
+        <span class={`text-3xl font-black font-mono ${snapshot.riverWatch.dangerCount > 0 ? 'text-red-600' : 'text-slate-900'}`}>
+          {snapshot.riverWatch.dangerCount}
+        </span>
+        <span class="text-xs text-slate-500 font-semibold">rivers</span>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
+      <span class="text-xs font-black uppercase tracking-wider text-slate-500">River Telemetry</span>
+      <div class="mt-1.5 flex items-baseline gap-2">
+        <span class="text-3xl font-black font-mono text-blue-600">
+          {snapshot.riverWatch.totalStations}
+        </span>
+        <span class="text-xs text-slate-500 font-semibold">stations</span>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
+      <span class="text-xs font-black uppercase tracking-wider text-slate-500">Special Advisories</span>
+      <div class="mt-1.5 flex items-baseline gap-2">
+        <span class="text-3xl font-black font-mono text-amber-600">
+          {snapshot.specialWeather?.items?.length || 0}
+        </span>
+        <span class="text-xs text-slate-500 font-semibold">published</span>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs">
+      <span class="text-xs font-black uppercase tracking-wider text-slate-500">WRF NWP Models</span>
+      <div class="mt-1.5 flex items-baseline gap-2">
+        <span class="text-3xl font-black font-mono text-indigo-600">
+          {snapshot.nwpModels?.models?.length || 4}
+        </span>
+        <span class="text-xs text-slate-500 font-semibold">engines</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Priority Status & Throttled Refresh Bar -->
+  <AlertBanner
+    dangerCount={snapshot.riverWatch.dangerCount}
+    warningCount={snapshot.riverWatch.warningCount}
+    lang="en"
+  />
+
+  <RefreshBar
+    fetchedAt={snapshot.riverWatch.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.riverWatch.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="river"
+    lang="en"
+  />
+
+  <!-- Active Flood Danger Alert Cards (If any rivers exceed threshold) -->
+  <DangerAlertList
+    dangerStations={snapshot.riverWatch.dangerStations || []}
+    warningStations={snapshot.riverWatch.warningStations || []}
+    lang="en"
+  />
+
+  <!-- Urgent Emergency Notice if Published -->
+  {activeNotice && (
+    <div class="mb-8 rounded-2xl border-2 border-red-500 bg-red-50 p-5 shadow-sm">
+      <div class="flex items-start gap-3">
+        <Icon name="alert-circle" class="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="rounded-md bg-red-600 px-2 py-0.5 text-xs font-black uppercase text-white">Urgent Notice</span>
+            {activeNotice.createdAt && (
+              <span class="text-xs text-red-700 font-semibold">
+                {new Date(activeNotice.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </span>
+            )}
+          </div>
+          <h3 class="text-base sm:text-lg font-black text-red-950">
+            {activeNotice.title || activeNotice.nepaliTitle}
+          </h3>
+          {activeNotice.url && (
+            <a
+              href={activeNotice.url.startsWith('http') ? activeNotice.url : `https://dhm.gov.np/${activeNotice.url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 mt-2 text-xs font-bold text-red-700 hover:text-red-900 underline"
+            >
+              <span>View official announcement →</span>
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- 1. Intent-Driven Weather Hero Switcher (Instant City Glance) -->
+  {snapshot.cityForecasts?.stations && snapshot.cityForecasts.stations.length > 0 && (
+    <WeatherHeroSwitcher
+      stations={snapshot.cityForecasts.stations}
+      lang="en"
+    />
+  )}
+
+  <!-- 2. Historical Telemetry & 24h Trend Analysis Section -->
+  <TrendAnalysisSection
+    manualStations={snapshot.manualWeather?.stations || []}
+    riverStations={snapshot.riverWatch?.stations || []}
+    lang="en"
+  />
+
+  <!-- 3. National Synoptic Outlook & Special Advisory Spotlight -->
+  <div class="mb-8 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+    <!-- Synoptic Forecast Summary Card -->
+    <div class="lg:col-span-7 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex h-2.5 w-2.5 rounded-full bg-blue-600"></span>
+            <h3 class="text-base sm:text-lg font-black text-slate-900">
+              National Synoptic Meteorological Assessment
+            </h3>
+          </div>
+          <a href="/bulletin" class="text-xs font-bold text-blue-700 hover:underline">
+            Full 3-Day Bulletin →
+          </a>
+        </div>
+
+        {bulletin ? (
+          <div class="space-y-4">
+            {/* Warning if present */}
+            {(bulletin.warningAdvisoryEn || bulletin.warningAdvisoryNp) && (
+              <div class="rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-xs sm:text-sm text-amber-950">
+                <span class="font-bold flex items-center gap-1.5 mb-1">
+                  <Icon name="alert-triangle" class="w-4 h-4 text-amber-600" />
+                  <span>Warning & Advisory:</span>
+                </span>
+                <p class="leading-relaxed">
+                  {bulletin.warningAdvisoryEn || bulletin.warningAdvisoryNp}
+                </p>
+              </div>
+            )}
+
+            <!-- Synoptic Analysis -->
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
+                Meteorological Synopsis:
+              </span>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                {bulletin.metAnalysisEn || bulletin.metAnalysisNp || 'Seasonal atmospheric synoptic pattern over Nepal.'}
+              </p>
+            </div>
+
+            <!-- Present Weather -->
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
+                Satellite & Present Weather:
+              </span>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                {bulletin.presentWeatherEn || bulletin.presentWeatherNp || 'Current national observations indicate stable localized conditions.'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p class="text-xs text-slate-500 italic py-4">
+            Official synoptic analysis currently updating.
+          </p>
+        )}
+      </div>
+
+      <!-- Quick Bulletin Footer Strip -->
+      <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+        <span class="font-medium">Source: MFD Synoptic Forecaster Desk</span>
+        <a href="/bulletin" class="font-bold text-blue-600 hover:text-blue-800">
+          Inspect Weather Maps & Regional Horizons →
+        </a>
+      </div>
+    </div>
+
+    <!-- Active Advisory Spotlight Card -->
+    <div class="lg:col-span-5 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+            <h3 class="text-base sm:text-lg font-black text-slate-900">
+              Special Weather Advisory
+            </h3>
+          </div>
+          <a href="/special-weather" class="text-xs font-bold text-amber-700 hover:underline">
+            All Advisories →
+          </a>
+        </div>
+
+        {latestAdvisory ? (
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="rounded-md bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 text-[11px] font-black uppercase">
+                Active Advisory
+              </span>
+              {latestAdvisory.createdAt && (
+                <span class="text-xs text-slate-400 font-mono">
+                  {new Date(latestAdvisory.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+                </span>
+              )}
+            </div>
+
+            <h4 class="text-sm sm:text-base font-black text-slate-900 leading-snug mb-2">
+              {latestAdvisory.title}
+            </h4>
+
+            {latestAdvisory.weatherMapImages?.[0] && (
+              <div class="my-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                <img
+                  src={getProxiedImageUrl(latestAdvisory.weatherMapImages[0].url)}
+                  onerror={`this.onerror=null;this.src='${latestAdvisory.weatherMapImages[0].url}'`}
+                  alt="Special Advisory Hazard Map"
+                  class="h-32 w-full object-contain bg-white"
+                  loading="lazy"
+                />
+              </div>
+            )}
+
+            {latestAdvisory.description && (
+              <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                {latestAdvisory.description}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div class="py-8 text-center text-xs text-slate-400 font-medium">
+            No active special weather warning at this moment.
+          </div>
+        )}
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+        <span class="text-slate-400 font-medium">Verified MFD Dispatch</span>
+        <a href="/special-weather" class="font-bold text-amber-700 hover:text-amber-900">
+          View Multi-Day Hazard Maps →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Ecosystem Exploration Hub Cards (Aligned with User Intent & Navigation) -->
+  <EcosystemHubCards
+    lang="en"
+    cityCount={snapshot.cityForecasts?.stations?.length || 19}
+    riverCount={snapshot.riverWatch?.totalStations || 337}
+    modelCount={snapshot.nwpModels?.models?.length || 4}
+    advisoryCount={snapshot.specialWeather?.items?.length || 1}
+  />
+
+  <!-- 5. Recent Official Press Releases & Communiqués (Paginated) -->
+  {snapshot.pressReleases?.items && snapshot.pressReleases.items.length > 0 && (
+    <PressReleasesList
+      items={snapshot.pressReleases.items}
+      lang="en"
+      pageSize={6}
+    />
+  )}
+</BaseLayout>

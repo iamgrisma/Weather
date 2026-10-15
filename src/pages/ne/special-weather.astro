@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RefreshBar from '../../components/RefreshBar.astro';
+import SpecialWeatherCard from '../../components/SpecialWeatherCard.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'नेपाल विशेष मौसमी चेतावनी तथा आपतकालीन बुलेटिन | जल तथा मौसम विज्ञान विभाग';
+const description = 'मौसम पूर्वानुमान महाशाखाद्वारा जारी विशेष मौसमी सूचना, बाढी-पहिरो चेतावनी, मनसुन बहिर्गमन तथा ३ दिने चेतावनी नक्साहरू।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">विशेष मौसमी चेतावनी</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="inline-flex h-3.5 w-3.5 rounded-full bg-amber-500 animate-pulse"></span>
+      <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+        विशेष मौसमी चेतावनी तथा आपतकालीन बुलेटिन
+      </h1>
+    </div>
+    <p class="text-sm font-semibold text-slate-500 mt-1">
+      जल तथा मौसम विज्ञान विभाग, मौसम पूर्वानुमान महाशाखाबाट जारी आधिकारिक चेतावनी, भारी वर्षा, शीतलहर र तीन दिने नक्सा पूर्वानुमान।
+    </p>
+  </div>
+
+  <RefreshBar
+    fetchedAt={snapshot.specialWeather?.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.specialWeather?.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="special"
+    lang="ne"
+  />
+
+  <SpecialWeatherCard
+    items={snapshot.specialWeather?.items || []}
+    activeNotice={snapshot.specialWeather?.activeNotice || null}
+    lang="ne"
+  />
+</BaseLayout>

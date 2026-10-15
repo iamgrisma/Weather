@@ -1,0 +1,1892 @@
+{
+  "6": {
+    "lat": 27.899553,
+    "lon": 86.907325,
+    "basin": "Koshi",
+    "district": "Solukhumbu"
+  },
+  "7": {
+    "lat": 27.899686,
+    "lon": 86.900661,
+    "basin": "Koshi",
+    "district": "Solukhumbu"
+  },
+  "9": {
+    "lat": 28.010844,
+    "lon": 85.535356,
+    "basin": "Koshi",
+    "district": "Sindhupalchok"
+  },
+  "11": {
+    "lat": 27.8047,
+    "lon": 85.766,
+    "basin": "Koshi",
+    "district": "Sindhupalchok"
+  },
+  "28": {
+    "lat": 28.188822,
+    "lon": 81.36565,
+    "basin": "Babai",
+    "district": "Bardiya"
+  },
+  "29": {
+    "lat": 28.3565601,
+    "lon": 81.7135456,
+    "basin": "Babai",
+    "district": "Bardiya"
+  },
+  "35": {
+    "lat": 28.65305556,
+    "lon": 81.28694444,
+    "basin": "Karnali",
+    "district": "Kailali"
+  },
+  "40": {
+    "lat": 29.246477,
+    "lon": 80.925143,
+    "basin": "Karnali",
+    "district": "Doti"
+  },
+  "41": {
+    "lat": 28.072732,
+    "lon": 83.811066,
+    "basin": "Narayani",
+    "district": "Syangja"
+  },
+  "50": {
+    "lat": 27.632222,
+    "lon": 85.293333,
+    "basin": "Bagmati",
+    "district": "Lalitpur"
+  },
+  "52": {
+    "lat": 27.97,
+    "lon": 85.18,
+    "basin": "Narayani",
+    "district": "Nuwakot"
+  },
+  "54": {
+    "lat": 27.9472,
+    "lon": 82.225,
+    "basin": "West Rapti",
+    "district": "Dang"
+  },
+  "55": {
+    "lat": 28.0075,
+    "lon": 82.093889,
+    "basin": "West Rapti",
+    "district": "Banke"
+  },
+  "66": {
+    "lat": 27.860094,
+    "lon": 85.134943,
+    "basin": "Narayani",
+    "district": "Nuwakot"
+  },
+  "69": {
+    "lat": 27.575,
+    "lon": 85.499,
+    "basin": "Koshi",
+    "district": "KAVREPALANCHOK"
+  },
+  "72": {
+    "lat": 26.895914,
+    "lon": 86.222134,
+    "basin": "Kamala",
+    "district": "Dhanusa"
+  },
+  "77": {
+    "lat": 29.796,
+    "lon": 80.4215,
+    "basin": "mahakali",
+    "district": "Darchula"
+  },
+  "78": {
+    "lat": 29.1723,
+    "lon": 80.2606,
+    "basin": "Mahakali",
+    "district": "Dadeldhura"
+  },
+  "81": {
+    "lat": 27.503344,
+    "lon": 84.278768,
+    "basin": "Narayani",
+    "district": "CHITWAN"
+  },
+  "85": {
+    "lat": 27.5877,
+    "lon": 84.7361,
+    "basin": "Narayani",
+    "district": "Chitwan"
+  },
+  "86": {
+    "lat": 28.9528,
+    "lon": 81.4417,
+    "basin": "Karnali",
+    "district": "Achham"
+  },
+  "87": {
+    "lat": 28.784518,
+    "lon": 81.584198,
+    "basin": "Karnali",
+    "district": "Dailekh"
+  },
+  "101": {
+    "lat": 27.883889,
+    "lon": 83.8,
+    "basin": "Narayani",
+    "district": "Syangja"
+  },
+  "104": {
+    "lat": 27.5537,
+    "lon": 85.7487,
+    "basin": "Koshi",
+    "district": "Kavrepalanchowk"
+  },
+  "106": {
+    "lat": 27.6361,
+    "lon": 86.0846,
+    "basin": "Koshi",
+    "district": "Dolakha"
+  },
+  "107": {
+    "lat": 27.311975,
+    "lon": 87.1892,
+    "basin": "Koshi",
+    "district": "Sankhuwasabha"
+  },
+  "110": {
+    "lat": 27.26,
+    "lon": 86.65,
+    "basin": "Koshi",
+    "district": "Khotang"
+  },
+  "111": {
+    "lat": 26.855192,
+    "lon": 87.152283,
+    "basin": "Koshi",
+    "district": "Sunsari"
+  },
+  "113": {
+    "lat": 27.786773,
+    "lon": 85.899324,
+    "basin": "Koshi",
+    "district": "Sindhupalchok"
+  },
+  "114": {
+    "lat": 27.756831,
+    "lon": 86.193569,
+    "basin": "Koshi",
+    "district": "Dolakha"
+  },
+  "120": {
+    "lat": 27.820186,
+    "lon": 86.226,
+    "basin": "Koshi",
+    "district": "Dolakha"
+  },
+  "126": {
+    "lat": 27.8286,
+    "lon": 85.57694,
+    "basin": "Koshi",
+    "district": "Sindhupalchok"
+  },
+  "129": {
+    "lat": 28.39341,
+    "lon": 83.977405,
+    "basin": "Narayani",
+    "district": "Kaski"
+  },
+  "131": {
+    "lat": 27.869541,
+    "lon": 86.462999,
+    "basin": "Koshi",
+    "district": "DOLAKHA"
+  },
+  "132": {
+    "lat": 27.86915,
+    "lon": 86.462423,
+    "basin": "Koshi",
+    "district": "Dolakha"
+  },
+  "133": {
+    "lat": 27.9,
+    "lon": 86.37,
+    "basin": "Koshi",
+    "district": "Dolakha"
+  },
+  "135": {
+    "lat": 27.69955,
+    "lon": 86.72026,
+    "basin": "Koshi",
+    "district": "Solukhumbu "
+  },
+  "137": {
+    "lat": 28.8701,
+    "lon": 82.2929,
+    "basin": "Karnali",
+    "district": ""
+  },
+  "145": {
+    "lat": 28.683,
+    "lon": 82.2666,
+    "basin": "Karnali",
+    "district": "Rukum (West)"
+  },
+  "156": {
+    "lat": 28.294,
+    "lon": 82.028,
+    "basin": "Babai",
+    "district": "Salyan"
+  },
+  "158": {
+    "lat": 29.779998,
+    "lon": 81.948703,
+    "basin": "Karnali",
+    "district": "Humla"
+  },
+  "159": {
+    "lat": 29.654137,
+    "lon": 81.883093,
+    "basin": "Karnali",
+    "district": ""
+  },
+  "160": {
+    "lat": 29.614088,
+    "lon": 81.871769,
+    "basin": "Karnali",
+    "district": ""
+  },
+  "161": {
+    "lat": 28.77008,
+    "lon": 81.352052,
+    "basin": "Karnali",
+    "district": "Surkhet"
+  },
+  "162": {
+    "lat": 28.65638889,
+    "lon": 82.34694444,
+    "basin": "Karnali",
+    "district": "Rukum (West)"
+  },
+  "163": {
+    "lat": 28.93361111,
+    "lon": 80.90972222,
+    "basin": "Karnali",
+    "district": "Doti"
+  },
+  "166": {
+    "lat": 29.151,
+    "lon": 81.5817,
+    "basin": "Karnali",
+    "district": "Kalikot"
+  },
+  "167": {
+    "lat": 29.228,
+    "lon": 81.952,
+    "basin": "Karnali",
+    "district": "Jumla"
+  },
+  "168": {
+    "lat": 29.203031,
+    "lon": 81.90983,
+    "basin": "Karnali",
+    "district": "Jumla"
+  },
+  "169": {
+    "lat": 29.132902,
+    "lon": 81.59658,
+    "basin": "Karnali",
+    "district": "Jumla"
+  },
+  "170": {
+    "lat": 28.815197,
+    "lon": 81.738498,
+    "basin": "Karnali",
+    "district": "Dailekh"
+  },
+  "171": {
+    "lat": 27.86795,
+    "lon": 82.79885,
+    "basin": "West Rapti",
+    "district": "Dang"
+  },
+  "172": {
+    "lat": 27.953594,
+    "lon": 84.424148,
+    "basin": "Narayani",
+    "district": "Tanahun"
+  },
+  "173": {
+    "lat": 27.796588,
+    "lon": 83.533467,
+    "basin": "Tinau",
+    "district": "PALPA"
+  },
+  "174": {
+    "lat": 27.74381,
+    "lon": 83.462251,
+    "basin": "Tinau",
+    "district": "PALPA"
+  },
+  "175": {
+    "lat": 28.7683583,
+    "lon": 83.7064396,
+    "basin": "Narayani",
+    "district": "Mustang"
+  },
+  "177": {
+    "lat": 28.376,
+    "lon": 83.567,
+    "basin": "Narayani",
+    "district": "Myagdi"
+  },
+  "180": {
+    "lat": 28.216,
+    "lon": 83.686,
+    "basin": "Narayani",
+    "district": "Parbat"
+  },
+  "182": {
+    "lat": 28.18981,
+    "lon": 83.279398,
+    "basin": "Narayani",
+    "district": "Baglung"
+  },
+  "183": {
+    "lat": 28.301,
+    "lon": 83.94299,
+    "basin": "Narayani",
+    "district": "Kaski"
+  },
+  "184": {
+    "lat": 28.301,
+    "lon": 83.918,
+    "basin": "Narayani",
+    "district": "Kaski"
+  },
+  "185": {
+    "lat": 28.093,
+    "lon": 84.228,
+    "basin": "Narayani",
+    "district": "Tanahun"
+  },
+  "186": {
+    "lat": 28.2031524,
+    "lon": 84.4014369,
+    "basin": "Narayani",
+    "district": "Lamjung"
+  },
+  "187": {
+    "lat": 28.220681,
+    "lon": 81.574758,
+    "basin": "Karnali",
+    "district": "Banke"
+  },
+  "188": {
+    "lat": 28.0628,
+    "lon": 84.487,
+    "basin": "Narayani",
+    "district": "Lamjung"
+  },
+  "189": {
+    "lat": 28.000431,
+    "lon": 84.889347,
+    "basin": "Narayani",
+    "district": "Dhading"
+  },
+  "190": {
+    "lat": 28.16222222,
+    "lon": 85.34611111,
+    "basin": "Narayani",
+    "district": "Rasuwa"
+  },
+  "191": {
+    "lat": 28.17065,
+    "lon": 85.342554,
+    "basin": "Narayani",
+    "district": "Rasuwa"
+  },
+  "192": {
+    "lat": 27.774022,
+    "lon": 85.425821,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "193": {
+    "lat": 27.371,
+    "lon": 85.47399,
+    "basin": "Bagmati",
+    "district": "KAVREPALANCHOK"
+  },
+  "194": {
+    "lat": 27.1981894,
+    "lon": 85.4927953,
+    "basin": "Bagmati",
+    "district": "Makawanpur"
+  },
+  "196": {
+    "lat": 27.3024,
+    "lon": 87.2072,
+    "basin": "Koshi",
+    "district": "Sankhuwasabha"
+  },
+  "197": {
+    "lat": 27.295,
+    "lon": 87.21499,
+    "basin": "Koshi",
+    "district": "Sankhuwasabha"
+  },
+  "198": {
+    "lat": 26.9233,
+    "lon": 87.1552,
+    "basin": "Koshi",
+    "district": "Dhankuta"
+  },
+  "199": {
+    "lat": 27.641,
+    "lon": 85.71,
+    "basin": "Koshi",
+    "district": "Sindhupalchok"
+  },
+  "202": {
+    "lat": 27.17083333,
+    "lon": 86.40111111,
+    "basin": "Koshi",
+    "district": "Okhaldhunga"
+  },
+  "203": {
+    "lat": 27.444704,
+    "lon": 86.572648,
+    "basin": "Koshi",
+    "district": "Solukhumbu "
+  },
+  "205": {
+    "lat": 27.27194,
+    "lon": 86.67333,
+    "basin": "Koshi",
+    "district": "Okhaldhunga"
+  },
+  "206": {
+    "lat": 27.2695335,
+    "lon": 85.8733013,
+    "basin": "Bagmati",
+    "district": "Sindhuli"
+  },
+  "207": {
+    "lat": 26.9283,
+    "lon": 87.1425,
+    "basin": "Koshi",
+    "district": "Bhojpur"
+  },
+  "208": {
+    "lat": 28.0108296,
+    "lon": 83.6082701,
+    "basin": "Narayani",
+    "district": "Syangja"
+  },
+  "209": {
+    "lat": 27.37861,
+    "lon": 87.63388,
+    "basin": "Koshi",
+    "district": "Taplejung"
+  },
+  "210": {
+    "lat": 27.3775,
+    "lon": 87.62666,
+    "basin": "Koshi",
+    "district": "Taplejung"
+  },
+  "211": {
+    "lat": 27.2863,
+    "lon": 87.7233,
+    "basin": "Koshi",
+    "district": "Taplejung"
+  },
+  "212": {
+    "lat": 27.1586,
+    "lon": 87.7116,
+    "basin": "Koshi",
+    "district": "Panchthar "
+  },
+  "213": {
+    "lat": 26.9152,
+    "lon": 87.1638,
+    "basin": "Koshi",
+    "district": "Dhankuta"
+  },
+  "217": {
+    "lat": 28.18888,
+    "lon": 84.4236,
+    "basin": "Narayani",
+    "district": "Lamjung"
+  },
+  "222": {
+    "lat": 27.749462,
+    "lon": 85.4649086,
+    "basin": "",
+    "district": "Kathmandu"
+  },
+  "227": {
+    "lat": 29.4877756,
+    "lon": 80.5667782,
+    "basin": "Mahakali",
+    "district": "Baitadi"
+  },
+  "228": {
+    "lat": 28.341253,
+    "lon": 83.561792,
+    "basin": "Narayani",
+    "district": "Myagdi"
+  },
+  "229": {
+    "lat": 28.974343,
+    "lon": 81.116627,
+    "basin": "Karnali",
+    "district": "Achham"
+  },
+  "230": {
+    "lat": 27.75,
+    "lon": 84.35,
+    "basin": "Narayani",
+    "district": "Tanahun"
+  },
+  "231": {
+    "lat": 28.042071,
+    "lon": 84.629066,
+    "basin": "Narayani",
+    "district": "Gorkha"
+  },
+  "233": {
+    "lat": 27.951219,
+    "lon": 83.387685,
+    "basin": "Narayani",
+    "district": "Palpa"
+  },
+  "234": {
+    "lat": 28.046,
+    "lon": 84.816,
+    "basin": "Narayani",
+    "district": "Gorkha"
+  },
+  "235": {
+    "lat": 27.44,
+    "lon": 84.97,
+    "basin": "Narayani",
+    "district": "Makawanpur"
+  },
+  "236": {
+    "lat": 27.36,
+    "lon": 85.47,
+    "basin": "Bagmati",
+    "district": "Makawanpur"
+  },
+  "237": {
+    "lat": 26.9299,
+    "lon": 87.3173,
+    "basin": "Koshi",
+    "district": "Dhankuta"
+  },
+  "238": {
+    "lat": 26.709853,
+    "lon": 87.88055,
+    "basin": "Kankai",
+    "district": "Ilam"
+  },
+  "241": {
+    "lat": 27.69971,
+    "lon": 84.41894,
+    "basin": "Narayani",
+    "district": "Chitwan"
+  },
+  "242": {
+    "lat": 28.0452,
+    "lon": 83.56068,
+    "basin": "Narayani",
+    "district": "Parbat"
+  },
+  "243": {
+    "lat": 27.337966,
+    "lon": 85.993744,
+    "basin": "Koshi",
+    "district": "Sindhuli"
+  },
+  "245": {
+    "lat": 26.855192,
+    "lon": 87.152283,
+    "basin": "Koshi",
+    "district": "Sunsari"
+  },
+  "246": {
+    "lat": 28.830786,
+    "lon": 80.51858,
+    "basin": "Mohana",
+    "district": "Kailali"
+  },
+  "255": {
+    "lat": 27.756831,
+    "lon": 86.193569,
+    "basin": "Koshi",
+    "district": "Dolakha"
+  },
+  "258": {
+    "lat": 28.64118,
+    "lon": 81.28334,
+    "basin": "Karnali",
+    "district": "Kailali"
+  },
+  "259": {
+    "lat": 27.755222,
+    "lon": 85.421528,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "260": {
+    "lat": 27.713,
+    "lon": 85.3497,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "262": {
+    "lat": 27.6775,
+    "lon": 85.3358,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "263": {
+    "lat": 27.650902,
+    "lon": 85.312493,
+    "basin": "Bagmati",
+    "district": "Lalitpur"
+  },
+  "264": {
+    "lat": 27.225,
+    "lon": 85.5091,
+    "basin": "Bagmati",
+    "district": "Sindhuli"
+  },
+  "265": {
+    "lat": 27.71,
+    "lon": 84.43,
+    "basin": "Narayani",
+    "district": "Chitwan"
+  },
+  "282": {
+    "lat": 27.972,
+    "lon": 83.4669,
+    "basin": "Narayani",
+    "district": "Gulmi"
+  },
+  "509": {
+    "lat": 29.41647389,
+    "lon": 80.656015,
+    "basin": "",
+    "district": "BAITADI"
+  },
+  "565": {
+    "lat": 29.75,
+    "lon": 82.55,
+    "basin": "",
+    "district": ""
+  },
+  "581": {
+    "lat": 29.77827806,
+    "lon": 81.952645,
+    "basin": "Karnali",
+    "district": "HUMLA"
+  },
+  "849": {
+    "lat": 28.02851111,
+    "lon": 85.10623056,
+    "basin": "Narayani",
+    "district": "NUWAKOT"
+  },
+  "850": {
+    "lat": 28.23155,
+    "lon": 84.874304,
+    "basin": "Narayani",
+    "district": "GORKHA"
+  },
+  "869": {
+    "lat": 27.8595819,
+    "lon": 86.7959486,
+    "basin": "Koshi",
+    "district": "Solukhumbu "
+  },
+  "873": {
+    "lat": 27.8333,
+    "lon": 84.55,
+    "basin": "Narayani",
+    "district": "Chitwan"
+  },
+  "876": {
+    "lat": 28.508327,
+    "lon": 83.905059,
+    "basin": "Narayani",
+    "district": "Kaski"
+  },
+  "879": {
+    "lat": 28.93111111,
+    "lon": 80.53194444,
+    "basin": "Machheli",
+    "district": "Kailali"
+  },
+  "880": {
+    "lat": 28.30388889,
+    "lon": 81.82583333,
+    "basin": "Babai",
+    "district": "Salyan"
+  },
+  "882": {
+    "lat": 28.119845,
+    "lon": 82.882328,
+    "basin": "West Rapti",
+    "district": "Pyuthan"
+  },
+  "960": {
+    "lat": 28.0075,
+    "lon": 82.093889,
+    "basin": "West Rapti",
+    "district": "Banke"
+  },
+  "961": {
+    "lat": 28.007,
+    "lon": 82.095,
+    "basin": "West Rapti",
+    "district": "Banke"
+  },
+  "991": {
+    "lat": 29.130931,
+    "lon": 80.415089,
+    "basin": "Mahakali",
+    "district": "Dadeldhura"
+  },
+  "4564": {
+    "lat": 27.895069,
+    "lon": 86.838542,
+    "basin": "Koshi",
+    "district": "Solukhumbu"
+  },
+  "4565": {
+    "lat": 29.118509,
+    "lon": 82.604892,
+    "basin": "Karnali",
+    "district": "Dolpa"
+  },
+  "4579": {
+    "lat": 29.694,
+    "lon": 80.613,
+    "basin": "Mahakali",
+    "district": ""
+  },
+  "4594": {
+    "lat": 29.668,
+    "lon": 80.56,
+    "basin": "Mahakali",
+    "district": "Darchula"
+  },
+  "4595": {
+    "lat": 29.64,
+    "lon": 80.509,
+    "basin": "",
+    "district": ""
+  },
+  "4598": {
+    "lat": 29.344,
+    "lon": 80.413,
+    "basin": "Mahakali",
+    "district": "Dadeldhura"
+  },
+  "4599": {
+    "lat": 29.324,
+    "lon": 80.394,
+    "basin": "Mahakali",
+    "district": "Dadeldhura"
+  },
+  "4600": {
+    "lat": 29.169,
+    "lon": 80.329,
+    "basin": "Mahakali",
+    "district": "Dadeldhura"
+  },
+  "4601": {
+    "lat": 28.951,
+    "lon": 80.254,
+    "basin": "Mahakali",
+    "district": "Kanchanpur"
+  },
+  "4602": {
+    "lat": 28.913,
+    "lon": 80.323,
+    "basin": "Mahakali",
+    "district": "Kanchanpur"
+  },
+  "4604": {
+    "lat": 30.17,
+    "lon": 81.53,
+    "basin": "",
+    "district": ""
+  },
+  "4605": {
+    "lat": 29.95,
+    "lon": 81.868,
+    "basin": "",
+    "district": ""
+  },
+  "4606": {
+    "lat": 29.604,
+    "lon": 81.759,
+    "basin": "Karnali",
+    "district": "Bajura"
+  },
+  "4607": {
+    "lat": 29.538,
+    "lon": 82.064,
+    "basin": "",
+    "district": ""
+  },
+  "4608": {
+    "lat": 29.531,
+    "lon": 81.793,
+    "basin": "",
+    "district": ""
+  },
+  "4609": {
+    "lat": 29.497,
+    "lon": 81.668,
+    "basin": "",
+    "district": ""
+  },
+  "4610": {
+    "lat": 28.94,
+    "lon": 81.674,
+    "basin": "",
+    "district": ""
+  },
+  "4611": {
+    "lat": 28.96,
+    "lon": 81.12,
+    "basin": "",
+    "district": ""
+  },
+  "4612": {
+    "lat": 29.555,
+    "lon": 81.215,
+    "basin": "Karnali",
+    "district": "Bajhang"
+  },
+  "4613": {
+    "lat": 29.557,
+    "lon": 81.1964,
+    "basin": "Mahakali",
+    "district": "Bajhang"
+  },
+  "4614": {
+    "lat": 29.5,
+    "lon": 81.129,
+    "basin": "Karnali",
+    "district": ""
+  },
+  "4615": {
+    "lat": 29.59,
+    "lon": 81.219,
+    "basin": "Karnali",
+    "district": "Bajhang"
+  },
+  "4616": {
+    "lat": 29.49,
+    "lon": 81.055,
+    "basin": "Karnali",
+    "district": ""
+  },
+  "4617": {
+    "lat": 29.308,
+    "lon": 80.703,
+    "basin": "Karnali",
+    "district": "Dadeldhura"
+  },
+  "4618": {
+    "lat": 29.162,
+    "lon": 81.309,
+    "basin": "Karnali",
+    "district": "Achham"
+  },
+  "4619": {
+    "lat": 29.179,
+    "lon": 81.215,
+    "basin": "Karnali",
+    "district": "Achham"
+  },
+  "4620": {
+    "lat": 29.47,
+    "lon": 80.898,
+    "basin": "Karnali",
+    "district": "Bajhang"
+  },
+  "4622": {
+    "lat": 29.2,
+    "lon": 81.03,
+    "basin": "",
+    "district": ""
+  },
+  "4623": {
+    "lat": 29.382413,
+    "lon": 80.769669,
+    "basin": "Karnali",
+    "district": "Baitadi"
+  },
+  "4624": {
+    "lat": 29.359068,
+    "lon": 80.839582,
+    "basin": "",
+    "district": "Doti"
+  },
+  "4625": {
+    "lat": 29.027,
+    "lon": 81.18,
+    "basin": "",
+    "district": ""
+  },
+  "4627": {
+    "lat": 29.12,
+    "lon": 82.61,
+    "basin": "",
+    "district": ""
+  },
+  "4628": {
+    "lat": 28.713,
+    "lon": 82.284,
+    "basin": "",
+    "district": ""
+  },
+  "4629": {
+    "lat": 28.701,
+    "lon": 82.22,
+    "basin": "",
+    "district": ""
+  },
+  "4630": {
+    "lat": 28.5739207,
+    "lon": 81.6671437,
+    "basin": "Karnali",
+    "district": "Surkhet"
+  },
+  "4631": {
+    "lat": 28.552,
+    "lon": 81.576,
+    "basin": "",
+    "district": ""
+  },
+  "4632": {
+    "lat": 28.568,
+    "lon": 81.768,
+    "basin": "Karnali",
+    "district": "Surkhet"
+  },
+  "4633": {
+    "lat": 28.61,
+    "lon": 80.749,
+    "basin": "Mohana",
+    "district": "Kailali"
+  },
+  "4634": {
+    "lat": 28.558,
+    "lon": 80.816,
+    "basin": "Karnali",
+    "district": "Kailali"
+  },
+  "4635": {
+    "lat": 28.698414,
+    "lon": 80.904985,
+    "basin": "Mohana",
+    "district": "Kailali"
+  },
+  "4636": {
+    "lat": 28.501,
+    "lon": 81.049,
+    "basin": "Mohana",
+    "district": "Kailali"
+  },
+  "4637": {
+    "lat": 28.2,
+    "lon": 81.368,
+    "basin": "",
+    "district": ""
+  },
+  "4638": {
+    "lat": 28.222,
+    "lon": 81.578,
+    "basin": "",
+    "district": ""
+  },
+  "4640": {
+    "lat": 28.214136,
+    "lon": 82.695314,
+    "basin": "West Rapti",
+    "district": "Pyuthan"
+  },
+  "4641": {
+    "lat": 28.002,
+    "lon": 82.798,
+    "basin": "",
+    "district": ""
+  },
+  "4642": {
+    "lat": 26.538,
+    "lon": 87.256,
+    "basin": "",
+    "district": ""
+  },
+  "4643": {
+    "lat": 28.062,
+    "lon": 82.823,
+    "basin": "",
+    "district": ""
+  },
+  "4644": {
+    "lat": 27.8021273,
+    "lon": 82.7863605,
+    "basin": "West Rapti",
+    "district": "Arghakhanchi"
+  },
+  "4645": {
+    "lat": 27.95,
+    "lon": 82.227,
+    "basin": "",
+    "district": ""
+  },
+  "4646": {
+    "lat": 28.159,
+    "lon": 81.775,
+    "basin": "West Rapti",
+    "district": "BANKE"
+  },
+  "4647": {
+    "lat": 28.202405,
+    "lon": 81.697579,
+    "basin": "West Rapti",
+    "district": "BANKE"
+  },
+  "4649": {
+    "lat": 28.072,
+    "lon": 83.8,
+    "basin": "Narayani",
+    "district": ""
+  },
+  "4650": {
+    "lat": 27.937,
+    "lon": 83.431,
+    "basin": "Narayani",
+    "district": ""
+  },
+  "4651": {
+    "lat": 27.947452,
+    "lon": 83.874715,
+    "basin": "Narayani",
+    "district": "Palpa"
+  },
+  "4652": {
+    "lat": 28.226,
+    "lon": 83.226,
+    "basin": "Narayani",
+    "district": ""
+  },
+  "4653": {
+    "lat": 27.964496,
+    "lon": 84.263371,
+    "basin": "Narayani",
+    "district": "Tanahun"
+  },
+  "4654": {
+    "lat": 27.970405,
+    "lon": 84.266532,
+    "basin": "Narayani",
+    "district": "TANAHU"
+  },
+  "4655": {
+    "lat": 28.28022,
+    "lon": 84.35831,
+    "basin": "Narayani",
+    "district": "Lamjung"
+  },
+  "4656": {
+    "lat": 28.20302,
+    "lon": 84.45229,
+    "basin": "Narayani",
+    "district": "Lamjung"
+  },
+  "4657": {
+    "lat": 28.098163,
+    "lon": 85.318589,
+    "basin": "Narayani",
+    "district": "Nuwakot"
+  },
+  "4658": {
+    "lat": 27.974259,
+    "lon": 85.185829,
+    "basin": "Narayani",
+    "district": "Nuwakot"
+  },
+  "4659": {
+    "lat": 27.918694,
+    "lon": 85.311554,
+    "basin": "Narayani",
+    "district": "Nuwakot"
+  },
+  "4660": {
+    "lat": 27.895767,
+    "lon": 85.232256,
+    "basin": "Narayani",
+    "district": ""
+  },
+  "4661": {
+    "lat": 27.82,
+    "lon": 84.45,
+    "basin": "Narayani",
+    "district": "Chitwan"
+  },
+  "4662": {
+    "lat": 27.548673,
+    "lon": 84.827716,
+    "basin": "Narayani",
+    "district": "Makawanpur"
+  },
+  "4665": {
+    "lat": 27.8795678,
+    "lon": 86.4351632,
+    "basin": "",
+    "district": ""
+  },
+  "4675": {
+    "lat": 26.602,
+    "lon": 87.336,
+    "basin": "",
+    "district": ""
+  },
+  "4676": {
+    "lat": 27.693564,
+    "lon": 87.363245,
+    "basin": "Koshi",
+    "district": "Sankhuwasabha"
+  },
+  "4677": {
+    "lat": 27.576,
+    "lon": 86.2,
+    "basin": "Koshi",
+    "district": "Ramechhap"
+  },
+  "4678": {
+    "lat": 26.873,
+    "lon": 86.819,
+    "basin": "Koshi",
+    "district": "Udayapur"
+  },
+  "4679": {
+    "lat": 26.467707,
+    "lon": 87.359287,
+    "basin": "Keshaliya",
+    "district": "Morang"
+  },
+  "4680": {
+    "lat": 26.833324,
+    "lon": 87.89934,
+    "basin": "Kankai",
+    "district": "Ilam"
+  },
+  "4681": {
+    "lat": 26.912816,
+    "lon": 87.909616,
+    "basin": "Kankai",
+    "district": "Ilam"
+  },
+  "4682": {
+    "lat": 26.913684,
+    "lon": 87.767529,
+    "basin": "Kankai",
+    "district": "Ilam"
+  },
+  "4683": {
+    "lat": 26.473,
+    "lon": 87.823,
+    "basin": "Kankai",
+    "district": ""
+  },
+  "4686": {
+    "lat": 28.876454,
+    "lon": 80.673521,
+    "basin": "Mohana",
+    "district": "Kailali"
+  },
+  "4688": {
+    "lat": 27.68,
+    "lon": 83.12,
+    "basin": "Banganga",
+    "district": "Kapilvastu"
+  },
+  "4689": {
+    "lat": 27.499586,
+    "lon": 83.2289809,
+    "basin": "Tinau",
+    "district": "Kapilbastu"
+  },
+  "4695": {
+    "lat": 26.875,
+    "lon": 86.12,
+    "basin": "",
+    "district": ""
+  },
+  "4765": {
+    "lat": 28.79,
+    "lon": 83.746,
+    "basin": "",
+    "district": ""
+  },
+  "4767": {
+    "lat": 27.8595819,
+    "lon": 86.7959486,
+    "basin": "",
+    "district": ""
+  },
+  "4768": {
+    "lat": 29.529,
+    "lon": 82.066,
+    "basin": "Karnali",
+    "district": "Mugu"
+  },
+  "4777": {
+    "lat": 27.88,
+    "lon": 86.45,
+    "basin": "",
+    "district": ""
+  },
+  "4778": {
+    "lat": 27.74,
+    "lon": 87.19,
+    "basin": "",
+    "district": ""
+  },
+  "4779": {
+    "lat": 27.601,
+    "lon": 83.867,
+    "basin": "",
+    "district": ""
+  },
+  "4781": {
+    "lat": 27.833,
+    "lon": 84.546,
+    "basin": "Narayani",
+    "district": "Chitwan"
+  },
+  "4782": {
+    "lat": 27.862,
+    "lon": 85.138,
+    "basin": "",
+    "district": ""
+  },
+  "4783": {
+    "lat": 27.97,
+    "lon": 85.181,
+    "basin": "",
+    "district": ""
+  },
+  "4784": {
+    "lat": 28.16,
+    "lon": 85.349,
+    "basin": "",
+    "district": ""
+  },
+  "4785": {
+    "lat": 28.19,
+    "lon": 85.62,
+    "basin": "",
+    "district": ""
+  },
+  "4786": {
+    "lat": 28.76,
+    "lon": 84.29,
+    "basin": "",
+    "district": ""
+  },
+  "4787": {
+    "lat": 27.886,
+    "lon": 83.792,
+    "basin": "",
+    "district": ""
+  },
+  "4789": {
+    "lat": 28.05,
+    "lon": 83.56,
+    "basin": "Narayani",
+    "district": ""
+  },
+  "4791": {
+    "lat": 28.640678,
+    "lon": 82.030897,
+    "basin": "Karnali",
+    "district": "Jajarkot"
+  },
+  "4792": {
+    "lat": 29.12,
+    "lon": 82.61,
+    "basin": "",
+    "district": ""
+  },
+  "4793": {
+    "lat": 28.96,
+    "lon": 81.12,
+    "basin": "Karnali",
+    "district": "Achham"
+  },
+  "4794": {
+    "lat": 28.94,
+    "lon": 81.674,
+    "basin": "Karnali",
+    "district": ""
+  },
+  "4795": {
+    "lat": 29.538,
+    "lon": 82.064,
+    "basin": "Karnali",
+    "district": "Mugu"
+  },
+  "4800": {
+    "lat": 27.63,
+    "lon": 85.31,
+    "basin": "",
+    "district": ""
+  },
+  "4817": {
+    "lat": 28.937728,
+    "lon": 81.521359,
+    "basin": "Karnali",
+    "district": "Dailekh"
+  },
+  "4824": {
+    "lat": 28.162222,
+    "lon": 85.345988,
+    "basin": "Narayani",
+    "district": "Rasuwa"
+  },
+  "4830": {
+    "lat": 26.912863,
+    "lon": 86.24833,
+    "basin": "Kamala",
+    "district": "Udayapur"
+  },
+  "4874": {
+    "lat": 28.4485859,
+    "lon": 81.280054,
+    "basin": "Karnali",
+    "district": "Bardiya"
+  },
+  "4876": {
+    "lat": 27.775278,
+    "lon": 85.438611,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "4877": {
+    "lat": 27.079444,
+    "lon": 86.028333,
+    "basin": "Kamala",
+    "district": "Sindhuli"
+  },
+  "4904": {
+    "lat": 27.367963,
+    "lon": 83.330417,
+    "basin": "",
+    "district": "Rupandehi"
+  },
+  "4905": {
+    "lat": 27.50455,
+    "lon": 83.045969,
+    "basin": "Banganga",
+    "district": "Kapilvastu"
+  },
+  "4906": {
+    "lat": 29.9433,
+    "lon": 81.8569,
+    "basin": "Karnali",
+    "district": "Humla"
+  },
+  "4907": {
+    "lat": 29.525219,
+    "lon": 81.797362,
+    "basin": "Karnali",
+    "district": "Achham"
+  },
+  "4910": {
+    "lat": 29.2956,
+    "lon": 81.4019,
+    "basin": "Karnali ",
+    "district": "Bajura"
+  },
+  "4911": {
+    "lat": 28.544321,
+    "lon": 81.597442,
+    "basin": "Karnali",
+    "district": "Surkhet"
+  },
+  "4913": {
+    "lat": 28.271297,
+    "lon": 85.377649,
+    "basin": "Narayani",
+    "district": "Rasuwa"
+  },
+  "4925": {
+    "lat": 27.972477,
+    "lon": 85.634731,
+    "basin": "Koshi",
+    "district": "Sindhupalchok"
+  },
+  "5007": {
+    "lat": 28.06376,
+    "lon": 81.844892,
+    "basin": "West Rapti",
+    "district": "Banke"
+  },
+  "5043": {
+    "lat": 28.945463,
+    "lon": 80.103442,
+    "basin": "Mahakali",
+    "district": "Kanchanpur"
+  },
+  "5047": {
+    "lat": 27.74356779,
+    "lon": 85.351314,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "5080": {
+    "lat": 27.721801,
+    "lon": 85.344395,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "5081": {
+    "lat": 27.692285,
+    "lon": 85.25073,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "5082": {
+    "lat": 27.62023374,
+    "lon": 85.344716,
+    "basin": "Bagmati",
+    "district": "Lalitpur"
+  },
+  "5083": {
+    "lat": 27.623968,
+    "lon": 85.353719,
+    "basin": "Bagmati",
+    "district": "Lalitpur"
+  },
+  "5084": {
+    "lat": 27.668698,
+    "lon": 85.431669,
+    "basin": "Bagmati",
+    "district": "Bhaktapur"
+  },
+  "5116": {
+    "lat": 27.672794,
+    "lon": 85.365522,
+    "basin": "Bagmati",
+    "district": "Bhaktapur"
+  },
+  "5119": {
+    "lat": 27.166405,
+    "lon": 85.90232,
+    "basin": "Kamala",
+    "district": "Sindhuli"
+  },
+  "5120": {
+    "lat": 26.983797,
+    "lon": 85.910493,
+    "basin": "Ratu",
+    "district": "DHANUSA"
+  },
+  "5121": {
+    "lat": 27.07,
+    "lon": 85.938,
+    "basin": "Ratu",
+    "district": "DHANUSA"
+  },
+  "5122": {
+    "lat": 27.18042,
+    "lon": 85.170949,
+    "basin": "Lalbakaiya",
+    "district": "Bara"
+  },
+  "5123": {
+    "lat": 26.98584,
+    "lon": 85.231314,
+    "basin": "Basin From Siwalik Zone",
+    "district": "Rautahat"
+  },
+  "5124": {
+    "lat": 27.336303,
+    "lon": 85.194048,
+    "basin": "Lalbakaiya",
+    "district": "Makwanpur"
+  },
+  "5125": {
+    "lat": 27.025129,
+    "lon": 85.043521,
+    "basin": "Basin From Siwalik Zone or Southern Block 2B",
+    "district": "Bara"
+  },
+  "5126": {
+    "lat": 27.154046,
+    "lon": 85.000865,
+    "basin": "Basin From Siwalik Zone or Southern Block 2B",
+    "district": "Bara"
+  },
+  "5127": {
+    "lat": 27.113396,
+    "lon": 85.371086,
+    "basin": "Bagmati",
+    "district": "Rautahat"
+  },
+  "5331": {
+    "lat": 27.74412,
+    "lon": 85.47802,
+    "basin": "Bagmati",
+    "district": "Kathmandu"
+  },
+  "5474": {
+    "lat": 27.320958,
+    "lon": 86.763448,
+    "basin": "Koshi",
+    "district": "Khotang"
+  },
+  "5475": {
+    "lat": 27.176729,
+    "lon": 86.473535,
+    "basin": "Koshi",
+    "district": "Okhaldhunga"
+  },
+  "5482": {
+    "lat": 28.5883,
+    "lon": 81.24846,
+    "basin": "Karnali",
+    "district": "Bardiya"
+  },
+  "5483": {
+    "lat": 28.03487,
+    "lon": 82.30392,
+    "basin": "Babai",
+    "district": "Dang"
+  },
+  "5485": {
+    "lat": 26.78396,
+    "lon": 86.693926,
+    "basin": "Koshi",
+    "district": "Udayapur"
+  },
+  "5486": {
+    "lat": 26.815065,
+    "lon": 86.705307,
+    "basin": "Koshi",
+    "district": "Udayapur"
+  },
+  "5489": {
+    "lat": 29.5,
+    "lon": 81.129,
+    "basin": "Karnali",
+    "district": "Bajhang"
+  },
+  "5493": {
+    "lat": 29.64,
+    "lon": 80.5121,
+    "basin": "Mahakali",
+    "district": "Baitadi"
+  },
+  "5494": {
+    "lat": 29.694,
+    "lon": 80.613,
+    "basin": "Mahakali",
+    "district": "Darchula"
+  },
+  "5497": {
+    "lat": 26.510811,
+    "lon": 86.782523,
+    "basin": "Balan-Khado",
+    "district": "Saptari"
+  },
+  "5498": {
+    "lat": 26.626486,
+    "lon": 86.726257,
+    "basin": "Balan-Khado",
+    "district": "Saptari"
+  },
+  "5500": {
+    "lat": 26.783459,
+    "lon": 86.574356,
+    "basin": "Balan-Khado",
+    "district": "Udayapur"
+  },
+  "5502": {
+    "lat": 26.784702,
+    "lon": 86.352242,
+    "basin": "Kamala",
+    "district": "Siraha"
+  },
+  "5503": {
+    "lat": 26.97419,
+    "lon": 86.44001,
+    "basin": "Kamala",
+    "district": "Udayapur"
+  },
+  "5520": {
+    "lat": 27.1636,
+    "lon": 86.0116,
+    "basin": "Kamala",
+    "district": "Sindhuli"
+  },
+  "5521": {
+    "lat": 27.12,
+    "lon": 86.0802,
+    "basin": "Kamala",
+    "district": "Sindhuli"
+  },
+  "5522": {
+    "lat": 27.138,
+    "lon": 86.024,
+    "basin": "Kamala",
+    "district": "Sindhuli"
+  },
+  "5526": {
+    "lat": 26.729242,
+    "lon": 87.19529,
+    "basin": "Keshaliya",
+    "district": "Sunsari"
+  },
+  "5527": {
+    "lat": 26.704172,
+    "lon": 87.211555,
+    "basin": "Keshaliya",
+    "district": "Sunsari"
+  },
+  "5528": {
+    "lat": 26.604353,
+    "lon": 87.128845,
+    "basin": "Keshaliya",
+    "district": "Sunsari"
+  },
+  "5530": {
+    "lat": 26.65885,
+    "lon": 87.317154,
+    "basin": "Keshaliya",
+    "district": "Morang"
+  },
+  "5531": {
+    "lat": 26.598001,
+    "lon": 87.287292,
+    "basin": "Keshaliya",
+    "district": "Sunsari"
+  },
+  "5532": {
+    "lat": 26.661169,
+    "lon": 87.408989,
+    "basin": "Keshaliya",
+    "district": "Morang"
+  },
+  "5533": {
+    "lat": 26.658855,
+    "lon": 87.488945,
+    "basin": "Keshaliya",
+    "district": "Morang"
+  },
+  "5534": {
+    "lat": 26.64039,
+    "lon": 87.934586,
+    "basin": "Mechi",
+    "district": "Jhapa"
+  },
+  "5535": {
+    "lat": 26.660345,
+    "lon": 88.107933,
+    "basin": "Mechi",
+    "district": "Jhapa"
+  },
+  "5536": {
+    "lat": 28.890679,
+    "lon": 80.761787,
+    "basin": "Karnali",
+    "district": "Kailali"
+  },
+  "5554": {
+    "lat": 28.852886,
+    "lon": 80.433658,
+    "basin": "Mahakali",
+    "district": "Kanchanpur"
+  },
+  "5572": {
+    "lat": 28.99073,
+    "lon": 82.577203,
+    "basin": "Bheri",
+    "district": "Dolpa"
+  },
+  "5574": {
+    "lat": 28.961434,
+    "lon": 82.246942,
+    "basin": "Bheri",
+    "district": "Jajarkot"
+  },
+  "5593": {
+    "lat": 28.53,
+    "lon": 84.828,
+    "basin": "",
+    "district": ""
+  },
+  "5599": {
+    "lat": 28.516186,
+    "lon": 84.358769,
+    "basin": "Narayani",
+    "district": "Manang"
+  },
+  "5607": {
+    "lat": 29.943636,
+    "lon": 81.848762,
+    "basin": "Karnali",
+    "district": "Humla"
+  },
+  "5615": {
+    "lat": 28.582077,
+    "lon": 81.064201,
+    "basin": "Mohana Basin",
+    "district": "kailali"
+  },
+  "5616": {
+    "lat": 27.873336,
+    "lon": 86.458148,
+    "basin": "",
+    "district": ""
+  },
+  "5620": {
+    "lat": 28.927377,
+    "lon": 80.070136,
+    "basin": "Mahakali",
+    "district": "Kanchanpur"
+  },
+  "5640": {
+    "lat": 28.425662,
+    "lon": 81.3946336,
+    "basin": "Babai Basin",
+    "district": ""
+  },
+  "5673": {
+    "lat": 26.945607,
+    "lon": 85.309674,
+    "basin": "",
+    "district": "RAUTAHAT"
+  },
+  "5674": {
+    "lat": 28.933925,
+    "lon": 80.294645,
+    "basin": "",
+    "district": "KANCHANPUR"
+  },
+  "5675": {
+    "lat": 28.66261,
+    "lon": 81.02406,
+    "basin": "Mohana",
+    "district": "KAILALI"
+  },
+  "5676": {
+    "lat": 27.7551468,
+    "lon": 83.3160475,
+    "basin": "",
+    "district": ""
+  },
+  "5677": {
+    "lat": 28.084454,
+    "lon": 82.828611,
+    "basin": "West Rapti",
+    "district": "PYUTHAN"
+  },
+  "5679": {
+    "lat": 29.225442,
+    "lon": 81.459547,
+    "basin": "",
+    "district": ""
+  },
+  "5684": {
+    "lat": 27.50615278,
+    "lon": 85.60069167,
+    "basin": "",
+    "district": ""
+  },
+  "5687": {
+    "lat": 26.977,
+    "lon": 85.393,
+    "basin": "Bagmati",
+    "district": "SARLAHI"
+  },
+  "5688": {
+    "lat": 26.989,
+    "lon": 85.467,
+    "basin": "Bagmati",
+    "district": "SARLAHI"
+  },
+  "5690": {
+    "lat": 85.689244,
+    "lon": 27.523273,
+    "basin": "Koshi",
+    "district": "KAVREPALANCHOK"
+  },
+  "5692": {
+    "lat": 27.7628497,
+    "lon": 83.201588,
+    "basin": "Banganga",
+    "district": "KAPILVASTU"
+  },
+  "5693": {
+    "lat": 27.5763519,
+    "lon": 83.0472644,
+    "basin": "Banganga",
+    "district": "KAPILVASTU"
+  },
+  "5694": {
+    "lat": 27.5458019,
+    "lon": 82.9882974,
+    "basin": "Banganga",
+    "district": ""
+  },
+  "5695": {
+    "lat": 27.6082829,
+    "lon": 82.9593431,
+    "basin": "Banganga",
+    "district": "KAPILVASTU"
+  },
+  "5696": {
+    "lat": 27.658067,
+    "lon": 82.9957647,
+    "basin": "Banganga",
+    "district": ""
+  },
+  "5705": {
+    "lat": 27.802328,
+    "lon": 85.00305,
+    "basin": "Narayani",
+    "district": ""
+  },
+  "5706": {
+    "lat": 28.7599,
+    "lon": 80.39376,
+    "basin": "Mahakali",
+    "district": "KANCHANPUR"
+  },
+  "5708": {
+    "lat": 28.8886706,
+    "lon": 80.3954179,
+    "basin": "Mahakali",
+    "district": "KANCHANPUR"
+  },
+  "5709": {
+    "lat": 28.7288083,
+    "lon": 80.8212694,
+    "basin": "Karnali",
+    "district": "KAILALI"
+  }
+}

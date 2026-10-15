@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RefreshBar from '../components/RefreshBar.astro';
+import CityForecastMatrix from '../components/CityForecastMatrix.astro';
+import WeatherTable from '../components/WeatherTable.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'Nepal Major Cities 3-Day Weather Forecasts (19 Urban Centers) | DHM MFD';
+const description = 'Official multi-day weather predictions across 19 major cities in Nepal including Kathmandu, Pokhara, Biratnagar, and Nepalgunj.';
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
+      <a href="/" class="hover:underline">Home</a>
+      <span>/</span>
+      <span class="text-slate-600">City Forecasts</span>
+    </div>
+    <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+      Major Cities Multi-Day Weather Forecast Network
+    </h1>
+    <p class="text-xs text-slate-500 mt-1">
+      Official 3-day meteorological projections, minimum and maximum temperatures, rainfall probabilities, and sunrise/sunset timings across 19 primary cities in Nepal.
+    </p>
+  </div>
+
+  <RefreshBar
+    fetchedAt={snapshot.cityForecasts?.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.cityForecasts?.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="cities"
+    lang="en"
+  />
+
+  <!-- 19 Cities Forecast Cards -->
+  <CityForecastMatrix
+    stations={snapshot.cityForecasts?.stations || []}
+    lang="en"
+  />
+
+  <!-- Manual Meteorological Observations Comparison -->
+  <div class="mb-8">
+    <div class="mb-3 flex items-center justify-between">
+      <h2 class="text-lg font-bold text-slate-900">
+        Today's Actual Measured Observations
+      </h2>
+      <a href="/weather" class="text-xs font-bold text-blue-600 hover:underline">
+        Full Meteorological Matrix ({snapshot.manualWeather.stations.length} Cities) →
+      </a>
+    </div>
+    <WeatherTable
+      stations={snapshot.manualWeather.stations}
+      issueDate={snapshot.manualWeather.issueDate}
+      lang="en"
+    />
+  </div>
+</BaseLayout>

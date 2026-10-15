@@ -1,0 +1,123 @@
+---
+import type { TourismWeatherStation } from '../lib/dhm/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  stations: TourismWeatherStation[];
+  lang?: 'en' | 'ne';
+}
+
+const { stations, lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+
+// Sort stations: stations with live temperatures first, then by elevation
+const sorted = [...stations].sort((a, b) => {
+  const aHas = a.temp !== undefined ? 1 : 0;
+  const bHas = b.temp !== undefined ? 1 : 0;
+  if (bHas !== aHas) return bHas - aHas;
+  return b.elevation - a.elevation;
+});
+---
+
+{sorted.length > 0 && (
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-5 py-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <Icon name="mountain" class="w-5 h-5 text-indigo-600 shrink-0" />
+          {isNe ? 'पर्यटकीय तथा हिमाली पदमार्ग मौसम (Mountain Trekking Weather Observations)' : 'Mountain & Trekking Corridor Weather'}
+        </h3>
+        <p class="text-xs text-slate-500 mt-0.5">
+          {isNe
+            ? 'उचाइ अनुसार प्रत्यक्ष तापक्रम, आर्द्रता, हावाको गति र वर्षाको अवस्था'
+            : 'Live temperature, relative humidity, wind speed, and precipitation across high-altitude trekking stations'}
+        </p>
+      </div>
+      <span class="inline-block rounded-md bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700">
+        {sorted.length} {isNe ? 'केन्द्रहरू' : 'Stations'}
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead>
+          <tr class="border-b border-slate-200 bg-slate-50 font-semibold text-slate-600">
+            <th class="py-3 px-4 w-4/12">{isNe ? 'पदमार्ग / केन्द्र (Station / Pass)' : 'Station / Mountain Pass'}</th>
+            <th class="py-3 px-4 w-2/12 text-right">{isNe ? 'उचाइ (Altitude)' : 'Altitude (m)'}</th>
+            <th class="py-3 px-4 w-2/12 text-right">{isNe ? 'तापक्रम (Temp)' : 'Air Temp'}</th>
+            <th class="py-3 px-4 w-2/12 text-right">{isNe ? 'आर्द्रता (Humidity)' : 'Humidity'}</th>
+            <th class="py-3 px-4 w-2/12 text-right">{isNe ? 'हावा / वर्षा (Wind & Rain)' : 'Wind & Rain'}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          {sorted.slice(0, 15).map((st) => (
+            <tr class="hover:bg-slate-50/80 transition-colors">
+              <td class="py-3 px-4 font-medium text-slate-900">
+                <div class="flex flex-col">
+                  <span class="font-bold">{st.name}</span>
+                  {st.folderName && (
+                    <span class="text-[10px] text-slate-400">{st.folderName}</span>
+                  )}
+                </div>
+              </td>
+              <td class="py-3 px-4 text-right font-mono font-bold text-slate-700">
+                {st.elevation > 0 ? (
+                  <span class="inline-flex items-center gap-1">
+                    <span class="text-slate-400 text-[10px]">▲</span>
+                    {st.elevation.toLocaleString()} m
+                  </span>
+                ) : (
+                  <span class="text-slate-400">-</span>
+                )}
+              </td>
+              <td class="py-3 px-4 text-right font-mono font-bold">
+                {st.temp !== undefined ? (
+                  <span class={st.temp <= 0 ? 'text-blue-700 font-black' : st.temp < 15 ? 'text-cyan-700' : 'text-slate-900'}>
+                    {st.temp.toFixed(1)}°C
+                  </span>
+                ) : (
+                  <span class="text-slate-400 font-normal">-</span>
+                )}
+              </td>
+              <td class="py-3 px-4 text-right font-mono">
+                {st.humidity !== undefined ? (
+                  <span class={st.humidity > 80 ? 'text-blue-600 font-bold' : 'text-slate-700'}>
+                    {st.humidity}%
+                  </span>
+                ) : (
+                  <span class="text-slate-400">-</span>
+                )}
+              </td>
+              <td class="py-3 px-4 text-right font-mono text-[11px]">
+                {st.windSpeed !== undefined || st.rainfall !== undefined ? (
+                  <div class="flex flex-col items-end">
+                    {st.windSpeed !== undefined && (
+                      <span class="text-slate-600">Wind: {st.windSpeed} m/s</span>
+                    )}
+                    {st.rainfall !== undefined && (
+                      <span class={st.rainfall > 0 ? 'text-blue-600 font-bold' : 'text-slate-400'}>
+                        Rain: {st.rainfall} mm
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span class="text-slate-400">-</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="border-t border-slate-100 bg-slate-50/50 px-5 py-2.5 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
+      <span class="flex items-center gap-1.5">
+        <Icon name="lightbulb" class="w-3.5 h-3.5 text-amber-500 shrink-0" />
+        {isNe
+          ? 'हिमाली क्षेत्रमा प्रत्येक १,००० मिटर उचाइमा तापक्रम औसत ६.५°C घट्ने गर्दछ (Lapse Rate)।'
+          : 'High altitude triggers severe microclimates: temperatures drop approx. 6.5°C per 1,000m gain.'}
+      </span>
+      <span class="text-slate-400">Source: DHM Tourism Weather Division</span>
+    </div>
+  </div>
+)}

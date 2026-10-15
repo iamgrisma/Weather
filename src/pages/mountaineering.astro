@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RefreshBar from '../components/RefreshBar.astro';
+import MountaineeringMatrix from '../components/MountaineeringMatrix.astro';
+import TrekkingCorridors from '../components/TrekkingCorridors.astro';
+import TourismTable from '../components/TourismTable.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'High Himalayan Mountaineering Weather & Altitude Layers (3000m-9000m) | Nepal';
+const description = 'Specialized high-altitude mountain expedition telemetry: wind speed, direction, and sub-zero temperatures across Everest, Annapurna, and Manaslu.';
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
+      <a href="/" class="hover:underline">Home</a>
+      <span>/</span>
+      <span class="text-slate-600">Mountaineering Forecast</span>
+    </div>
+    <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+      High Himalayan Expedition & Mountaineering Weather
+    </h1>
+    <p class="text-xs text-slate-500 mt-1">
+      Official layer-by-layer high altitude atmospheric telemetry across 3,000m, 5,500m (Base Camp), 7,000m, and 9,000m (Summit Ridges) covering all major trekking and climbing peaks.
+    </p>
+  </div>
+
+  <RefreshBar
+    fetchedAt={snapshot.mountaineeringWeather?.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.mountaineeringWeather?.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="mountain"
+    lang="en"
+  />
+
+  <!-- High Himalayan Mountaineering Telemetry Matrix -->
+  <MountaineeringMatrix
+    weather={snapshot.mountaineeringWeather?.data || null}
+    lang="en"
+  />
+
+  <!-- Major Trekking Routes & Corridors -->
+  <TrekkingCorridors
+    routes={snapshot.tourismWeather?.routes || []}
+    lang="en"
+  />
+
+  <!-- Mountain Pass Observations -->
+  {snapshot.tourismWeather?.stations?.length > 0 && (
+    <div class="mb-8">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-bold text-slate-900">
+          Mountain Pass & Base Camp Meteorological Stations
+        </h2>
+        <span class="text-xs text-slate-500 font-medium">Real-Time Sensor Feeds</span>
+      </div>
+      <TourismTable stations={snapshot.tourismWeather.stations} lang="en" />
+    </div>
+  )}
+</BaseLayout>

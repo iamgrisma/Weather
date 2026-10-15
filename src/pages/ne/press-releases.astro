@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RefreshBar from '../../components/RefreshBar.astro';
+import PressReleasesList from '../../components/PressReleasesList.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'आधिकारिक प्रेस विज्ञप्ति तथा प्रतिवेदनहरू | जल तथा मौसम विज्ञान विभाग';
+const description = 'जल तथा मौसम विज्ञान विभागबाट प्रकाशित आधिकारिक प्रेस विज्ञप्ति, मनसुन आँकलन, बाढी प्रकोप अध्ययन तथा डाउनलोड गर्न मिल्ने PDF प्रतिवेदनहरू।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1.5">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">प्रेस विज्ञप्ति</span>
+    </div>
+    <div class="flex items-center gap-2.5">
+      <span class="inline-flex h-3.5 w-3.5 rounded-full bg-blue-600"></span>
+      <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+        आधिकारिक प्रेस विज्ञप्ति तथा सूचनाहरू
+      </h1>
+    </div>
+    <p class="text-sm font-semibold text-slate-500 mt-1">
+      जल तथा मौसम विज्ञान विभाग (DHM) द्वारा जारी औपचारिक प्रेस विज्ञप्ति, मनसुन मौसमी पूर्वानुमान, र आधिकारिक PDF कागजातहरू।
+    </p>
+  </div>
+
+  <RefreshBar
+    fetchedAt={snapshot.pressReleases?.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.pressReleases?.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="press"
+    lang="ne"
+  />
+
+  <PressReleasesList
+    items={snapshot.pressReleases?.items || []}
+    lang="ne"
+  />
+</BaseLayout>

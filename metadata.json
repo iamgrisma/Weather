@@ -1,6 +1,0 @@
-{
-  "name": "Nepal Hydrology & Meteorology Portal",
-  "description": "National real-time hydrology, river telemetry, high Himalayan mountaineering weather, and 19-city synoptic forecast portal for Nepal with OpenStreetMap integration.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

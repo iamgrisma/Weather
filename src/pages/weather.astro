@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RefreshBar from '../components/RefreshBar.astro';
+import ForecastCard from '../components/ForecastCard.astro';
+import WeatherTable from '../components/WeatherTable.astro';
+import TrekkingCorridors from '../components/TrekkingCorridors.astro';
+import TourismTable from '../components/TourismTable.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'Nepal Weather Forecast & Daily Observations | MFD Real-Time Data';
+const description = 'Official nationwide 24-hour meteorological forecast, city temperatures, and 24-hour accumulated precipitation in Nepal.';
+---
+
+<BaseLayout title={title} description={description} lang="en">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
+      <a href="/" class="hover:underline">Home</a>
+      <span>/</span>
+      <span class="text-slate-600">Weather & Forecast</span>
+    </div>
+    <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+      Nepal Meteorological Observations & Forecast
+    </h1>
+    <p class="text-xs text-slate-500 mt-1">
+      Live synoptic analysis, city temperatures, 24-hour precipitation, and trekking weather feeds from MFD.
+    </p>
+  </div>
+
+  <RefreshBar
+    fetchedAt={snapshot.manualWeather.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.manualWeather.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="weather"
+    lang="en"
+  />
+
+  <div class="mb-8">
+    <ForecastCard forecast={snapshot.countryForecast.data} lang="en" />
+  </div>
+
+  <div class="mb-8">
+    <WeatherTable
+      stations={snapshot.manualWeather.stations}
+      issueDate={snapshot.manualWeather.issueDate}
+      lang="en"
+    />
+  </div>
+
+  <TrekkingCorridors
+    routes={snapshot.tourismWeather?.routes || []}
+    lang="en"
+  />
+
+  {snapshot.tourismWeather?.stations?.length > 0 && (
+    <div class="mb-8">
+      <TourismTable stations={snapshot.tourismWeather.stations} lang="en" />
+    </div>
+  )}
+</BaseLayout>

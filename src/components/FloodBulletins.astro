@@ -1,0 +1,67 @@
+---
+import type { FloodBulletin } from '../lib/dhm/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  bulletins: FloodBulletin[];
+  lang?: 'en' | 'ne';
+}
+
+const { bulletins, lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+---
+
+{bulletins && bulletins.length > 0 && (
+  <div class="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+      <div>
+        <h3 class="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
+          <Icon name="clipboard-list" class="w-4 h-4 text-blue-600 shrink-0" /> {isNe ? 'बाढी पूर्वानुमान बुलेटिन तथा सूचनाहरू' : 'Official Flood Bulletins & Advisories'}
+        </h3>
+        <p class="text-xs text-slate-500">
+          {isNe ? 'बाढी पूर्वानुमान शाखा, जल तथा मौसम विज्ञान विभाग' : 'Flood Forecasting Section, Department of Hydrology & Meteorology'}
+        </p>
+      </div>
+      <span class="rounded bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
+        {bulletins.length} {isNe ? 'बुलेटिन' : 'Bulletins'}
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {bulletins.map((b) => (
+        <a
+          href={b.fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-start justify-between gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/30 transition-all group"
+        >
+          <div class="flex items-start gap-2.5">
+            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-700 text-xs font-bold group-hover:scale-105 transition">
+              PDF
+            </span>
+            <div>
+              <h4 class="text-xs font-bold text-slate-900 group-hover:text-blue-700 line-clamp-2">
+                {b.title}
+              </h4>
+              <span class="text-[10px] text-slate-400 mt-0.5 block">Official Government Bulletin</span>
+            </div>
+          </div>
+          <span class="text-xs text-blue-600 font-bold shrink-0">Download ↗</span>
+        </a>
+      ))}
+    </div>
+
+    <div class="mt-3 flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+      <span>{isNe ? 'दैनिक बाढी बुलेटिन बिहान ७:०० र दिउँसो ३:०० बजे जारी हुन्छ' : 'Official daily bulletins issued at 7:00 AM & 3:00 PM NPT'}</span>
+      <a
+        href="https://hydrology.gov.np/#/current_forecast"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-bold text-blue-600 hover:underline inline-flex items-center gap-1"
+      >
+        <span>{isNe ? 'जलविज्ञान पोर्टल' : 'Hydrology Portal'}</span>
+        <span>↗</span>
+      </a>
+    </div>
+  </div>
+)}

@@ -1,0 +1,75 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  dangerCount: number;
+  warningCount: number;
+  lang?: 'en' | 'ne';
+}
+
+const { dangerCount, warningCount, lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+---
+
+{dangerCount > 0 ? (
+  <div class="mb-6 rounded-xl border border-red-300 bg-red-50 p-4 text-red-900 shadow-sm">
+    <div class="flex items-start gap-3">
+      <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-600 text-sm font-bold text-white shadow">
+        !
+      </span>
+      <div>
+        <h3 class="text-base font-bold text-red-700">
+          {isNe ? 'बाढी खतरा चेतावनी (Flood Danger Alert)' : 'High Flood Danger Alert'}
+        </h3>
+        <p class="mt-1 text-sm leading-relaxed text-red-800">
+          {isNe ? (
+            <>
+              देशभरका <strong>{dangerCount}</strong> वटा नदी मापन केन्द्रहरूमा पानीको सतह खतराको तह (Danger Level) पार गरेको छ। तटीय क्षेत्रका बासिन्दाहरू उच्च सतर्कता अपनाउनुहोस्।
+            </>
+          ) : (
+            <>
+              Water levels at <strong>{dangerCount}</strong> river station{dangerCount === 1 ? '' : 's'} have exceeded the designated <strong>Danger Level</strong>. Communities downstream must take immediate flood precautions.
+            </>
+          )}
+        </p>
+      </div>
+    </div>
+  </div>
+) : warningCount > 0 ? (
+  <div class="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900 shadow-sm">
+    <div class="flex items-start gap-3">
+      <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-600 text-sm font-bold text-white shadow">
+        ▲
+      </span>
+      <div>
+        <h3 class="text-base font-bold text-amber-800">
+          {isNe ? 'सतर्कता तह चेतावनी (Flood Warning Level)' : 'Flood Warning Active'}
+        </h3>
+        <p class="mt-1 text-sm leading-relaxed text-amber-900">
+          {isNe ? (
+            <>
+              <strong>{warningCount}</strong> वटा नदी मापन केन्द्रहरूमा पानीको सतह चेतावनी तह (Warning Level) पार गरेको छ। नदी किनारका क्षेत्रहरूमा सतर्क रहन अनुरोध गरिन्छ।
+            </>
+          ) : (
+            <>
+              Water levels at <strong>{warningCount}</strong> river station{warningCount === 1 ? '' : 's'} have crossed the <strong>Warning Level</strong>. Stay vigilant along riverside belts.
+            </>
+          )}
+        </p>
+      </div>
+    </div>
+  </div>
+) : (
+  <div class="mb-6 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-emerald-900 shadow-sm">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 shadow">
+        <Icon name="check" class="w-4 h-4 text-white" />
+      </span>
+      <p class="text-sm font-medium text-emerald-800">
+        {isNe
+          ? 'हाल सबै प्रमुख नदीहरूमा जलसतह सामान्य र चेतावनी तहभन्दा तल छ (All rivers below warning level)।'
+          : 'All monitored river observation stations are currently below warning thresholds.'}
+      </p>
+    </div>
+  </div>
+)}

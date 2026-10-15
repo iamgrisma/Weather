@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AlertBanner from '../../components/AlertBanner.astro';
+import RefreshBar from '../../components/RefreshBar.astro';
+import DangerAlertList from '../../components/DangerAlertList.astro';
+import RiverMap from '../../components/RiverMap.astro';
+import RiverTable from '../../components/RiverTable.astro';
+import FloodBulletins from '../../components/FloodBulletins.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'नेपाल नदी जलसतह तथा बाढी अनुगमन केन्द्रहरू | DHM River Watch';
+const description = 'कोशी, नारायणी, कर्णाली, महाकाली, बागमती र पश्चिम राप्ती बेसिनका सबै प्रमुख नदीहरूको प्रत्यक्ष जलसतह र बाढी चेतावनी विवरण।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">नदी बाढी मापन</span>
+    </div>
+    <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+      नेपाल नदी जलसतह तथा बाढी अनुगमन सञ्जाल
+    </h1>
+    <p class="text-xs text-slate-500 mt-1">
+      जल तथा मौसम विज्ञान विभागको स्वचालित तथा म्यानुअल जलमापन केन्द्रहरूको प्रत्यक्ष तथ्याङ्क।
+    </p>
+  </div>
+
+  <AlertBanner
+    dangerCount={snapshot.riverWatch.dangerCount}
+    warningCount={snapshot.riverWatch.warningCount}
+    lang="ne"
+  />
+
+  <RefreshBar
+    fetchedAt={snapshot.riverWatch.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.riverWatch.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="river"
+    lang="ne"
+  />
+
+  <!-- Active Flood Danger & Warning Rivers -->
+  <DangerAlertList
+    dangerStations={snapshot.riverWatch.dangerStations || []}
+    warningStations={snapshot.riverWatch.warningStations || []}
+    lang="ne"
+  />
+
+  <!-- Interactive Station Map -->
+  <RiverMap
+    stations={snapshot.riverWatch.stations}
+    lang="ne"
+  />
+
+  <!-- Flood Bulletins & Advisories -->
+  <FloodBulletins
+    bulletins={snapshot.bulletins?.items || []}
+    lang="ne"
+  />
+
+  <!-- Full River Observations Table -->
+  <div class="mb-8">
+    <RiverTable stations={snapshot.riverWatch.stations} lang="ne" />
+  </div>
+</BaseLayout>

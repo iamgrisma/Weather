@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RefreshBar from '../../components/RefreshBar.astro';
+import ForecastCard from '../../components/ForecastCard.astro';
+import WeatherTable from '../../components/WeatherTable.astro';
+import TrekkingCorridors from '../../components/TrekkingCorridors.astro';
+import TourismTable from '../../components/TourismTable.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'नेपाल मौसम पूर्वानुमान तथा दैनिक मापन विवरण | MFD प्रत्यक्ष विवरण';
+const description = 'मौसम पूर्वानुमान महाशाखाको २४ घण्टे मौसमी बुलेटिन, विभिन्न शहरहरूको न्यूनतम/अधिकतम तापक्रम र २४ घण्टे वर्षा विवरण।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">मौसम पूर्वानुमान</span>
+    </div>
+    <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+      नेपाल दैनिक मौसम मापन तथा राष्ट्रिय पूर्वानुमान
+    </h1>
+    <p class="text-xs text-slate-500 mt-1">
+      देशभरको मौसमी विश्लेषण, शहरहरूको तापक्रम, २४ घण्टे वर्षा र पर्यटकीय क्षेत्रको मौसम।
+    </p>
+  </div>
+
+  <RefreshBar
+    fetchedAt={snapshot.manualWeather.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.manualWeather.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="weather"
+    lang="ne"
+  />
+
+  <div class="mb-8">
+    <ForecastCard forecast={snapshot.countryForecast.data} lang="ne" />
+  </div>
+
+  <div class="mb-8">
+    <WeatherTable
+      stations={snapshot.manualWeather.stations}
+      issueDate={snapshot.manualWeather.issueDate}
+      lang="ne"
+    />
+  </div>
+
+  <TrekkingCorridors
+    routes={snapshot.tourismWeather?.routes || []}
+    lang="ne"
+  />
+
+  {snapshot.tourismWeather?.stations?.length > 0 && (
+    <div class="mb-8">
+      <TourismTable stations={snapshot.tourismWeather.stations} lang="ne" />
+    </div>
+  )}
+</BaseLayout>

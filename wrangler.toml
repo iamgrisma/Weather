@@ -1,0 +1,18 @@
+name = "weather"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
+
+[vars]
+SITE_URL = "https://weather.topnepali.com"
+
+# Cloudflare KV for sub-millisecond edge cache
+[[kv_namespaces]]
+binding = "WEATHER_KV"
+id = "78c19571147c453aaa7d40b01beabe56"
+
+# Cloudflare D1 for historical time-series logs
+[[d1_databases]]
+binding = "WEATHER_DB"
+database_name = "weather-db"
+database_id = "adf3fcc7-642f-4e85-9182-eac62ac2af82"

@@ -1,0 +1,122 @@
+---
+import type { NwpModelInfo } from '../lib/dhm/types';
+
+interface Props {
+  models: NwpModelInfo[];
+  lang?: 'en' | 'ne';
+}
+
+const { models = [], lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+
+const MODEL_DESCRIPTIONS: Record<string, { en: string; ne: string; resolution: string; horizon: string }> = {
+  gidc_wrf: {
+    en: 'High-resolution Weather Research & Forecasting (WRF) model executed at Government Integrated Data Centre (GIDC), Singha Durbar.',
+    ne: 'सिंहदरबारस्थित सरकारी एकीकृत डाटा केन्द्र (GIDC) मा सञ्चालित उच्च-रिजोल्युसन WRF संख्यात्मक मौसम पूर्वानुमान मोडेल।',
+    resolution: '3 km / 9 km',
+    horizon: '72 Hours',
+  },
+  gidc_wrfda: {
+    en: 'WRF with Data Assimilation (WRFDA) integrating real-time radar, satellite, and surface synoptic observations for enhanced precipitation forecasting.',
+    ne: 'राडार, भू-उपग्रह र प्रत्यक्ष मौसम मापन समावेश गरिएको WRF डाटा एसिमिलेसन मोडेल (वर्षा तथा आर्द्रता पूर्वानुमानका लागि)।',
+    resolution: '3 km',
+    horizon: '72 Hours',
+  },
+  gfs: {
+    en: 'NOAA / NCEP Global Forecast System synoptic model scaled and processed for the Himalayan orographic domain.',
+    ne: 'हिमाली भौगोलिक भू-भाग अनुसार प्रशोधित विश्वव्यापी पूर्वानुमान प्रणाली (GFS)।',
+    resolution: '13 km',
+    horizon: '120 Hours',
+  },
+  mfd_uems: {
+    en: 'Meteorological Forecasting Division Unified Environmental Modeling System dedicated to complex valley wind and mountain ridge circulations.',
+    ne: 'उपत्यकाको हावाको बहाव र हिमाली भू-बनोटका लागि महाशाखाको एकीकृत वातावरणीय मोडलिङ प्रणाली (UEMS)।',
+    resolution: '4 km',
+    horizon: '48 Hours',
+  },
+};
+---
+
+<div class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm mb-8" id="nwp-models-card">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5 mb-6 gap-3">
+    <div>
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex h-3 w-3 rounded-full bg-indigo-600"></span>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          {isNe ? 'संख्यात्मक मौसम पूर्वानुमान (NWP) तथा WRF मोडेलहरू' : 'Numerical Weather Prediction (NWP) & WRF Models'}
+        </h2>
+      </div>
+      <p class="text-sm font-semibold text-slate-500 mt-1">
+        {isNe
+          ? 'नेपाल सरकार जल तथा मौसम विज्ञान विभागको जियोसर्भर WMS प्रविधिमा आधारित मोडलिङ'
+          : 'High-performance atmospheric modeling outputs via official MFD Geoserver WMS layers'}
+      </p>
+    </div>
+
+    <div>
+      <span class="rounded-xl bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-indigo-700">
+        {models.length} {isNe ? 'सक्रिय मोडेलहरू' : 'Active Models'}
+      </span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    {models.map((model) => {
+      const meta = MODEL_DESCRIPTIONS[model.name] || {
+        en: 'High-resolution numerical weather prediction model.',
+        ne: 'उच्च-रिजोल्युसन संख्यात्मक मौसम पूर्वानुमान मोडेल।',
+        resolution: 'Standard',
+        horizon: '72 Hours',
+      };
+
+      return (
+        <div class="rounded-2xl border border-slate-200 bg-slate-50/80 p-6 flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-sm font-black text-indigo-800 uppercase bg-indigo-100/80 px-2.5 py-1 rounded-md border border-indigo-200">
+                {model.name}
+              </span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-500">
+                <span>Res: {meta.resolution}</span>
+                <span>•</span>
+                <span>Horizon: {meta.horizon}</span>
+              </div>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-700 font-normal leading-relaxed mb-4 mt-2">
+              {isNe ? meta.ne : meta.en}
+            </p>
+
+            <div class="space-y-1.5 mb-4">
+              <span class="text-xs font-black uppercase tracking-wider text-slate-500 block">
+                {isNe ? 'उपलब्ध परिमितिहरू (WMS Layers):' : 'Available Parameters & Layers:'}
+              </span>
+              <div class="flex flex-wrap gap-1.5">
+                {model.layers.map((layer) => {
+                  const paramName = layer.replace(/^NWP:[a-zA-Z0-9_]+_/, '').replace(/_/g, ' ');
+                  return (
+                    <span class="inline-block rounded-md bg-white border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs">
+                      {paramName}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-200 flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-mono">Workspace: {model.workspace}</span>
+            <a
+              href={`https://dhm.gov.np/mfd/#/nwp`}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-indigo-700 hover:text-indigo-900 transition"
+            >
+              <span>{isNe ? 'MFD नक्सामा खोल्नुहोस् →' : 'Launch MFD Viewer →'}</span>
+            </a>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>

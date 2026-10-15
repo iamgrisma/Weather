@@ -1,0 +1,266 @@
+---
+import Icon from '../components/Icon.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: 'en' | 'ne';
+  canonicalPath?: string;
+}
+
+const {
+  title,
+  description,
+  lang = 'en',
+  canonicalPath = Astro.url.pathname,
+} = Astro.props;
+
+const isNe = lang === 'ne';
+const siteUrl = 'https://weather.topnepali.com';
+
+// Clean trailing slash normalization
+const cleanPath = canonicalPath.endsWith('/') && canonicalPath !== '/' ? canonicalPath.slice(0, -1) : canonicalPath;
+const canonicalUrl = `${siteUrl}${cleanPath}`;
+
+// Determine equivalent cross-language URLs for hreflang & language toggle
+const enPath = isNe ? (cleanPath.replace(/^\/ne(\/|$)/, '/') || '/') : cleanPath;
+const nePath = isNe ? cleanPath : (cleanPath === '/' ? '/ne' : `/ne${cleanPath}`);
+
+const host = Astro.url.hostname;
+const isProduction = host === 'weather.topnepali.com';
+---
+
+<!doctype html>
+<html lang={lang} class="scroll-smooth bg-slate-50 text-slate-900 antialiased font-sans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Hreflang alternates -->
+    <link rel="alternate" hreflang="en" href={`${siteUrl}${enPath}`} />
+    <link rel="alternate" hreflang="ne" href={`${siteUrl}${nePath}`} />
+    <link rel="alternate" hreflang="x-default" href={`${siteUrl}${enPath}`} />
+
+    <!-- Robots directive based on host environment -->
+    {isProduction ? (
+      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    ) : (
+      <>
+        <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+        <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
+      </>
+    )}
+
+    <!-- Open Graph & Social -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Nepal Weather & River Watch" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Solid Unicode System Font Stack & Tailwind Styles -->
+    <style is:global>
+      @import "tailwindcss";
+
+      :root {
+        --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', 'Noto Sans Devanagari', 'Helvetica Neue', Arial, sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+      }
+
+      html {
+        font-family: var(--font-sans);
+        -webkit-text-size-adjust: 100%;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        color-scheme: light;
+      }
+
+      body {
+        font-family: var(--font-sans);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 pt-[104px] lg:pt-[72px] selection:bg-blue-600 selection:text-white">
+    <!-- Header Navigation (Directional Auto-Hide on Scroll Down, Reveal on Scroll Up) -->
+    <header
+      id="site-header"
+      class="fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-in-out border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-2xs"
+    >
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
+        <a href={isNe ? '/ne' : '/'} class="flex items-center gap-3 font-black text-slate-900 tracking-tight group">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/25 group-hover:bg-blue-700 transition">
+            <Icon name="waves" class="w-5 h-5 text-white" />
+          </span>
+          <div class="flex flex-col leading-tight">
+            <span class="text-base font-black tracking-tight text-blue-700">
+              {isNe ? 'जल तथा मौसम' : 'NEPAL WEATHER'}
+            </span>
+            <span class="text-xs font-semibold text-slate-500">
+              {isNe ? 'नदी तथा बाढी पूर्वसूचना' : 'River & Flood Watch'}
+            </span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden lg:flex items-center gap-1 text-sm font-bold text-slate-600">
+          <a
+            href={isNe ? '/ne' : '/'}
+            class={`px-3 py-2 rounded-lg transition-colors ${cleanPath === '/' || cleanPath === '/ne' ? 'bg-blue-50 text-blue-700 font-extrabold' : 'hover:bg-slate-100 text-slate-700'}`}
+          >
+            {isNe ? 'गृहपृष्ठ' : 'Home'}
+          </a>
+          <a
+            href={isNe ? '/ne/special-weather' : '/special-weather'}
+            class={`px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 ${cleanPath.includes('special-weather') ? 'bg-amber-50 text-amber-800 font-extrabold' : 'hover:bg-amber-50/60 text-slate-700'}`}
+          >
+            <span class="inline-block h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+            {isNe ? 'विशेष चेतावनी' : 'Special Alerts'}
+          </a>
+          <a
+            href={isNe ? '/ne/city-forecast' : '/city-forecast'}
+            class={`px-3 py-2 rounded-lg transition-colors ${cleanPath.includes('city-forecast') || cleanPath.includes('weather') && !cleanPath.includes('special') ? 'bg-blue-50 text-blue-700 font-extrabold' : 'hover:bg-slate-100 text-slate-700'}`}
+          >
+            {isNe ? 'मौसम' : 'Weather'}
+          </a>
+          <a
+            href={isNe ? '/ne/river-watch' : '/river-watch'}
+            class={`px-3 py-2 rounded-lg transition-colors ${cleanPath.includes('river-watch') ? 'bg-blue-50 text-blue-700 font-extrabold' : 'hover:bg-slate-100 text-slate-700'}`}
+          >
+            {isNe ? 'नदी बाढी' : 'River Watch'}
+          </a>
+          <a
+            href={isNe ? '/ne/bulletin' : '/bulletin'}
+            class={`px-3 py-2 rounded-lg transition-colors ${cleanPath.includes('bulletin') ? 'bg-blue-50 text-blue-700 font-extrabold' : 'hover:bg-slate-100 text-slate-700'}`}
+          >
+            {isNe ? '३ दिने बुलेटिन' : '3-Day Bulletin'}
+          </a>
+          <a
+            href={isNe ? '/ne/nwp' : '/nwp'}
+            class={`px-3 py-2 rounded-lg transition-colors ${cleanPath.includes('nwp') ? 'bg-blue-50 text-blue-700 font-extrabold' : 'hover:bg-slate-100 text-slate-700'}`}
+          >
+            {isNe ? 'NWP मोडेल' : 'NWP Models'}
+          </a>
+          <a
+            href={isNe ? '/ne/press-releases' : '/press-releases'}
+            class={`px-3 py-2 rounded-lg transition-colors ${cleanPath.includes('press-releases') ? 'bg-blue-50 text-blue-700 font-extrabold' : 'hover:bg-slate-100 text-slate-700'}`}
+          >
+            {isNe ? 'प्रेस विज्ञप्ति' : 'Press'}
+          </a>
+          <a
+            href={isNe ? '/ne/mountaineering' : '/mountaineering'}
+            class={`px-3 py-2 rounded-lg transition-colors ${cleanPath.includes('mountaineering') ? 'bg-blue-50 text-blue-700 font-extrabold' : 'hover:bg-slate-100 text-slate-700'}`}
+          >
+            {isNe ? 'हिमाल' : 'Peaks'}
+          </a>
+        </nav>
+
+        <!-- Language Switcher & Live indicator -->
+        <div class="flex items-center gap-2">
+          <a
+            href={isNe ? enPath : nePath}
+            class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-700 shadow-2xs transition hover:bg-slate-100 hover:text-slate-900"
+            title={isNe ? 'Switch to English' : 'नेपाली भाषामा हेर्नुहोस्'}
+          >
+            <Icon name="compass" class="w-3.5 h-3.5 text-slate-500" />
+            <span>{isNe ? 'English' : 'नेपाली'}</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation sub-bar with crisp font sizing -->
+      <div class="flex lg:hidden overflow-x-auto border-t border-slate-100 px-3 py-2 text-xs font-bold gap-1 bg-slate-50/90 no-scrollbar">
+        <a href={isNe ? '/ne' : '/'} class={`px-2.5 py-1.5 rounded-lg shrink-0 ${cleanPath === '/' || cleanPath === '/ne' ? 'bg-white shadow-2xs text-blue-600 font-black' : 'text-slate-700'}`}>
+          {isNe ? 'गृहपृष्ठ' : 'Home'}
+        </a>
+        <a href={isNe ? '/ne/special-weather' : '/special-weather'} class={`px-2.5 py-1.5 rounded-lg shrink-0 flex items-center gap-1 ${cleanPath.includes('special-weather') ? 'bg-amber-100 text-amber-900 font-black shadow-2xs' : 'text-amber-800'}`}>
+          <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          {isNe ? 'विशेष चेतावनी' : 'Alerts'}
+        </a>
+        <a href={isNe ? '/ne/city-forecast' : '/city-forecast'} class={`px-2.5 py-1.5 rounded-lg shrink-0 ${cleanPath.includes('city-forecast') || cleanPath.includes('weather') && !cleanPath.includes('special') ? 'bg-white shadow-2xs text-blue-600 font-black' : 'text-slate-700'}`}>
+          {isNe ? 'मौसम' : 'Weather'}
+        </a>
+        <a href={isNe ? '/ne/river-watch' : '/river-watch'} class={`px-2.5 py-1.5 rounded-lg shrink-0 ${cleanPath.includes('river-watch') ? 'bg-white shadow-2xs text-blue-600 font-black' : 'text-slate-700'}`}>
+          {isNe ? 'नदी बाढी' : 'Rivers'}
+        </a>
+        <a href={isNe ? '/ne/bulletin' : '/bulletin'} class={`px-2.5 py-1.5 rounded-lg shrink-0 ${cleanPath.includes('bulletin') ? 'bg-white shadow-2xs text-blue-600 font-black' : 'text-slate-700'}`}>
+          {isNe ? '३-दिने' : '3-Day'}
+        </a>
+        <a href={isNe ? '/ne/nwp' : '/nwp'} class={`px-2.5 py-1.5 rounded-lg shrink-0 ${cleanPath.includes('nwp') ? 'bg-white shadow-2xs text-blue-600 font-black' : 'text-slate-700'}`}>
+          {isNe ? 'NWP' : 'NWP'}
+        </a>
+        <a href={isNe ? '/ne/press-releases' : '/press-releases'} class={`px-2.5 py-1.5 rounded-lg shrink-0 ${cleanPath.includes('press-releases') ? 'bg-white shadow-2xs text-blue-600 font-black' : 'text-slate-700'}`}>
+          {isNe ? 'विज्ञप्ति' : 'Press'}
+        </a>
+        <a href={isNe ? '/ne/mountaineering' : '/mountaineering'} class={`px-2.5 py-1.5 rounded-lg shrink-0 ${cleanPath.includes('mountaineering') ? 'bg-white shadow-2xs text-blue-600 font-black' : 'text-slate-700'}`}>
+          {isNe ? 'हिमाल' : 'Peaks'}
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Content Slot -->
+    <main class="flex-1 mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 border-t border-slate-200 bg-white py-8 text-xs text-slate-500">
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="font-bold text-slate-800">
+            {isNe ? 'नेपाल जल तथा मौसम प्रत्यक्ष पूर्वसूचना' : 'Nepal Real-Time Weather & River Watch Portal'}
+          </p>
+          <p class="mt-0.5 text-[11px] text-slate-500">
+            {isNe
+              ? 'जल तथा मौसम विज्ञान विभाग (DHM) र मौसम पूर्वानुमान महाशाखा (MFD) को आधिकारिक डाटामा आधारित।'
+              : 'Direct live feeds from the Department of Hydrology & Meteorology (DHM) and Meteorological Forecasting Division (MFD).'}
+          </p>
+        </div>
+        <div class="text-[11px] text-slate-400">
+          <span>Edge-Cached on Cloudflare D1/KV • 10-Minute Cooldown Shield</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Smart Directional Header Auto-Hide Script -->
+    <script>
+      let lastScrollY = window.scrollY;
+      const siteHeader = document.getElementById('site-header');
+
+      if (siteHeader) {
+        window.addEventListener(
+          'scroll',
+          () => {
+            const currentScrollY = window.scrollY;
+
+            // Near top: always visible
+            if (currentScrollY <= 50) {
+              siteHeader.classList.remove('-translate-y-full');
+              lastScrollY = currentScrollY;
+              return;
+            }
+
+            // Scrolling down: hide header
+            if (currentScrollY > lastScrollY && currentScrollY > 70) {
+              siteHeader.classList.add('-translate-y-full');
+            } else if (currentScrollY < lastScrollY) {
+              // Scrolling up: immediately reveal header
+              siteHeader.classList.remove('-translate-y-full');
+            }
+
+            lastScrollY = currentScrollY;
+          },
+          { passive: true }
+        );
+      }
+    </script>
+  </body>
+</html>

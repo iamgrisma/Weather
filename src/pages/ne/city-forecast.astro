@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RefreshBar from '../../components/RefreshBar.astro';
+import CityForecastMatrix from '../../components/CityForecastMatrix.astro';
+import WeatherTable from '../../components/WeatherTable.astro';
+import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
+
+export const prerender = false;
+
+const env = getEdgeEnv(Astro.locals);
+const snapshot = await getLatestSnapshot(env);
+
+const title = 'नेपालका प्रमुख १९ सहरहरूको ३ दिने मौसम पूर्वानुमान | DHM MFD';
+const description = 'काठमाडौँ, पोखरा, विराटनगर, नेपालगञ्ज लगायत १९ प्रमुख सहरहरूको आधिकारिक मौसम, तापक्रम र वर्षाको सम्भावना।';
+---
+
+<BaseLayout title={title} description={description} lang="ne">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
+      <a href="/ne" class="hover:underline">गृहपृष्ठ</a>
+      <span>/</span>
+      <span class="text-slate-600">सहर पूर्वानुमान</span>
+    </div>
+    <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
+      प्रमुख सहरहरूको ३ दिने मौसम पूर्वानुमान
+    </h1>
+    <p class="text-xs text-slate-500 mt-1">
+      मौसम पूर्वानुमान महाशाखाद्वारा जारी काठमाडौँ, पोखरा, धनगढी, विराटनगर लगायतका १९ मुख्य सहरहरूको न्यूनतम/अधिकतम तापक्रम र वर्षाको सम्भावना।
+    </p>
+  </div>
+
+  <RefreshBar
+    fetchedAt={snapshot.cityForecasts?.fetchedAt || snapshot.fetchedAt}
+    lastCheckedAt={snapshot.cityForecasts?.lastCheckedAt || snapshot.lastCheckedAt}
+    scope="cities"
+    lang="ne"
+  />
+
+  <!-- 19 Cities Forecast Cards -->
+  <CityForecastMatrix
+    stations={snapshot.cityForecasts?.stations || []}
+    lang="ne"
+  />
+
+  <!-- Manual Meteorological Observations Comparison -->
+  <div class="mb-8">
+    <div class="mb-3 flex items-center justify-between">
+      <h2 class="text-lg font-bold text-slate-900">
+        आजको वास्तविक मापन गरिएको मौसमी तथ्याङ्क
+      </h2>
+      <a href="/ne/weather" class="text-xs font-bold text-blue-600 hover:underline">
+        सबै {snapshot.manualWeather.stations.length} सहरहरूको पूर्ण विवरण →
+      </a>
+    </div>
+    <WeatherTable
+      stations={snapshot.manualWeather.stations}
+      issueDate={snapshot.manualWeather.issueDate}
+      lang="ne"
+    />
+  </div>
+</BaseLayout>

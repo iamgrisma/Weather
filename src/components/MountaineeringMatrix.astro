@@ -1,0 +1,159 @@
+---
+import type { MountaineeringWeather } from '../lib/dhm/types';
+import Icon from './Icon.astro';
+
+interface Props {
+  weather: MountaineeringWeather | null;
+  lang?: 'en' | 'ne';
+}
+
+const { weather, lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+
+function degToCompass(deg: number | null): string {
+  if (deg === null || isNaN(deg)) return '-';
+  const val = Math.floor((deg / 22.5) + 0.5);
+  const arr = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  return arr[val % 16];
+}
+---
+
+{weather && weather.divisions && weather.divisions.length > 0 ? (
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mb-8" id="mountaineering-weather-section">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 mb-5 gap-2">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex h-2.5 w-2.5 rounded-full bg-indigo-600 animate-pulse"></span>
+          <h2 class="text-lg font-black text-slate-900 tracking-tight">
+            {isNe ? 'हिमाल आरोहण तथा उच्च हिमाली मौसम पूर्वानुमान (३,००० - ९,००० मिटर)' : 'High Himalayan Mountaineering & Expedition Forecast (3,000m – 9,000m)'}
+          </h2>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">
+          {isNe
+            ? 'सगरमाथा, अन्नपूर्ण, मनास्लु, लाङटाङ लगायतका हिमाली क्षेत्रहरूको उचाई अनुसारको हावाको गति, दिशा र तापक्रम'
+            : 'Specialized telemetry across Everest, Annapurna, Manaslu, Langtang, and Dhaulagiri corridors by altitude layers.'}
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="rounded-lg bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-bold text-indigo-700">
+          {isNe ? 'अद्यावधिक:' : 'Issued:'} {new Date(weather.issueDate).toLocaleDateString(isNe ? 'ne-NP' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        </span>
+      </div>
+    </div>
+
+    <!-- Mountain Corridors Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {weather.divisions.map((div) => (
+        <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 hover:border-indigo-300 transition-colors">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <Icon name="mountain" class="w-4 h-4 text-indigo-600 shrink-0" /> {isNe ? div.provinceNepali : div.provinceName}
+            </h3>
+            <span class="rounded-full bg-white border border-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-600 shadow-2xs">
+              Division #{div.divisionId}
+            </span>
+          </div>
+
+          <!-- Weather Condition Summary -->
+          {div.conditions && div.conditions.length > 0 && (
+            <div class="mb-3 rounded-lg bg-indigo-50/70 p-2.5 border border-indigo-100 text-xs text-indigo-950 font-medium">
+              <span class="font-bold">{isNe ? 'पूर्वानुमान:' : 'Forecast:'}</span> {div.conditions.join(' ')}
+            </div>
+          )}
+
+          <!-- Altitude Layer Telemetry Table -->
+          <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-100 bg-slate-50 font-semibold text-slate-500 text-[11px]">
+                  <th class="py-2 px-3">Altitude (Layer)</th>
+                  <th class="py-2 px-3 text-center">Wind Dir (°)</th>
+                  <th class="py-2 px-3 text-right">Wind Speed</th>
+                  <th class="py-2 px-3 text-right">Air Temp (°C)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-mono text-slate-700">
+                {div.altitudes.map((alt) => {
+                  const kmh = alt.windSpeedKt !== null ? Math.round(alt.windSpeedKt * 1.852) : null;
+                  const isSummit = alt.altitudeM >= 8000 || alt.altitudeM === 9000;
+                  const isBaseCamp = alt.altitudeM === 5500;
+                  const isSubZero = alt.tempC !== null && alt.tempC < 0;
+
+                  return (
+                    <tr class={isSummit ? 'bg-red-50/30' : isBaseCamp ? 'bg-indigo-50/20' : ''}>
+                      <td class="py-2 px-3 font-sans font-bold text-slate-900">
+                        <div class="flex items-center gap-1.5">
+                          <span>{alt.altitudeM} m</span>
+                          {isSummit && (
+                            <span class="text-[9px] rounded bg-red-100 text-red-700 font-black px-1.5 py-0.2">
+                              SUMMIT
+                            </span>
+                          )}
+                          {isBaseCamp && (
+                            <span class="text-[9px] rounded bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.2">
+                              BASE CAMP
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td class="py-2 px-3 text-center">
+                        {alt.windDirectionDeg !== null ? (
+                          <span class="inline-flex items-center gap-1 text-[11px]">
+                            <span class="font-bold text-slate-800">{degToCompass(alt.windDirectionDeg)}</span>
+                            <span class="text-slate-400">({alt.windDirectionDeg}°)</span>
+                          </span>
+                        ) : (
+                          <span class="text-slate-400">-</span>
+                        )}
+                      </td>
+                      <td class="py-2 px-3 text-right">
+                        {alt.windSpeedKt !== null ? (
+                          <div>
+                            <span class={`font-bold ${alt.windSpeedKt >= 25 ? 'text-red-600' : 'text-slate-800'}`}>
+                              {alt.windSpeedKt} kt
+                            </span>
+                            <span class="text-[10px] text-slate-400 block font-normal">
+                              {kmh} km/h
+                            </span>
+                          </div>
+                        ) : (
+                          <span class="text-slate-400">-</span>
+                        )}
+                      </td>
+                      <td class="py-2 px-3 text-right">
+                        {alt.tempC !== null ? (
+                          <span class={`font-bold text-sm ${isSubZero ? 'text-blue-600' : 'text-slate-800'}`}>
+                            {alt.tempC > 0 ? `+${alt.tempC}` : alt.tempC}°C
+                          </span>
+                        ) : (
+                          <span class="text-slate-400">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- High-Altitude Safety Notice -->
+    <div class="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs text-slate-500 flex items-start gap-2.5">
+      <Icon name="compass" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+      <div>
+        <strong class="text-slate-800 font-bold">Mountaineering Safety Note:</strong>
+        <p class="mt-0.5 leading-relaxed text-[11px]">
+          Wind speeds above 25 knots (46 km/h) at summit ridges (7,000m - 9,000m) significantly escalate frostbite risk and wind-chill hazard. Ensure expedition teams consult official MFD bulletins before committing to high-camp pushes.
+        </p>
+      </div>
+    </div>
+  </div>
+) : (
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 text-center text-xs text-slate-500 mb-8">
+    No mountaineering forecast available.
+  </div>
+)}

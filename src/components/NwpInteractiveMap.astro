@@ -1,0 +1,348 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  lang?: 'en' | 'ne';
+}
+
+const { lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+
+const LAYERS = [
+  {
+    id: 'NWP:gidc_wrf_hourly_precipitation',
+    nameEn: 'Hourly Precipitation',
+    nameNe: 'प्रति घण्टा वर्षा',
+    iconName: 'cloud-rain' as const,
+    unit: 'mm/h',
+    model: 'GIDC WRF (3km)',
+  },
+  {
+    id: 'NWP:gidc_wrf_accumulated_precipitation',
+    nameEn: 'Accumulated Rainfall',
+    nameNe: 'संचित वर्षा',
+    iconName: 'waves' as const,
+    unit: 'mm',
+    model: 'GIDC WRF (3km)',
+  },
+  {
+    id: 'NWP:gidc_wrf_air_temperature',
+    nameEn: 'Surface Temperature',
+    nameNe: 'सतह वायु तापक्रम',
+    iconName: 'thermometer' as const,
+    unit: '°C',
+    model: 'GIDC WRF (3km)',
+  },
+  {
+    id: 'NWP:gidc_wrf_wind_speed_coverage',
+    nameEn: 'Wind Speed & Gusts',
+    nameNe: 'वायुको गति र वेग',
+    iconName: 'wind' as const,
+    unit: 'm/s',
+    model: 'GIDC WRF (3km)',
+  },
+  {
+    id: 'NWP:gidc_wrfda_total_cloud',
+    nameEn: 'Total Cloud Cover',
+    nameNe: 'कुल बादल ढाँचा',
+    iconName: 'cloud' as const,
+    unit: '%',
+    model: 'WRFDA Assimilation',
+  },
+  {
+    id: 'NWP:gidc_wrfda_relative_humidity',
+    nameEn: 'Relative Humidity',
+    nameNe: 'सापेक्षिक आर्द्रता',
+    iconName: 'droplet' as const,
+    unit: '%',
+    model: 'WRFDA Assimilation',
+  },
+];
+---
+
+<div class="rounded-3xl border border-slate-200/90 bg-white p-4 sm:p-6 shadow-sm mb-8" id="nwp-map-wrapper">
+  <!-- Map Header & Controls -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-slate-100 gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-indigo-600 animate-pulse"></span>
+        <span class="text-xs font-black uppercase tracking-wider text-indigo-700">
+          {isNe ? 'प्रत्यक्ष NWP मोडेल राडार तहहरू' : 'Live Supercomputer Atmospheric Mesoscale Modeling'}
+        </span>
+      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">
+        {isNe ? 'NWP राडार तथा वायुमण्डलीय मोडेल नक्सा' : 'Operational WRF Radar & Weather Model Map'}
+      </h2>
+      <p class="text-xs text-slate-500 font-semibold mt-0.5">
+        {isNe
+          ? 'नेपाल सरकार GIDC सुपरकम्प्युटरबाट सञ्चालित उच्च-रिजोल्युसन ३कि.मि. WRF मोडेलको प्रत्यक्ष WMS तह'
+          : 'High-resolution WRF (3km) mesoscale modeling outputs overlaid on Nepal OpenStreetMap'}
+      </p>
+    </div>
+
+    <!-- Opacity Control -->
+    <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shrink-0">
+      <span class="text-xs font-bold text-slate-600">{isNe ? 'पारदर्शिता:' : 'Opacity:'}</span>
+      <input
+        type="range"
+        id="nwp-opacity-slider"
+        min="20"
+        max="100"
+        value="75"
+        class="h-1.5 w-20 accent-indigo-600 cursor-pointer"
+      />
+      <span id="nwp-opacity-val" class="text-xs font-mono font-bold text-indigo-700">75%</span>
+    </div>
+  </div>
+
+  <!-- Layer Switcher Pills -->
+  <div class="flex flex-wrap items-center gap-1.5 py-3.5 border-b border-slate-100" id="nwp-layer-buttons">
+    {LAYERS.map((layer, idx) => (
+      <button
+        type="button"
+        data-layer={layer.id}
+        data-unit={layer.unit}
+        data-model={layer.model}
+        class={`nwp-layer-btn cursor-pointer rounded-xl px-3 py-1.5 text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 ${
+          idx === 0
+            ? 'bg-indigo-600 text-white shadow-xs font-black'
+            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+        }`}
+      >
+        <Icon name={layer.iconName} class="w-3.5 h-3.5 shrink-0" />
+        <span>{isNe ? layer.nameNe : layer.nameEn}</span>
+        <span class="text-[10px] opacity-75 font-mono">({layer.unit})</span>
+      </button>
+    ))}
+  </div>
+
+  <!-- Interactive Map Container -->
+  <div class="relative w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner mt-4">
+    <div id="nwp-leaflet-map" class="h-[440px] sm:h-[560px] w-full z-10"></div>
+
+    <!-- Loading Overlay -->
+    <div id="nwp-map-loading" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-50/80 backdrop-blur-xs">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+      <p class="mt-3 text-xs sm:text-sm font-bold text-slate-700">
+        {isNe ? 'DHM जियोसर्भर NWP डाटा लोड हुँदैछ...' : 'Connecting to DHM Geoserver WRF layers...'}
+      </p>
+    </div>
+
+    <!-- Dynamic Legend Overlay -->
+    <div id="nwp-legend-box" class="absolute bottom-4 right-4 z-20 hidden sm:block bg-white/95 backdrop-blur-md border border-slate-200 p-3 rounded-xl shadow-md max-w-xs text-xs font-bold text-slate-800">
+      <div class="flex items-center justify-between mb-2 gap-2">
+        <span id="legend-title" class="text-xs font-black text-slate-900">Precipitation (mm/h)</span>
+        <span class="text-[10px] text-slate-500 uppercase font-mono">DHM Scale</span>
+      </div>
+      <img
+        id="nwp-legend-img"
+        src="https://dhm.gov.np/mfd/geoserver/NWP/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=NWP:gidc_wrf_hourly_precipitation&FORMAT=image/png"
+        alt="Color Legend Scale"
+        class="max-h-24 object-contain rounded"
+      />
+    </div>
+  </div>
+
+  <!-- Minimal DOM: Technical Model Specifications Bar -->
+  <div class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+    <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+      <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Supercomputer Model</span>
+      <span class="font-black text-slate-900 text-xs sm:text-sm mt-0.5 block">GIDC WRF 3km Mesoscale</span>
+      <span class="text-[10px] text-slate-500 font-medium">Singha Durbar Supercomputer Core</span>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+      <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Data Assimilation</span>
+      <span class="font-black text-slate-900 text-xs sm:text-sm mt-0.5 block">WRFDA 3D-Var System</span>
+      <span class="text-[10px] text-slate-500 font-medium">Real-time Radar & Satellite Ingestion</span>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+      <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Spatial Coordinate Domain</span>
+      <span class="font-black text-slate-900 text-xs sm:text-sm mt-0.5 block">80.05°E – 88.20°E</span>
+      <span class="text-[10px] text-slate-500 font-medium">Lat: 26.34°N – 30.45°N (Nepal Himalayan)</span>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+      <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Forecast Horizon</span>
+      <span class="font-black text-slate-900 text-xs sm:text-sm mt-0.5 block">72-Hour Numerical Runs</span>
+      <span class="text-[10px] text-slate-500 font-medium">00Z & 12Z Operational Cycles</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let nwpMap: any = null;
+  let activeWmsLayer: any = null;
+  let currentLayerId = 'NWP:gidc_wrf_hourly_precipitation';
+  let currentOpacity = 0.75;
+
+  const CITIES = [
+    { name: 'Kathmandu', ne: 'काठमाडौँ', lat: 27.7172, lon: 85.324 },
+    { name: 'Pokhara', ne: 'पोखरा', lat: 28.2096, lon: 83.9856 },
+    { name: 'Biratnagar', ne: 'विराटनगर', lat: 26.4525, lon: 87.2718 },
+    { name: 'Nepalgunj', ne: 'नेपालगञ्ज', lat: 28.05, lon: 81.6167 },
+    { name: 'Birgunj', ne: 'वीरगञ्ज', lat: 27.0167, lon: 84.8833 },
+    { name: 'Dhangadhi', ne: 'धनगढी', lat: 28.6833, lon: 80.6 },
+    { name: 'Surkhet', ne: 'सुर्खेत', lat: 28.6, lon: 81.6333 },
+    { name: 'Janakpur', ne: 'जनकपुर', lat: 26.7288, lon: 85.9248 },
+  ];
+
+  function loadLeaflet(cb: () => void) {
+    if (typeof (window as any).L !== 'undefined') {
+      cb();
+      return;
+    }
+
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    if (!document.getElementById('leaflet-js')) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => cb();
+      script.onerror = () => {
+        const fallback = document.createElement('script');
+        fallback.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+        fallback.onload = () => cb();
+        document.head.appendChild(fallback);
+      };
+      document.head.appendChild(script);
+    }
+  }
+
+  function initNwpMap() {
+    if (nwpMap) return;
+    const L = (window as any).L;
+    if (!L) return;
+
+    const mapEl = document.getElementById('nwp-leaflet-map');
+    const loadingEl = document.getElementById('nwp-map-loading');
+    if (!mapEl) return;
+
+    nwpMap = L.map('nwp-leaflet-map', {
+      center: [28.25, 84.15],
+      zoom: 7,
+      minZoom: 6,
+      maxZoom: 14,
+      scrollWheelZoom: false,
+    });
+
+    // Clean OpenStreetMap Basemap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors | DHM Nepal MFD Geoserver',
+      maxZoom: 18,
+    }).addTo(nwpMap);
+
+    // Initial WMS Overlay
+    switchWmsLayer(currentLayerId);
+
+    // Add City Pin Markers
+    CITIES.forEach((c) => {
+      const marker = L.circleMarker([c.lat, c.lon], {
+        radius: 5,
+        fillColor: '#1e293b',
+        color: '#ffffff',
+        weight: 2,
+        opacity: 0.9,
+        fillOpacity: 1,
+      });
+
+      marker.bindTooltip(`<b>${c.name} (${c.ne})</b>`, {
+        permanent: false,
+        direction: 'top',
+        className: 'nwp-city-tooltip',
+      });
+      marker.addTo(nwpMap);
+    });
+
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    setupControls();
+  }
+
+  function switchWmsLayer(layerId: string) {
+    const L = (window as any).L;
+    if (!L || !nwpMap) return;
+
+    if (activeWmsLayer) {
+      nwpMap.removeLayer(activeWmsLayer);
+    }
+
+    currentLayerId = layerId;
+
+    activeWmsLayer = L.tileLayer.wms('https://dhm.gov.np/mfd/geoserver/NWP/wms', {
+      layers: layerId,
+      format: 'image/png',
+      transparent: true,
+      opacity: currentOpacity,
+      version: '1.1.1',
+      crs: L.CRS.EPSG4326,
+    });
+
+    activeWmsLayer.addTo(nwpMap);
+
+    // Update legend graphic
+    const legendImg = document.getElementById('nwp-legend-img') as HTMLImageElement | null;
+    if (legendImg) {
+      legendImg.src = `https://dhm.gov.np/mfd/geoserver/NWP/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetLegendGraphic&LAYER=${encodeURIComponent(layerId)}&FORMAT=image/png`;
+    }
+  }
+
+  function setupControls() {
+    const slider = document.getElementById('nwp-opacity-slider') as HTMLInputElement | null;
+    const valText = document.getElementById('nwp-opacity-val');
+    if (slider) {
+      slider.addEventListener('input', (e: any) => {
+        const val = Number(e.target.value) / 100;
+        currentOpacity = val;
+        if (activeWmsLayer) activeWmsLayer.setOpacity(val);
+        if (valText) valText.textContent = `${Math.round(val * 100)}%`;
+      });
+    }
+
+    const buttons = document.querySelectorAll('.nwp-layer-btn');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        buttons.forEach((b) => {
+          b.classList.remove('bg-indigo-600', 'text-white', 'shadow-xs', 'font-black');
+          b.classList.add('bg-slate-100', 'text-slate-700');
+        });
+        btn.classList.remove('bg-slate-100', 'text-slate-700');
+        btn.classList.add('bg-indigo-600', 'text-white', 'shadow-xs', 'font-black');
+
+        const layerId = btn.getAttribute('data-layer');
+        if (layerId) switchWmsLayer(layerId);
+      });
+    });
+  }
+
+  function start() {
+    const wrapper = document.getElementById('nwp-map-wrapper');
+    if (!wrapper) return;
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          observer.disconnect();
+          loadLeaflet(initNwpMap);
+        }
+      }, { rootMargin: '200px' });
+      observer.observe(wrapper);
+    } else {
+      loadLeaflet(initNwpMap);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+</script>

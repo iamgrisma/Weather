@@ -1,0 +1,151 @@
+---
+import type { ThreeDayBulletin } from '../lib/dhm/types';
+import Icon from './Icon.astro';
+import { getProxiedImageUrl } from '../lib/utils/image';
+
+interface Props {
+  bulletin: ThreeDayBulletin | null;
+  lang?: 'en' | 'ne';
+}
+
+const { bulletin, lang = 'en' } = Astro.props;
+const isNe = lang === 'ne';
+---
+
+{bulletin ? (
+  <div class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm mb-8" id="three-day-bulletin-card">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5 mb-6 gap-3">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="inline-flex h-3 w-3 rounded-full bg-blue-600 animate-pulse"></span>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            {isNe ? 'आगामी तीन दिनको मौसम पूर्वानुमान बुलेटिन' : 'Official 3-Day Synoptic Weather & Hazard Bulletin'}
+          </h2>
+        </div>
+        <p class="text-sm font-semibold text-slate-600 mt-1">
+          {bulletin.title || (isNe ? 'जल तथा मौसम विज्ञान विभाग, मौसम पूर्वानुमान महाशाखा' : 'Department of Hydrology & Meteorology, Meteorological Forecasting Division')}
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="rounded-xl bg-blue-50 border border-blue-200 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-blue-700 shadow-2xs">
+          {isNe ? 'जारी मिति:' : 'Issued:'} {new Date(bulletin.issueDate).toLocaleDateString(isNe ? 'ne-NP' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        </span>
+      </div>
+    </div>
+
+    <!-- Warning / Hazard Advisory Box if present -->
+    {(bulletin.warningAdvisoryEn || bulletin.warningAdvisoryNp) && (
+      <div class="mb-6 rounded-2xl border-2 border-amber-400 bg-amber-50/80 p-5 shadow-xs">
+        <div class="flex items-center gap-2 text-amber-950 font-black text-base sm:text-lg mb-2">
+          <Icon name="alert-triangle" class="w-5 h-5 text-amber-600" />
+          <span>{isNe ? 'चेतावनी तथा परामर्श (Warning & Hazard Advisory)' : 'Official Warning & Hazard Advisory'}</span>
+        </div>
+        <div
+          class="text-sm sm:text-base text-amber-950 leading-relaxed font-medium space-y-2"
+          set:html={isNe ? (bulletin.warningAdvisoryNp || bulletin.warningAdvisoryEn) : (bulletin.warningAdvisoryEn || bulletin.warningAdvisoryNp)}
+        />
+      </div>
+    )}
+
+    <!-- Meteorological Analysis & Present Weather Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+      <!-- Meteorological Analysis -->
+      <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+        <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600 mb-2.5 flex items-center gap-2">
+          <Icon name="satellite" class="w-4 h-4 text-slate-500" />
+          <span>{isNe ? 'मौसम विश्लेषण (Synoptic Analysis)' : 'Meteorological Analysis'}</span>
+        </h3>
+        <p class="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
+          {isNe
+            ? (bulletin.metAnalysisNp || bulletin.metAnalysisEn || 'मौसम विश्लेषण उपलब्ध छैन।')
+            : (bulletin.metAnalysisEn || bulletin.metAnalysisNp || 'Meteorological synoptic analysis currently being compiled by duty forecasters.')}
+        </p>
+      </div>
+
+      <!-- Present Weather Status -->
+      <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+        <h3 class="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600 mb-2.5 flex items-center gap-2">
+          <Icon name="cloud-rain" class="w-4 h-4 text-slate-500" />
+          <span>{isNe ? 'हालको मौसम अवस्था (Present Weather)' : 'Present Weather Status'}</span>
+        </h3>
+        <p class="text-sm sm:text-base text-slate-800 leading-relaxed font-normal">
+          {isNe
+            ? (bulletin.presentWeatherNp || bulletin.presentWeatherEn || 'हालको अवस्था सामान्य रहेको छ।')
+            : (bulletin.presentWeatherEn || bulletin.presentWeatherNp || 'Current national satellite observations indicate localized cloud covers across hill regions.')}
+        </p>
+      </div>
+    </div>
+
+    <!-- Graphical Synoptic Forecast Maps -->
+    {bulletin.images && bulletin.images.length > 0 && (
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-3.5">
+          <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+            <Icon name="layers" class="w-4 h-4 text-slate-500" />
+            <span>{isNe ? 'दैनिक नक्सा पूर्वानुमान (Synoptic Weather Maps)' : 'Official Daily Graphical Synoptic Maps'}</span>
+          </h3>
+          <span class="text-xs text-slate-500 font-medium">Click to inspect map</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+          {bulletin.images.map((img) => (
+            <a
+              href={img.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group block overflow-hidden rounded-xl border border-slate-200 bg-white hover:border-blue-500 hover:shadow-md transition-all"
+            >
+              <div class="aspect-4/3 overflow-hidden bg-slate-100 relative">
+                <img
+                  src={getProxiedImageUrl(img.url)}
+                  onerror={`this.onerror=null;this.src='${img.url}'`}
+                  alt={img.title}
+                  loading="lazy"
+                  class="h-full w-full object-contain group-hover:scale-105 transition-transform duration-200"
+                />
+              </div>
+              <div class="p-2.5 bg-white border-t border-slate-100 text-center">
+                <span class="text-xs font-bold text-slate-800 block truncate group-hover:text-blue-600">
+                  {img.title}
+                </span>
+                <span class="text-[11px] font-semibold text-slate-500 uppercase mt-0.5 inline-flex items-center justify-center gap-1">
+                  {img.time === 'night' ? (
+                    <>
+                      <Icon name="moon" class="w-3 h-3 text-indigo-500" />
+                      <span>Night</span>
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="sun" class="w-3 h-3 text-amber-500" />
+                      <span>Day</span>
+                    </>
+                  )}
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- National 3-Day Forecast Text -->
+    {(bulletin.nationalForecastEn || bulletin.nationalForecastNp) && (
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs">
+        <h3 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-2">
+          <Icon name="document" class="w-4 h-4 text-slate-500" />
+          <span>{isNe ? 'विस्तृत तीन दिनको राष्ट्रिय पूर्वानुमान' : 'Comprehensive 3-Day Nationwide Forecast'}</span>
+        </h3>
+        <div
+          class="prose prose-sm sm:prose-base max-w-none text-sm sm:text-base text-slate-700 leading-relaxed space-y-3"
+          set:html={isNe ? (bulletin.nationalForecastNp || bulletin.nationalForecastEn) : (bulletin.nationalForecastEn || bulletin.nationalForecastNp)}
+        />
+      </div>
+    )}
+  </div>
+) : (
+  <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm font-semibold text-slate-500 mb-8">
+    No active 3-day synoptic bulletin received from MFD.
+  </div>
+)}

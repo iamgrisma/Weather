@@ -1,0 +1,137 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  lang?: 'en' | 'ne';
+  cityCount?: number;
+  riverCount?: number;
+  modelCount?: number;
+  advisoryCount?: number;
+}
+
+const {
+  lang = 'en',
+  cityCount = 19,
+  riverCount = 337,
+  modelCount = 4,
+  advisoryCount = 1,
+} = Astro.props;
+
+const isNe = lang === 'ne';
+const prefix = isNe ? '/ne' : '';
+
+const HUBS = [
+  {
+    titleEn: 'City Forecasts & Weather',
+    titleNe: 'सहर मौसम तथा ३ दिने पूर्वानुमान',
+    descEn: 'Real-time temperature ranges, precipitation probabilities, sunrise/sunset, and 3-day projections across 19+ regional cities.',
+    descNe: 'नेपालका १९+ प्रमुख सहरहरूको तापक्रम, वर्षा सम्भावना, सूर्योदय र ३ दिने विस्तृत मौसमी प्रक्षेपण।',
+    iconName: 'city' as const,
+    href: `${prefix}/city-forecast`,
+    badgeEn: `${cityCount} Cities`,
+    badgeNe: `${cityCount} सहरहरू`,
+  },
+  {
+    titleEn: 'River Watch & Flood Alarms',
+    titleNe: 'नदी जलसतह तथा बाढी चेतावनी',
+    descEn: 'Automated 24/7 telemetry monitoring across 337 river stations, basin flood thresholds, danger sirens, and live hydrographs.',
+    descNe: '३३७ स्वचालित नदी स्टेशनहरूको निरन्तर जलस्तर मापन, बाढी पूर्वसूचना, खतरा साइरन र बेसिन विवरण।',
+    iconName: 'waves' as const,
+    href: `${prefix}/river-watch`,
+    badgeEn: `${riverCount} Hydrology Stations`,
+    badgeNe: `${riverCount} नदी स्टेशनहरू`,
+  },
+  {
+    titleEn: 'NWP WRF Mesoscale Radar',
+    titleNe: 'संख्यात्मक मौसम पूर्वानुमान (NWP)',
+    descEn: 'GIDC supercomputer WRF (3km) numerical models: hourly precipitation, surface temperature, wind gusts on OpenStreetMap.',
+    descNe: 'नेपाल सरकार GIDC सुपरकम्प्युटरबाट सञ्चालित उच्च-रिजोल्युसन WRF राडार तथा वायुमण्डलीय नक्सा तहहरू।',
+    iconName: 'satellite' as const,
+    href: `${prefix}/nwp`,
+    badgeEn: `${modelCount} WRF Engines`,
+    badgeNe: `${modelCount} कम्प्युटर मोडेल`,
+  },
+  {
+    titleEn: 'High-Altitude Mountaineering',
+    titleNe: 'उच्च हिमाली तथा पदमार्ग मौसम',
+    descEn: 'Atmospheric telemetry from 3,000m to 9,000m for Everest, Annapurna, and Manaslu, plus active trekking corridors.',
+    descNe: 'सगरमाथा, अन्नपूर्ण, मनास्लु लगायत ३००० देखि ९००० मिटर उचाइको वायु गति, तापक्रम र पदमार्ग मौसम।',
+    iconName: 'mountain' as const,
+    href: `${prefix}/weather`,
+    badgeEn: '3,000m - 9,000m',
+    badgeNe: '३,००० - ९,००० मि.',
+  },
+  {
+    titleEn: 'Official 3-Day Synoptic Bulletin',
+    titleNe: 'आधिकारिक ३ दिने मौसम बुलेटिन',
+    descEn: 'Meteorological synoptic analysis, Western Disturbance tracking, provincial day/night forecasts, and official weather maps.',
+    descNe: 'मौसम पूर्वानुमान महाशाखाको आधिकारिक मौसमी विश्लेषण, पश्चिमी वायु प्रभाव र प्रदेशगत दिन/रात बुलेटिन।',
+    iconName: 'document' as const,
+    href: `${prefix}/bulletin`,
+    badgeEn: 'Daily Issuance',
+    badgeNe: 'दैनिक बुलेटिन',
+  },
+  {
+    titleEn: 'Special Warnings & Press Releases',
+    titleNe: 'विशेष मौसमी चेतावनी तथा विज्ञप्ति',
+    descEn: 'Severe weather alerts, flash flood warnings, monsoon status, and official DHM press communiqués with downloadable PDFs.',
+    descNe: 'आपतकालीन मौसमी चेतावनी, बाढी पूर्वसूचना, मनसुन विवरण र आधिकारिक सरकारी प्रेस विज्ञप्तिहरू।',
+    iconName: 'megaphone' as const,
+    href: `${prefix}/special-weather`,
+    badgeEn: `${advisoryCount} Active Bulletins`,
+    badgeNe: `${advisoryCount} सक्रिय बुलेटिन`,
+  },
+];
+---
+
+<div class="mb-8" id="ecosystem-hubs-section">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-slate-700"></span>
+        <span class="text-xs font-black uppercase tracking-wider text-slate-500">
+          {isNe ? 'पोर्टल सुविधाहरू तथा मुख्य पृष्ठहरू' : 'Dedicated Portal Modules'}
+        </span>
+      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">
+        {isNe ? 'मौसम तथा जलविज्ञान सेवा केन्द्र' : 'Ecosystem Exploration Hubs'}
+      </h2>
+    </div>
+    <p class="text-xs text-slate-500 font-semibold">
+      {isNe ? 'आफ्नो आवश्यकता अनुसार सिधै विशेष पृष्ठमा जानुहोस्' : 'Direct access to focused tools & real-time telemetry'}
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {HUBS.map((hub) => (
+      <a
+        href={hub.href}
+        class="group rounded-2xl border border-slate-200 bg-white p-5 hover:border-blue-400 hover:shadow-md transition-all flex flex-col justify-between"
+      >
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <span class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50 group-hover:border-blue-200 transition-colors flex items-center justify-center">
+              <Icon name={hub.iconName} class="w-5 h-5 text-slate-700 group-hover:text-blue-600 transition-colors" />
+            </span>
+            <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-black text-slate-700">
+              {isNe ? hub.badgeNe : hub.badgeEn}
+            </span>
+          </div>
+
+          <h3 class="text-base sm:text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors">
+            {isNe ? hub.titleNe : hub.titleEn}
+          </h3>
+
+          <p class="text-xs text-slate-600 font-normal leading-relaxed mt-1.5 mb-4 line-clamp-2">
+            {isNe ? hub.descNe : hub.descEn}
+          </p>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600 group-hover:text-blue-800">
+          <span>{isNe ? 'विस्तृत पृष्ठ खोल्नुहोस्' : 'Explore Full Module'}</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </div>
+      </a>
+    ))}
+  </div>
+</div>
