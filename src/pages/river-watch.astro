@@ -5,7 +5,6 @@ import RefreshBar from '../components/RefreshBar.astro';
 import DangerAlertList from '../components/DangerAlertList.astro';
 import RiverMap from '../components/RiverMap.astro';
 import RiverTable from '../components/RiverTable.astro';
-import FloodBulletins from '../components/FloodBulletins.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
 
 export const prerender = false;
@@ -56,12 +55,6 @@ const description = 'Complete real-time water levels, rising/falling trends, and
   <!-- Interactive Station Map -->
   <RiverMap
     stations={snapshot.riverWatch.stations}
-    lang="en"
-  />
-
-  <!-- Flood Bulletins & Advisories -->
-  <FloodBulletins
-    bulletins={snapshot.bulletins?.items || []}
     lang="en"
   />
 
