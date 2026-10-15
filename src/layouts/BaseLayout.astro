@@ -228,8 +228,15 @@ const isProduction = host === 'weather.topnepali.com';
               : 'Direct live feeds from the Department of Hydrology & Meteorology (DHM) and Meteorological Forecasting Division (MFD).'}
           </p>
         </div>
-        <div class="text-[11px] text-slate-400">
-          <span>Edge-Cached on Cloudflare D1/KV • 10-Minute Cooldown Shield</span>
+        <div class="text-[11px] text-slate-500 flex flex-wrap items-center gap-x-3 gap-y-1 sm:justify-end">
+          <span class="inline-flex items-center gap-1.5 font-medium">
+            <span class="inline-block h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+            {isNe ? 'बाढी आपतकालीन हटलाइन: ११५५ (टोल फ्री)' : 'Emergency Flood Hotline: 1155 (Toll Free)'}
+          </span>
+          <span class="text-slate-300 hidden sm:inline">•</span>
+          <span class="font-medium text-slate-500">
+            {isNe ? 'मौसम सोधपुछ: ०१-४११३१९१' : 'MFD Forecast: 01-4113191'}
+          </span>
         </div>
       </div>
     </footer>
