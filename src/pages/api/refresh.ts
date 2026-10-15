@@ -34,7 +34,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
       'X-Cooldown-Remaining': String(result.cooldownRemainingMinutes),
     });
 
-    return new Response(JSON.stringify(result), {
+    // Return lightweight JSON (~150 bytes) for cronjob.org & uptimerobot limits
+    const includeFull = url.searchParams.get('full') === 'true';
+    const payload = includeFull
+      ? result
+      : {
+          status: result.status,
+          scope: result.scope,
+          message: result.message,
+          cooldownRemainingMinutes: result.cooldownRemainingMinutes,
+          lastFetchedAt: result.lastFetchedAt,
+          lastCheckedAt: result.lastCheckedAt,
+        };
+
+    return new Response(JSON.stringify(payload), {
       status: 200,
       headers,
     });
