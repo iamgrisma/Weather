@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "Nepal Hydrology & Meteorology Portal",
+  "short_name": "NepalWeather",
+  "description": "Real-time Nepal river flood alerts, rainfall gauges, Himalayan mountain telemetry, and city forecasts.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0284c7",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
