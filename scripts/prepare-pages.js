@@ -107,6 +107,7 @@ const routes = {
   exclude: [
     '/_astro/*',
     '/favicon.ico',
+    '/favicon.svg',
     '/favicon-16x16.png',
     '/favicon-32x32.png',
     '/apple-touch-icon.png',
@@ -127,6 +128,9 @@ const headersContent = `/_astro/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
 
 /*.ico
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/*.svg
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
 
 /*.webp
