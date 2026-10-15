@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import RefreshBar from '../components/RefreshBar.astro';
+import MountainMap from '../components/MountainMap.astro';
 import MountaineeringMatrix from '../components/MountaineeringMatrix.astro';
 import TrekkingCorridors from '../components/TrekkingCorridors.astro';
 import TourismTable from '../components/TourismTable.astro';
@@ -16,8 +17,8 @@ const description = 'Specialized high-altitude mountain expedition telemetry: wi
 ---
 
 <BaseLayout title={title} description={description} lang="en">
-  <!-- Header -->
-  <div class="mb-6">
+  <!-- Semantic Header -->
+  <header class="mb-6">
     <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
       <a href="/" class="hover:underline">Home</a>
       <span>/</span>
@@ -27,14 +28,22 @@ const description = 'Specialized high-altitude mountain expedition telemetry: wi
       High Himalayan Expedition & Mountaineering Weather
     </h1>
     <p class="text-xs text-slate-500 mt-1">
-      Official layer-by-layer high altitude atmospheric telemetry across 3,000m, 5,500m (Base Camp), 7,000m, and 9,000m (Summit Ridges) covering all major trekking and climbing peaks.
+      Official layer-by-layer high altitude atmospheric telemetry across 3,000m, 5,500m (Base Camp), 7,000m, and 9,000m (Summit Ridges) covering all major climbing peaks.
     </p>
-  </div>
+  </header>
 
   <RefreshBar
     fetchedAt={snapshot.mountaineeringWeather?.fetchedAt || snapshot.fetchedAt}
     lastCheckedAt={snapshot.mountaineeringWeather?.lastCheckedAt || snapshot.lastCheckedAt}
     scope="mountain"
+    lang="en"
+  />
+
+  <!-- Interactive High Himalayan Peaks & Observatories Map -->
+  <MountainMap
+    stations={snapshot.tourismWeather?.stations || []}
+    divisions={snapshot.mountaineeringWeather?.data?.divisions || []}
+    routes={snapshot.tourismWeather?.routes || []}
     lang="en"
   />
 
@@ -44,22 +53,14 @@ const description = 'Specialized high-altitude mountain expedition telemetry: wi
     lang="en"
   />
 
+  <!-- Mountain Pass & Base Camp Meteorological Stations (Direct flat section) -->
+  {snapshot.tourismWeather?.stations?.length > 0 && (
+    <TourismTable stations={snapshot.tourismWeather.stations} lang="en" />
+  )}
+
   <!-- Major Trekking Routes & Corridors -->
   <TrekkingCorridors
     routes={snapshot.tourismWeather?.routes || []}
     lang="en"
   />
-
-  <!-- Mountain Pass Observations -->
-  {snapshot.tourismWeather?.stations?.length > 0 && (
-    <div class="mb-8">
-      <div class="mb-3 flex items-center justify-between">
-        <h2 class="text-lg font-bold text-slate-900">
-          Mountain Pass & Base Camp Meteorological Stations
-        </h2>
-        <span class="text-xs text-slate-500 font-medium">Real-Time Sensor Feeds</span>
-      </div>
-      <TourismTable stations={snapshot.tourismWeather.stations} lang="en" />
-    </div>
-  )}
 </BaseLayout>

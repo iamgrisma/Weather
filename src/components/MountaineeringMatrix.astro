@@ -19,59 +19,56 @@ function degToCompass(deg: number | null): string {
 ---
 
 {weather && weather.divisions && weather.divisions.length > 0 ? (
-  <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm mb-8" id="mountaineering-weather-section">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 mb-5 gap-2">
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mb-8" id="mountaineering-weather-section">
+    <!-- Clean Minimal Header -->
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3.5 mb-4 gap-2">
       <div>
-        <div class="flex items-center gap-2">
+        <h2 class="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
           <span class="inline-flex h-2.5 w-2.5 rounded-full bg-indigo-600 animate-pulse"></span>
-          <h2 class="text-lg font-black text-slate-900 tracking-tight">
-            {isNe ? 'हिमाल आरोहण तथा उच्च हिमाली मौसम पूर्वानुमान (३,००० - ९,००० मिटर)' : 'High Himalayan Mountaineering & Expedition Forecast (3,000m – 9,000m)'}
-          </h2>
-        </div>
-        <p class="text-xs text-slate-500 mt-1">
+          {isNe ? 'हिमाल आरोहण तथा उच्च हिमाली मौसमी तह पूर्वानुमान' : 'High Himalayan Mountaineering & Altitude Telemetry'}
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">
           {isNe
-            ? 'सगरमाथा, अन्नपूर्ण, मनास्लु, लाङटाङ लगायतका हिमाली क्षेत्रहरूको उचाई अनुसारको हावाको गति, दिशा र तापक्रम'
-            : 'Specialized telemetry across Everest, Annapurna, Manaslu, Langtang, and Dhaulagiri corridors by altitude layers.'}
+            ? 'सगरमाथा, अन्नपूर्ण, मनास्लु, लाङटाङ लगायतका हिमाली क्षेत्रको ३०००-९००० मिटर उचाई तह'
+            : 'Multi-layer atmospheric metrics across Everest, Annapurna, Manaslu, Langtang, and Dhaulagiri corridors.'}
         </p>
       </div>
 
-      <div class="flex items-center gap-2">
-        <span class="rounded-lg bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-bold text-indigo-700">
-          {isNe ? 'अद्यावधिक:' : 'Issued:'} {new Date(weather.issueDate).toLocaleDateString(isNe ? 'ne-NP' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-        </span>
-      </div>
-    </div>
+      <span class="rounded-lg bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-bold text-indigo-700">
+        {isNe ? 'अद्यावधिक:' : 'Issued:'} {new Date(weather.issueDate).toLocaleDateString(isNe ? 'ne-NP' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+      </span>
+    </header>
 
-    <!-- Mountain Corridors Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <!-- Mountain Corridors Grid: Flatted Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {weather.divisions.map((div) => (
-        <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 hover:border-indigo-300 transition-colors">
-          <div class="flex items-center justify-between mb-2">
+        <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 hover:border-indigo-300 transition-colors" id={`division-${div.divisionId}`}>
+          <header class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
-              <Icon name="mountain" class="w-4 h-4 text-indigo-600 shrink-0" /> {isNe ? div.provinceNepali : div.provinceName}
+              <Icon name="mountain" class="w-4 h-4 text-indigo-600 shrink-0" />
+              {isNe ? div.provinceNepali : div.provinceName}
             </h3>
-            <span class="rounded-full bg-white border border-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-600 shadow-2xs">
+            <span class="rounded-full bg-white border border-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-600">
               Division #{div.divisionId}
             </span>
-          </div>
+          </header>
 
           <!-- Weather Condition Summary -->
           {div.conditions && div.conditions.length > 0 && (
-            <div class="mb-3 rounded-lg bg-indigo-50/70 p-2.5 border border-indigo-100 text-xs text-indigo-950 font-medium">
-              <span class="font-bold">{isNe ? 'पूर्वानुमान:' : 'Forecast:'}</span> {div.conditions.join(' ')}
-            </div>
+            <p class="mb-3 rounded-lg bg-indigo-50/70 p-2 border border-indigo-100 text-xs text-indigo-950 font-medium">
+              <strong class="font-bold">{isNe ? 'पूर्वानुमान:' : 'Forecast:'}</strong> {div.conditions.join(' ')}
+            </p>
           )}
 
-          <!-- Altitude Layer Telemetry Table -->
+          <!-- Altitude Layer Telemetry Table: Zero inner-div bloat -->
           <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
             <table class="w-full text-left text-xs border-collapse">
               <thead>
                 <tr class="border-b border-slate-100 bg-slate-50 font-semibold text-slate-500 text-[11px]">
                   <th class="py-2 px-3">Altitude (Layer)</th>
-                  <th class="py-2 px-3 text-center">Wind Dir (°)</th>
+                  <th class="py-2 px-3 text-center">Wind Dir</th>
                   <th class="py-2 px-3 text-right">Wind Speed</th>
-                  <th class="py-2 px-3 text-right">Air Temp (°C)</th>
+                  <th class="py-2 px-3 text-right">Air Temp</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 font-mono text-slate-700">
@@ -83,53 +80,39 @@ function degToCompass(deg: number | null): string {
 
                   return (
                     <tr class={isSummit ? 'bg-red-50/30' : isBaseCamp ? 'bg-indigo-50/20' : ''}>
-                      <td class="py-2 px-3 font-sans font-bold text-slate-900">
-                        <div class="flex items-center gap-1.5">
-                          <span>{alt.altitudeM} m</span>
-                          {isSummit && (
-                            <span class="text-[9px] rounded bg-red-100 text-red-700 font-black px-1.5 py-0.2">
-                              SUMMIT
-                            </span>
-                          )}
-                          {isBaseCamp && (
-                            <span class="text-[9px] rounded bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.2">
-                              BASE CAMP
-                            </span>
-                          )}
-                        </div>
+                      <td class="py-2.5 px-3 font-sans font-bold text-slate-900 whitespace-nowrap">
+                        {alt.altitudeM} m
+                        {isSummit && (
+                          <span class="ml-1 text-[9px] rounded bg-red-100 text-red-700 font-black px-1.5 py-0.5">
+                            SUMMIT
+                          </span>
+                        )}
+                        {isBaseCamp && (
+                          <span class="ml-1 text-[9px] rounded bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.5">
+                            BASE CAMP
+                          </span>
+                        )}
                       </td>
-                      <td class="py-2 px-3 text-center">
+                      <td class="py-2.5 px-3 text-center whitespace-nowrap">
                         {alt.windDirectionDeg !== null ? (
-                          <span class="inline-flex items-center gap-1 text-[11px]">
-                            <span class="font-bold text-slate-800">{degToCompass(alt.windDirectionDeg)}</span>
-                            <span class="text-slate-400">({alt.windDirectionDeg}°)</span>
+                          <span>
+                            <strong class="font-bold text-slate-800">{degToCompass(alt.windDirectionDeg)}</strong>
+                            <span class="text-slate-400 text-[11px] ml-1">({alt.windDirectionDeg}°)</span>
                           </span>
-                        ) : (
-                          <span class="text-slate-400">-</span>
-                        )}
+                        ) : '-'}
                       </td>
-                      <td class="py-2 px-3 text-right">
+                      <td class="py-2.5 px-3 text-right whitespace-nowrap">
                         {alt.windSpeedKt !== null ? (
-                          <div>
-                            <span class={`font-bold ${alt.windSpeedKt >= 25 ? 'text-red-600' : 'text-slate-800'}`}>
+                          <span>
+                            <strong class={alt.windSpeedKt >= 25 ? 'text-red-600 font-bold' : 'text-slate-800 font-bold'}>
                               {alt.windSpeedKt} kt
-                            </span>
-                            <span class="text-[10px] text-slate-400 block font-normal">
-                              {kmh} km/h
-                            </span>
-                          </div>
-                        ) : (
-                          <span class="text-slate-400">-</span>
-                        )}
-                      </td>
-                      <td class="py-2 px-3 text-right">
-                        {alt.tempC !== null ? (
-                          <span class={`font-bold text-sm ${isSubZero ? 'text-blue-600' : 'text-slate-800'}`}>
-                            {alt.tempC > 0 ? `+${alt.tempC}` : alt.tempC}°C
+                            </strong>
+                            <span class="text-[10px] text-slate-400 ml-1">({kmh} km/h)</span>
                           </span>
-                        ) : (
-                          <span class="text-slate-400">-</span>
-                        )}
+                        ) : '-'}
+                      </td>
+                      <td class={`py-2.5 px-3 text-right font-bold whitespace-nowrap ${isSubZero ? 'text-blue-600' : 'text-slate-800'}`}>
+                        {alt.tempC !== null ? (alt.tempC > 0 ? `+${alt.tempC}°C` : `${alt.tempC}°C`) : '-'}
                       </td>
                     </tr>
                   );
@@ -137,23 +120,21 @@ function degToCompass(deg: number | null): string {
               </tbody>
             </table>
           </div>
-        </div>
+        </article>
       ))}
     </div>
 
-    <!-- High-Altitude Safety Notice -->
-    <div class="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3.5 text-xs text-slate-500 flex items-start gap-2.5">
-      <Icon name="compass" class="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
-      <div>
+    <!-- High-Altitude Safety Note -->
+    <footer class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 flex items-start gap-2">
+      <Icon name="compass" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+      <p class="leading-relaxed text-[11px]">
         <strong class="text-slate-800 font-bold">Mountaineering Safety Note:</strong>
-        <p class="mt-0.5 leading-relaxed text-[11px]">
-          Wind speeds above 25 knots (46 km/h) at summit ridges (7,000m - 9,000m) significantly escalate frostbite risk and wind-chill hazard. Ensure expedition teams consult official MFD bulletins before committing to high-camp pushes.
-        </p>
-      </div>
-    </div>
-  </div>
+        Wind speeds above 25 knots (46 km/h) at summit ridges (7,000m - 9,000m) significantly escalate frostbite risk and wind-chill hazard. Ensure expedition teams consult official MFD bulletins before committing to high-camp pushes.
+      </p>
+    </footer>
+  </section>
 ) : (
-  <div class="rounded-2xl border border-slate-200 bg-white p-6 text-center text-xs text-slate-500 mb-8">
-    No mountaineering forecast available.
-  </div>
+  <section class="rounded-2xl border border-slate-200 bg-white p-6 text-center text-xs text-slate-500 mb-8">
+    No mountaineering forecast available at this moment.
+  </section>
 )}
