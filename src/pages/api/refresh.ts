@@ -4,6 +4,10 @@ import type { RefreshScope } from '../../lib/dhm/types';
 
 export const prerender = false;
 
+export const GET: APIRoute = async (context) => {
+  return POST(context);
+};
+
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const env = getEdgeEnv(locals);
