@@ -84,9 +84,15 @@ export function hashCityForecasts(stations: any[]): Promise<string> {
 }
 
 export function hashSpecialWeather(data: { items: any[]; activeNotice: any }): Promise<string> {
-  const topIds = (data.items || []).slice(0, 5).map((i) => `${i.id}-${i.createdAt}`).join(',');
+  const topItems = (data.items || []).slice(0, 8).map((i) => ({
+    id: i.id,
+    c: i.createdAt,
+    hasContent: Boolean(i.content),
+    contentLen: i.content ? i.content.length : 0,
+    mapsCount: i.weatherMapImages ? i.weatherMapImages.length : 0,
+  }));
   const notice = data.activeNotice?.id || 'none';
-  return computeHash(JSON.stringify({ topIds, notice }));
+  return computeHash(JSON.stringify({ topItems, notice }));
 }
 
 export function hashPressReleases(items: any[]): Promise<string> {
