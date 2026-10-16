@@ -20,16 +20,16 @@ const KV_KEY_LATEST = 'NEPAL_WEATHER_LATEST_SNAPSHOT';
 
 // Scope-specific minimum cooldowns in milliseconds
 export const COOLDOWN_DURATIONS: Record<RefreshScope, number> = {
-  river: 10 * 60 * 1000,    // 10 minutes: dynamic flood water levels
-  weather: 30 * 60 * 1000,  // 30 minutes: 24h forecast & manual obs
-  tourism: 120 * 60 * 1000, // 2 hours: trekking stations
-  bulletin: 60 * 60 * 1000, // 1 hour: 3-day synoptic bulletin
-  mountain: 60 * 60 * 1000, // 1 hour: mountaineering telemetry
-  cities: 30 * 60 * 1000,   // 30 minutes: 19 city forecasts
-  special: 15 * 60 * 1000,  // 15 minutes: special weather advisories & warnings
-  press: 60 * 60 * 1000,    // 1 hour: DHM press releases
-  nwp: 180 * 60 * 1000,     // 3 hours: NWP numerical weather prediction models
-  all: 10 * 60 * 1000,      // 10 minutes: overall composite
+  river: 8 * 60 * 1000,     // 8 minutes: dynamic flood water levels (allows reliable 10m cron)
+  weather: 25 * 60 * 1000,  // 25 minutes: 24h forecast & manual obs
+  tourism: 110 * 60 * 1000, // 110 minutes: trekking stations
+  bulletin: 50 * 60 * 1000, // 50 minutes: 3-day synoptic bulletin
+  mountain: 50 * 60 * 1000, // 50 minutes: mountaineering telemetry
+  cities: 25 * 60 * 1000,   // 25 minutes: 19 city forecasts
+  special: 12 * 60 * 1000,  // 12 minutes: special weather advisories & warnings
+  press: 50 * 60 * 1000,    // 50 minutes: DHM press releases
+  nwp: 170 * 60 * 1000,     // 170 minutes: NWP numerical weather prediction models
+  all: 8 * 60 * 1000,       // 8 minutes: overall composite (guarantees 10m cron never throttles)
 };
 
 interface EdgeEnv {
@@ -70,6 +70,8 @@ try {
 }
 
 export function getEdgeEnv(locals?: any): EdgeEnv {
+  if (locals?.runtime?.env) return locals.runtime.env;
+  if (locals && (locals.WEATHER_KV || locals.WEATHER_DB)) return locals;
   if (cloudflareEnv) return cloudflareEnv;
   if ((globalThis as any).__CF_ENV__) return (globalThis as any).__CF_ENV__;
   return {};
