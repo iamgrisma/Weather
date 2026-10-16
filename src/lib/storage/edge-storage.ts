@@ -70,10 +70,11 @@ try {
 }
 
 export function getEdgeEnv(locals?: any): EdgeEnv {
-  if (locals?.runtime?.env) return locals.runtime.env;
-  if (locals && (locals.WEATHER_KV || locals.WEATHER_DB)) return locals;
   if (cloudflareEnv) return cloudflareEnv;
   if ((globalThis as any).__CF_ENV__) return (globalThis as any).__CF_ENV__;
+  try {
+    if (locals && (locals.WEATHER_KV || locals.WEATHER_DB)) return locals;
+  } catch {}
   return {};
 }
 
