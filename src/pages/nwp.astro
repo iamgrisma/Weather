@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import RefreshBar from '../components/RefreshBar.astro';
 import NwpInteractiveMap from '../components/NwpInteractiveMap.astro';
+import AdSlot from '../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
 
 export const prerender = false;
@@ -41,4 +42,7 @@ const description = 'High-resolution atmospheric modeling products including GID
 
   <!-- Interactive OpenStreetMap with DHM Geoserver WMS Radar Overlays -->
   <NwpInteractiveMap lang="en" />
+
+  <!-- Ad Slot (Zero CLS) -->
+  <AdSlot position="in-article" lang="en" />
 </BaseLayout>

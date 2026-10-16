@@ -1,0 +1,94 @@
+---
+import Icon from './Icon.astro';
+
+export type AdSlotPosition = 'top-billboard' | 'in-article' | 'in-feed' | 'sidebar';
+
+export interface Props {
+  position?: AdSlotPosition;
+  lang?: 'en' | 'ne';
+  class?: string;
+}
+
+const {
+  position = 'in-article',
+  lang = 'en',
+  class: customClass = '',
+} = Astro.props;
+
+const isNe = lang === 'ne';
+const host = Astro.url.hostname;
+const isProduction = host === 'weather.topnepali.com';
+const allowAdSense = isProduction && !isNe;
+
+// Layout dimension reservation to guarantee 0.00 Cumulative Layout Shift (CLS)
+const heightClasses: Record<AdSlotPosition, string> = {
+  'top-billboard': 'min-h-[70px] sm:min-h-[90px]',
+  'in-article': 'min-h-[90px] sm:min-h-[180px] md:min-h-[250px]',
+  'in-feed': 'min-h-[90px] sm:min-h-[150px] md:min-h-[200px]',
+  'sidebar': 'min-h-[250px]',
+};
+
+const minHeight = heightClasses[position] || 'min-h-[90px]';
+---
+
+<aside
+  class={`ad-slot-wrapper my-6 w-full overflow-hidden transition-all duration-200 ${minHeight} ${customClass}`}
+  data-ad-position={position}
+  aria-label={isNe ? 'प्रायोजित सन्देश' : 'Sponsored Content'}
+>
+  {allowAdSense ? (
+    <div class="rounded-xl border border-slate-200/80 bg-slate-50/60 p-2 text-center flex flex-col items-center justify-center">
+      <span class="text-[9px] uppercase tracking-widest font-bold text-slate-400 mb-1">
+        Advertisement
+      </span>
+      <ins
+        class="adsbygoogle block w-full"
+        style="display:block"
+        data-ad-client="ca-pub-5410507143596599"
+        data-ad-slot="weather-auto-slot"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      ></ins>
+      <script is:inline>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+  ) : (
+    <div class="rounded-2xl border border-slate-200 bg-linear-to-r from-slate-50 via-white to-blue-50/30 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+      <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-xs">
+          <Icon name="waves" class="w-4 h-4 text-white" />
+        </span>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-0.5">
+            <span class="rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-blue-800">
+              {isNe ? 'सार्वजनिक सूचना' : 'Public Telemetry'}
+            </span>
+            <span class="text-[11px] font-bold text-slate-500">
+              Top Nepali Network
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm font-bold text-slate-900 truncate">
+            {isNe
+              ? 'बाढी तथा नदी जोखिममा २४ सै घण्टा निःशुल्क आपतकालीन हटलाइन ११५५'
+              : 'Nepal National Flood Siren & Early Warning Toll-Free 1155'}
+          </p>
+          <p class="text-[11px] text-slate-500 hidden sm:block mt-0.5">
+            {isNe
+              ? 'जल तथा मौसम विज्ञान विभागको प्रत्यक्ष तथ्याङ्क मार्फत नेपालका ७७ जिल्लामा सेवा।'
+              : 'Real-time river stage & meteorological surveillance across all 7 provinces.'}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+        <a
+          href={isNe ? '/ne/river-watch' : '/river-watch'}
+          class="rounded-xl bg-blue-600 hover:bg-blue-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-2xs transition-colors shrink-0"
+        >
+          {isNe ? 'नदी अनुगमन हेर्नुहोस् ›' : 'View River Watch ›'}
+        </a>
+      </div>
+    </div>
+  )}
+</aside>

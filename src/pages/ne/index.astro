@@ -8,6 +8,7 @@ import WeatherHeroSwitcher from '../../components/WeatherHeroSwitcher.astro';
 import TrendAnalysisSection from '../../components/TrendAnalysisSection.astro';
 import EcosystemHubCards from '../../components/EcosystemHubCards.astro';
 import PressReleasesList from '../../components/PressReleasesList.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { getProxiedImageUrl } from '../../lib/utils/image';
 import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
 
@@ -151,6 +152,9 @@ const activeNotice = snapshot.specialWeather?.activeNotice || null;
     riverStations={snapshot.riverWatch?.stations || []}
     lang="ne"
   />
+
+  <!-- Ad Slot (Zero CLS) -->
+  <AdSlot position="in-feed" lang="ne" />
 
   <!-- 3. National Synoptic Outlook & Special Advisory Spotlight -->
   <div class="mb-8 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">

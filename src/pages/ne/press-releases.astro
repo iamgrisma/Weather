@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RefreshBar from '../../components/RefreshBar.astro';
 import PressReleasesList from '../../components/PressReleasesList.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
 
 export const prerender = false;
@@ -43,4 +44,7 @@ const description = 'जल तथा मौसम विज्ञान वि�
     items={snapshot.pressReleases?.items || []}
     lang="ne"
   />
+
+  <!-- Ad Slot (Zero CLS) -->
+  <AdSlot position="in-article" lang="ne" />
 </BaseLayout>

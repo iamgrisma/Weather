@@ -175,17 +175,30 @@ const allSchemas = [
       </script>
     )}
 
-    <!-- Google Analytics GA4 (Production Only; English & Nepali) -->
+    <!-- Unified Analytics & User Tracking (Production Only; English & Nepali) -->
     {allowTrackers && (
       <>
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+        <link rel="dns-prefetch" href="https://www.clarity.ms" />
+        <link rel="preconnect" href="https://www.clarity.ms" crossorigin />
+
+        <!-- Google Analytics 4 (Unified Network Property) -->
         <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-K2R0GSQE0M"></script>
         <script is:inline>
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', 'G-K2R0GSQE0M');
+        </script>
+
+        <!-- Microsoft Clarity (Heatmaps & Session Diagnostics) -->
+        <script is:inline type="text/javascript">
+          (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "7n9ehw4x5h");
         </script>
       </>
     )}

@@ -20,8 +20,12 @@ const sorted = [...stations].sort((a, b) => {
 ---
 
 {sorted.length > 0 && (
-  <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm mb-8" id="mountain-pass-stations">
-    <header class="border-b border-slate-200 px-5 py-3.5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+  <section
+    class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm mb-8"
+    id="mountain-pass-stations"
+    style="content-visibility: auto; contain-intrinsic-size: 1px 340px;"
+  >
+    <header class="border-b border-slate-200 px-4 sm:px-5 py-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
           <Icon name="mountain" class="w-4 h-4 text-indigo-600 shrink-0" />
@@ -42,37 +46,33 @@ const sorted = [...stations].sort((a, b) => {
       <table class="w-full text-left text-xs border-collapse">
         <thead>
           <tr class="border-b border-slate-200 bg-slate-50 font-semibold text-slate-600">
-            <th class="py-2.5 px-4 w-4/12">{isNe ? 'पदमार्ग / केन्द्र (Station / Pass)' : 'Station / Mountain Pass'}</th>
-            <th class="py-2.5 px-4 w-2/12 text-right">{isNe ? 'उचाइ (Altitude)' : 'Altitude (m)'}</th>
-            <th class="py-2.5 px-4 w-2/12 text-right">{isNe ? 'तापक्रम (Temp)' : 'Air Temp'}</th>
-            <th class="py-2.5 px-4 w-2/12 text-right">{isNe ? 'आर्द्रता (Humidity)' : 'Humidity'}</th>
-            <th class="py-2.5 px-4 w-2/12 text-right">{isNe ? 'हावा / वर्षा (Wind & Rain)' : 'Wind & Rain'}</th>
+            <th class="py-2 px-3 sm:px-4 w-4/12">{isNe ? 'पदमार्ग / केन्द्र' : 'Station / Mountain Pass'}</th>
+            <th class="py-2 px-3 sm:px-4 w-2/12 text-right">{isNe ? 'उचाइ' : 'Altitude (m)'}</th>
+            <th class="py-2 px-3 sm:px-4 w-2/12 text-right">{isNe ? 'तापक्रम' : 'Air Temp'}</th>
+            <th class="py-2 px-3 sm:px-4 w-2/12 text-right">{isNe ? 'आर्द्रता' : 'Humidity'}</th>
+            <th class="py-2 px-3 sm:px-4 w-2/12 text-right">{isNe ? 'हावा / वर्षा' : 'Wind & Rain'}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 text-slate-700">
-          {sorted.slice(0, 15).map((st) => (
+          {sorted.slice(0, 10).map((st) => (
             <tr class="hover:bg-slate-50/80 transition-colors">
-              <td class="py-2.5 px-4 font-bold text-slate-900">
+              <td class="py-2 px-3 sm:px-4 font-bold text-slate-900">
                 {st.name}
                 {st.folderName && (
                   <span class="block text-[10px] text-slate-400 font-normal">{st.folderName}</span>
                 )}
               </td>
-              <td class="py-2.5 px-4 text-right font-mono font-bold text-slate-700 whitespace-nowrap">
+              <td class="py-2 px-3 sm:px-4 text-right font-mono font-bold text-slate-700 whitespace-nowrap">
                 {st.elevation > 0 ? `▲ ${st.elevation.toLocaleString()} m` : '-'}
               </td>
-              <td class={`py-2.5 px-4 text-right font-mono font-bold whitespace-nowrap ${st.temp !== undefined && st.temp <= 0 ? 'text-blue-700 font-black' : st.temp !== undefined && st.temp < 15 ? 'text-cyan-700' : 'text-slate-900'}`}>
+              <td class={`py-2 px-3 sm:px-4 text-right font-mono font-bold whitespace-nowrap ${st.temp !== undefined && st.temp <= 0 ? 'text-blue-700' : 'text-slate-900'}`}>
                 {st.temp !== undefined ? `${st.temp.toFixed(1)}°C` : '-'}
               </td>
-              <td class={`py-2.5 px-4 text-right font-mono whitespace-nowrap ${st.humidity !== undefined && st.humidity > 80 ? 'text-blue-600 font-bold' : 'text-slate-700'}`}>
+              <td class="py-2 px-3 sm:px-4 text-right font-mono whitespace-nowrap">
                 {st.humidity !== undefined ? `${st.humidity}%` : '-'}
               </td>
-              <td class="py-2.5 px-4 text-right font-mono text-[11px] whitespace-nowrap">
-                {st.windSpeed !== undefined ? `Wind: ${st.windSpeed} m/s` : ''}
-                {st.rainfall !== undefined && (
-                  <span class="block text-slate-400">Rain: {st.rainfall} mm</span>
-                )}
-                {st.windSpeed === undefined && st.rainfall === undefined && '-'}
+              <td class="py-2 px-3 sm:px-4 text-right font-mono text-[11px] whitespace-nowrap">
+                {st.windSpeed !== undefined ? `${st.windSpeed} m/s` : st.rainfall !== undefined ? `${st.rainfall} mm` : '-'}
               </td>
             </tr>
           ))}
@@ -80,14 +80,14 @@ const sorted = [...stations].sort((a, b) => {
       </table>
     </div>
 
-    <footer class="border-t border-slate-100 bg-slate-50/50 px-5 py-2 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
+    <footer class="border-t border-slate-100 bg-slate-50/50 px-4 sm:px-5 py-2 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
       <span class="flex items-center gap-1.5">
         <Icon name="lightbulb" class="w-3.5 h-3.5 text-amber-500 shrink-0" />
         {isNe
           ? 'हिमाली क्षेत्रमा प्रत्येक १,००० मिटर उचाइमा तापक्रम औसत ६.५°C घट्ने गर्दछ (Lapse Rate)।'
-          : 'High altitude triggers severe microclimates: temperatures drop approx. 6.5°C per 1,000m gain.'}
+          : 'High altitude microclimates: temperatures drop approx. 6.5°C per 1,000m gain.'}
       </span>
-      <span class="text-slate-400">Source: DHM Tourism Weather Division</span>
+      <span class="text-slate-400">DHM Tourism Weather</span>
     </footer>
   </section>
 )}

@@ -14,18 +14,16 @@ const isNe = lang === 'ne';
 
 // Major iconic peaks across the Himalayan arc of Nepal with verified coordinates
 const HIMALAYAN_PEAKS = [
-  { name: 'Mt. Everest (Sagarmatha)', nepaliName: 'सगरमाथा', elevation: 8848.86, lat: 27.9881, lng: 86.9250, divisionId: 1, range: 'Khumbu / Mahalangur', is8k: true },
-  { name: 'Mt. Kanchenjunga', nepaliName: 'कञ्चनजङ्घा', elevation: 8586, lat: 27.7025, lng: 88.1475, divisionId: 1, range: 'Kanchenjunga', is8k: true },
-  { name: 'Mt. Lhotse', nepaliName: 'ल्होत्से', elevation: 8516, lat: 27.9617, lng: 86.9333, divisionId: 1, range: 'Mahalangur', is8k: true },
+  { name: 'Mt. Everest (Sagarmatha)', nepaliName: 'सगरमाथा', elevation: 8848.86, lat: 27.9881, lng: 86.9250, divisionId: 1, range: 'Khumbu', is8k: true },
+  { name: 'Mt. Kanchenjunga', nepaliName: 'कञ्चनजङ्घा', elevation: 8586, lat: 27.7025, lng: 88.1475, divisionId: 1, range: 'Taplejung', is8k: true },
+  { name: 'Mt. Lhotse', nepaliName: 'ल्होत्से', elevation: 8516, lat: 27.9617, lng: 86.9333, divisionId: 1, range: 'Khumbu', is8k: true },
   { name: 'Mt. Makalu', nepaliName: 'मकालु', elevation: 8485, lat: 27.8897, lng: 87.0889, divisionId: 1, range: 'Makalu', is8k: true },
-  { name: 'Mt. Cho Oyu', nepaliName: 'चो ओयु', elevation: 8188, lat: 28.0942, lng: 86.6608, divisionId: 1, range: 'Mahalangur', is8k: true },
+  { name: 'Mt. Cho Oyu', nepaliName: 'चो ओयु', elevation: 8188, lat: 28.0942, lng: 86.6608, divisionId: 1, range: 'Khumbu', is8k: true },
   { name: 'Mt. Dhaulagiri I', nepaliName: 'धौलागिरी १', elevation: 8167, lat: 28.6985, lng: 83.4878, divisionId: 4, range: 'Dhaulagiri', is8k: true },
   { name: 'Mt. Manaslu', nepaliName: 'मनास्लु', elevation: 8163, lat: 28.5497, lng: 84.5667, divisionId: 4, range: 'Mansiri', is8k: true },
   { name: 'Mt. Annapurna I', nepaliName: 'अन्नपूर्ण १', elevation: 8091, lat: 28.5956, lng: 83.8203, divisionId: 4, range: 'Annapurna', is8k: true },
   { name: 'Mt. Langtang Lirung', nepaliName: 'लाङटाङ लिरुङ', elevation: 7227, lat: 28.2589, lng: 85.5172, divisionId: 3, range: 'Langtang', is8k: false },
   { name: 'Mt. Gaurishankar', nepaliName: 'गौरीशङ्कर', elevation: 7134, lat: 27.9256, lng: 86.3375, divisionId: 3, range: 'Rolwaling', is8k: false },
-  { name: 'Mt. Api', nepaliName: 'अपि हिमाल', elevation: 7132, lat: 30.0039, lng: 80.9339, divisionId: 7, range: 'Yoka Pahar', is8k: false },
-  { name: 'Mt. Saipal', nepaliName: 'सैपाल हिमाल', elevation: 7031, lat: 29.8944, lng: 81.4956, divisionId: 6, range: 'Gurans Himal', is8k: false },
   { name: 'Mt. Machapuchare', nepaliName: 'माछापुच्छ्रे', elevation: 6993, lat: 28.4950, lng: 83.9492, divisionId: 4, range: 'Annapurna', is8k: false },
   { name: 'Ama Dablam', nepaliName: 'आमा डब्लम', elevation: 6812, lat: 27.8611, lng: 86.8611, divisionId: 1, range: 'Khumbu', is8k: false },
 ];
@@ -44,23 +42,22 @@ const compactPeaks = HIMALAYAN_PEAKS.map((p) => [
 ]);
 
 // Compact encoding for high altitude stations:
-// [id, name, elevation, lat, lng, temp, humidity, wind, rain]
 const compactStations = stations
   .filter((s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude))
+  .slice(0, 30) // Limit to top 30 active stations to prevent client DOM bloat
   .map((s) => [
     s.id,
     s.name,
     s.elevation,
-    Math.round(s.latitude * 10000) / 10000,
-    Math.round(s.longitude * 10000) / 10000,
+    Math.round(s.latitude * 1000) / 1000,
+    Math.round(s.longitude * 1000) / 1000,
     s.temp !== undefined ? Math.round(s.temp * 10) / 10 : null,
     s.humidity !== undefined ? Math.round(s.humidity) : null,
     s.windSpeed !== undefined ? Math.round(s.windSpeed * 10) / 10 : null,
     s.rainfall !== undefined ? Math.round(s.rainfall * 10) / 10 : null,
   ]);
 
-// Compact division forecast lookup:
-// { [divId]: { summitTemp, summitWind, baseTemp, baseWind, conditions } }
+// Division summary lookup:
 const divisionSummary: Record<number, any> = {};
 for (const div of divisions) {
   const summit = div.altitudes.find((a) => a.altitudeM === 9000 || a.altitudeM >= 8000);
@@ -70,14 +67,17 @@ for (const div of divisions) {
     summitWindKt: summit?.windSpeedKt ?? null,
     baseTemp: base?.tempC ?? null,
     baseWindKt: base?.windSpeedKt ?? null,
-    conditions: div.conditions?.join(' ') || '',
   };
 }
 
 const totalPoints = compactPeaks.length + compactStations.length;
 ---
 
-<section class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 mb-8 shadow-sm" id="mountain-map-section">
+<section
+  class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 mb-8 shadow-sm"
+  id="mountain-map-section"
+  style="content-visibility: auto; contain-intrinsic-size: 1px 480px;"
+>
   <!-- Minimal Flat Header -->
   <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 mb-3 gap-2">
     <div>
@@ -89,12 +89,12 @@ const totalPoints = compactPeaks.length + compactStations.length;
       </div>
       <p class="text-xs text-slate-500 mt-0.5">
         {isNe
-          ? `नेपालका प्रमुख ८,००० मिटर+ शिखरहरू, पदमार्ग र ${compactStations.length} हिमाली वेधशाला केन्द्रहरू`
-          : `Geospatial map of Nepal's 8,000m+ Himalayan summits, climbing peaks, and ${compactStations.length} active weather stations.`}
+          ? `नेपालका प्रमुख ८,००० मिटर+ शिखरहरू र ${compactStations.length} हिमाली वेधशाला केन्द्रहरू`
+          : `Geospatial telemetry for 8,000m+ Himalayan summits and ${compactStations.length} active weather stations.`}
       </p>
     </div>
 
-    <!-- Filter Buttons -->
+    <!-- Filter Buttons: Flat elements -->
     <nav class="flex flex-wrap items-center gap-1.5" id="mountain-map-filter-group" aria-label="Map filters">
       <button
         type="button"
@@ -108,31 +108,49 @@ const totalPoints = compactPeaks.length + compactStations.length;
         data-filter="peaks8k"
         class="mountain-map-btn cursor-pointer rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
       >
-        {isNe ? '८,००० मिटर+ शिखर (८)' : '8,000m+ Peaks (8)'}
-      </button>
-      <button
-        type="button"
-        data-filter="allpeaks"
-        class="mountain-map-btn cursor-pointer rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
-      >
-        {isNe ? `हिमालहरू (${compactPeaks.length})` : `All Peaks (${compactPeaks.length})`}
+        {isNe ? '८,००० मि+ (८)' : '8,000m+ (8)'}
       </button>
       <button
         type="button"
         data-filter="stations"
         class="mountain-map-btn cursor-pointer rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 transition hover:bg-slate-200"
       >
-        {isNe ? `मौसम केन्द्र (${compactStations.length})` : `Stations (${compactStations.length})`}
+        {isNe ? `केन्द्रहरू (${compactStations.length})` : `Stations (${compactStations.length})`}
       </button>
     </nav>
   </header>
 
-  <!-- Interactive Map Canvas -->
-  <div id="himalayan-leaflet-map" class="h-[400px] sm:h-[480px] w-full rounded-xl overflow-hidden border border-slate-200 relative bg-slate-100">
+  <!-- Static Summit Quick Chips: Instant FCP / LCP on mobile without waiting for Leaflet -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-2.5 mb-3 text-xs scrollbar-thin">
+    {HIMALAYAN_PEAKS.filter((p) => p.is8k).map((peak) => {
+      const divInfo = divisionSummary[peak.divisionId];
+      const summitTemp = divInfo?.summitTemp !== null && divInfo?.summitTemp !== undefined ? `${divInfo.summitTemp}°C` : null;
+      return (
+        <a
+          href={`#division-${peak.divisionId}`}
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 hover:border-indigo-300 hover:bg-indigo-50/40 transition-colors"
+        >
+          <span class="font-bold text-slate-800">{isNe ? peak.nepaliName : peak.name.split('(')[0].trim()}</span>
+          <span class="font-mono text-[11px] font-bold text-red-600">▲{Math.round(peak.elevation)}m</span>
+          {summitTemp && (
+            <span class="rounded bg-blue-100 px-1 py-0.2 text-[10px] font-bold text-blue-800">
+              {summitTemp}
+            </span>
+          )}
+        </a>
+      );
+    })}
+  </div>
+
+  <!-- Interactive Map Canvas: Explicit Dimensions (Zero CLS) -->
+  <div
+    id="himalayan-leaflet-map"
+    class="h-[360px] sm:h-[440px] w-full rounded-xl overflow-hidden border border-slate-200 relative bg-slate-100"
+  >
     <div id="mountain-map-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-20 text-xs font-bold text-slate-500">
       <span class="inline-flex items-center gap-2">
         <span class="h-2 w-2 rounded-full bg-indigo-600 animate-ping"></span>
-        Loading Himalayan Geographic Map...
+        Loading Interactive Himalayan Map...
       </span>
     </div>
   </div>
@@ -148,30 +166,24 @@ const totalPoints = compactPeaks.length + compactStations.length;
     border-radius: 12px;
     padding: 0;
     overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     border: 1px solid #e2e8f0;
   }
   .leaflet-popup-content {
     margin: 0 !important;
-    line-height: 1.4;
+    line-height: 1.35;
   }
   .mountain-pin {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
     border-radius: 9999px;
     font-weight: 800;
     font-size: 10px;
-    padding: 2px 7px;
+    padding: 2px 6px;
     color: #ffffff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
-    border: 1.5px solid #ffffff;
+    border: 1px solid #ffffff;
     white-space: nowrap;
     cursor: pointer;
-    transition: transform 0.15s ease;
-  }
-  .mountain-pin:hover {
-    transform: scale(1.08);
   }
   .mountain-pin-8k {
     background: #dc2626;
@@ -225,6 +237,7 @@ const totalPoints = compactPeaks.length + compactStations.length;
       const script = document.createElement('script');
       script.id = 'leaflet-js';
       script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.defer = true;
       script.onload = onReady;
       script.onerror = function() {
         const fallback = document.createElement('script');
@@ -256,162 +269,103 @@ const totalPoints = compactPeaks.length + compactStations.length;
       stationsRaw = JSON.parse(stationsEl ? stationsEl.textContent || '[]' : '[]');
       divisionsMap = JSON.parse(divEl ? divEl.textContent || '{}' : '{}');
     } catch (e) {
-      console.error('Failed to parse mountain data', e);
       return;
     }
 
     if (loadingEl) loadingEl.style.display = 'none';
 
     // Center across Nepal Himalayas [lat 28.35, lng 84.4], default zoom 7
+    // Disable scrollWheelZoom to prevent mobile gesture trapping
     const map = L.map('himalayan-leaflet-map', {
       center: [28.35, 84.4],
       zoom: 7,
       minZoom: 6,
-      maxZoom: 16,
+      maxZoom: 15,
       scrollWheelZoom: false,
     });
     mountainMapInstance = map;
 
-    // High performance OpenStreetMap basemap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors | DHM Nepal',
+      attribution: '&copy; OpenStreetMap | DHM Nepal',
       maxZoom: 18,
     }).addTo(map);
 
     const layerGroup = L.layerGroup().addTo(map);
     const markersRegistry = [];
 
-    // 1. Add Peak Markers
+    // 1. Add Peak Markers (Flat inner DOM)
     peaksRaw.forEach(function(p) {
       const name = p[0];
-      const nepaliName = p[1];
       const elev = p[2];
       const lat = p[3];
       const lng = p[4];
       const divId = p[5];
       const range = p[6];
       const is8k = p[7] === 1;
-
       const divInfo = divisionsMap[divId] || {};
+
       const badgeClass = is8k ? 'mountain-pin mountain-pin-8k' : 'mountain-pin mountain-pin-peak';
-      const label = is8k ? `▲ ${Math.round(elev)}m` : `▲ ${Math.round(elev)}m`;
+      const label = `▲ ${Math.round(elev)}m`;
 
       const icon = L.divIcon({
         className: 'custom-mountain-icon',
         html: `<span class="${badgeClass}">${label}</span>`,
-        iconSize: [60, 22],
-        iconAnchor: [30, 11],
+        iconSize: [60, 20],
+        iconAnchor: [30, 10],
       });
 
       const popupHtml = `
-        <div style="min-width: 200px; padding: 12px; font-family: system-ui, sans-serif;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: ${is8k ? '#dc2626' : '#4f46e5'};">
-              ${is8k ? '8,000m+ Himalayan Giant' : 'Himalayan Peak'}
-            </span>
-            <span style="font-size: 11px; font-weight: 800; color: #1e293b; font-family: monospace;">
-              ${elev.toLocaleString()} m
-            </span>
+        <div style="min-width: 190px; padding: 10px; font-family: system-ui, sans-serif;">
+          <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: ${is8k ? '#dc2626' : '#4f46e5'};">
+            ${is8k ? '8,000m+ Himalayan Giant' : 'Himalayan Peak'} • ${elev.toLocaleString()}m
           </div>
-          <h4 style="font-size: 13px; font-weight: 900; color: #0f172a; margin: 0 0 2px 0;">
-            ${name}
-          </h4>
-          <p style="font-size: 11px; color: #64748b; margin: 0 0 8px 0;">
-            Range: ${range}
-          </p>
-          ${divInfo.summitTemp !== null || divInfo.baseTemp !== null ? `
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; font-size: 11px; margin-bottom: 8px;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                <span style="color: #64748b;">Summit (9,000m):</span>
-                <strong style="color: #0f172a;">${divInfo.summitTemp !== null ? divInfo.summitTemp + '°C' : '-'} | ${divInfo.summitWindKt !== null ? divInfo.summitWindKt + ' kt' : '-'}</strong>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: #64748b;">Base Camp (5,500m):</span>
-                <strong style="color: #0f172a;">${divInfo.baseTemp !== null ? divInfo.baseTemp + '°C' : '-'} | ${divInfo.baseWindKt !== null ? divInfo.baseWindKt + ' kt' : '-'}</strong>
-              </div>
+          <h4 style="font-size: 13px; font-weight: 800; color: #0f172a; margin: 2px 0;">${name}</h4>
+          <p style="font-size: 11px; color: #64748b; margin: 0 0 6px 0;">Range: ${range}</p>
+          ${divInfo.summitTemp !== null ? `
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px; font-size: 10px; margin-bottom: 6px;">
+              Summit (9,000m): <strong>${divInfo.summitTemp}°C | ${divInfo.summitWindKt || '-'} kt</strong>
             </div>
           ` : ''}
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94a3b8; font-mono;">
-            <span>${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E</span>
-            <a href="#division-${divId}" style="color: #4f46e5; font-weight: 700; text-decoration: underline;">View Telemetry ↓</a>
+          <div style="font-size: 10px;">
+            <a href="#division-${divId}" style="color: #4f46e5; font-weight: 700;">View Telemetry ↓</a>
           </div>
         </div>
       `;
 
       const marker = L.marker([lat, lng], { icon: icon }).bindPopup(popupHtml);
-      markersRegistry.push({
-        marker: marker,
-        type: is8k ? 'peaks8k' : 'peak',
-        category: 'peaks',
-        name: name,
-        lat: lat,
-        lng: lng,
-      });
+      markersRegistry.push({ marker, type: is8k ? 'peaks8k' : 'peak' });
       layerGroup.addLayer(marker);
     });
 
     // 2. Add High-Altitude Weather Station Markers
     stationsRaw.forEach(function(s) {
-      const id = s[0];
       const name = s[1];
       const elev = s[2];
       const lat = s[3];
       const lng = s[4];
       const temp = s[5];
       const humidity = s[6];
-      const wind = s[7];
-      const rain = s[8];
 
       const tempLabel = temp !== null ? `${temp > 0 ? '+' : ''}${temp}°C` : `${elev}m`;
       const icon = L.divIcon({
         className: 'custom-station-icon',
         html: `<span class="mountain-pin mountain-pin-station">${tempLabel}</span>`,
-        iconSize: [50, 20],
-        iconAnchor: [25, 10],
+        iconSize: [46, 18],
+        iconAnchor: [23, 9],
       });
 
       const popupHtml = `
-        <div style="min-width: 190px; padding: 12px; font-family: system-ui, sans-serif;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-            <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: #0284c7;">
-              Meteorological Observatory
-            </span>
-            <span style="font-size: 11px; font-weight: 800; color: #1e293b; font-family: monospace;">
-              ▲ ${elev > 0 ? elev.toLocaleString() + ' m' : '-'}
-            </span>
-          </div>
-          <h4 style="font-size: 13px; font-weight: 800; color: #0f172a; margin: 0 0 6px 0;">
-            ${name}
-          </h4>
-          <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 8px; font-size: 11px; margin-bottom: 6px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-              <span style="color: #0369a1;">Air Temperature:</span>
-              <strong style="color: #0c4a6e;">${temp !== null ? temp + '°C' : '-'}</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-              <span style="color: #0369a1;">Humidity:</span>
-              <strong style="color: #0c4a6e;">${humidity !== null ? humidity + '%' : '-'}</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span style="color: #0369a1;">Wind / Rain:</span>
-              <strong style="color: #0c4a6e;">${wind !== null ? wind + ' m/s' : '-'} / ${rain !== null ? rain + ' mm' : '-'}</strong>
-            </div>
-          </div>
-          <div style="font-size: 10px; color: #94a3b8; font-family: monospace;">
-            Coord: ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E
+        <div style="min-width: 170px; padding: 8px; font-family: system-ui, sans-serif;">
+          <div style="font-size: 9px; font-weight: 800; text-transform: uppercase; color: #0284c7;">Observatory • ▲${elev}m</div>
+          <h4 style="font-size: 12px; font-weight: 800; color: #0f172a; margin: 2px 0;">${name}</h4>
+          <div style="font-size: 11px; color: #0c4a6e; margin-top: 4px;">
+            Temp: <strong>${temp !== null ? temp + '°C' : '-'}</strong> | Hum: <strong>${humidity !== null ? humidity + '%' : '-'}</strong>
           </div>
         </div>
       `;
 
       const marker = L.marker([lat, lng], { icon: icon }).bindPopup(popupHtml);
-      markersRegistry.push({
-        marker: marker,
-        type: 'stations',
-        category: 'stations',
-        name: name,
-        lat: lat,
-        lng: lng,
-      });
+      markersRegistry.push({ marker, type: 'stations' });
       layerGroup.addLayer(marker);
     });
 
@@ -424,7 +378,6 @@ const totalPoints = compactPeaks.length + compactStations.length;
         const filter = btn.getAttribute('data-filter');
         activeFilter = filter;
 
-        // Toggle button styling
         filterContainer.querySelectorAll('button').forEach(function(b) {
           b.className = 'mountain-map-btn cursor-pointer rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 transition hover:bg-slate-200';
         });
@@ -432,26 +385,32 @@ const totalPoints = compactPeaks.length + compactStations.length;
 
         layerGroup.clearLayers();
         markersRegistry.forEach(function(item) {
-          if (filter === 'all') {
-            layerGroup.addLayer(item.marker);
-          } else if (filter === 'peaks8k' && item.type === 'peaks8k') {
-            layerGroup.addLayer(item.marker);
-          } else if (filter === 'allpeaks' && (item.type === 'peaks8k' || item.type === 'peak')) {
-            layerGroup.addLayer(item.marker);
-          } else if (filter === 'stations' && item.type === 'stations') {
-            layerGroup.addLayer(item.marker);
-          }
+          if (filter === 'all') layerGroup.addLayer(item.marker);
+          else if (filter === 'peaks8k' && item.type === 'peaks8k') layerGroup.addLayer(item.marker);
+          else if (filter === 'stations' && item.type === 'stations') layerGroup.addLayer(item.marker);
         });
       });
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      loadLeaflet(initMountainMap);
-    });
+  // IntersectionObserver Lazy Initialization:
+  // Defers Leaflet loading and tile downloading until the map scrolls near the viewport.
+  // Guarantees fast FCP and LCP without main-thread blocking on mobile.
+  if ('IntersectionObserver' in window) {
+    const mapSection = document.getElementById('mountain-map-section');
+    if (mapSection) {
+      const observer = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) {
+          observer.disconnect();
+          loadLeaflet(initMountainMap);
+        }
+      }, { rootMargin: '250px' });
+      observer.observe(mapSection);
+    } else {
+      setTimeout(function() { loadLeaflet(initMountainMap); }, 1000);
+    }
   } else {
-    loadLeaflet(initMountainMap);
+    setTimeout(function() { loadLeaflet(initMountainMap); }, 1000);
   }
 })();
 </script>

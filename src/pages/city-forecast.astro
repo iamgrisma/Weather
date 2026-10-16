@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import RefreshBar from '../components/RefreshBar.astro';
 import CityForecastMatrix from '../components/CityForecastMatrix.astro';
 import WeatherTable from '../components/WeatherTable.astro';
+import AdSlot from '../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
 
 export const prerender = false;
@@ -42,6 +43,9 @@ const description = 'Official multi-day weather predictions across 19 major citi
     stations={snapshot.cityForecasts?.stations || []}
     lang="en"
   />
+
+  <!-- Ad Slot (Zero CLS) -->
+  <AdSlot position="in-article" lang="en" />
 
   <!-- Manual Meteorological Observations Comparison -->
   <div class="mb-8">

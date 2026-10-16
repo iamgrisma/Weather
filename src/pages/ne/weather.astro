@@ -5,6 +5,7 @@ import ForecastCard from '../../components/ForecastCard.astro';
 import WeatherTable from '../../components/WeatherTable.astro';
 import TrekkingCorridors from '../../components/TrekkingCorridors.astro';
 import TourismTable from '../../components/TourismTable.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
 
 export const prerender = false;
@@ -42,6 +43,9 @@ const description = 'मौसम पूर्वानुमान महाश
   <div class="mb-8">
     <ForecastCard forecast={snapshot.countryForecast.data} lang="ne" />
   </div>
+
+  <!-- Ad Slot (Zero CLS) -->
+  <AdSlot position="in-article" lang="ne" />
 
   <div class="mb-8">
     <WeatherTable

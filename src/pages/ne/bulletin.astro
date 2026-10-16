@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import RefreshBar from '../../components/RefreshBar.astro';
 import ThreeDayBulletinCard from '../../components/ThreeDayBulletinCard.astro';
 import FloodBulletins from '../../components/FloodBulletins.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
 
 export const prerender = false;
@@ -42,6 +43,9 @@ const description = 'मौसम पूर्वानुमान महाश
     bulletin={snapshot.threeDayBulletin?.data || null}
     lang="ne"
   />
+
+  <!-- Ad Slot (Zero CLS) -->
+  <AdSlot position="in-article" lang="ne" />
 
   <!-- Hydrology Flood Bulletins -->
   <FloodBulletins

@@ -5,6 +5,7 @@ import MountainMap from '../../components/MountainMap.astro';
 import MountaineeringMatrix from '../../components/MountaineeringMatrix.astro';
 import TrekkingCorridors from '../../components/TrekkingCorridors.astro';
 import TourismTable from '../../components/TourismTable.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
 
 export const prerender = false;
@@ -52,6 +53,9 @@ const description = 'सगरमाथा, अन्नपूर्ण, मन�
     weather={snapshot.mountaineeringWeather?.data || null}
     lang="ne"
   />
+
+  <!-- Ad Slot (Zero CLS) -->
+  <AdSlot position="in-article" lang="ne" />
 
   <!-- Mountain Pass & Base Camp Meteorological Stations (Direct flat section) -->
   {snapshot.tourismWeather?.stations?.length > 0 && (

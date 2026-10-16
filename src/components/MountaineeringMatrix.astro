@@ -18,10 +18,10 @@ function degToCompass(deg: number | null): string {
 }
 ---
 
-{weather && weather.divisions && weather.divisions.length > 0 ? (
-  <section class="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm mb-8" id="mountaineering-weather-section">
-    <!-- Clean Minimal Header -->
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3.5 mb-4 gap-2">
+{weather && weather.divisions && weather.divisions.length > 0 && (
+  <section class="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm mb-8" id="mountaineering-weather-section">
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
       <div>
         <h2 class="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
           <span class="inline-flex h-2.5 w-2.5 rounded-full bg-indigo-600 animate-pulse"></span>
@@ -29,20 +29,24 @@ function degToCompass(deg: number | null): string {
         </h2>
         <p class="text-xs text-slate-500 mt-0.5">
           {isNe
-            ? 'सगरमाथा, अन्नपूर्ण, मनास्लु, लाङटाङ लगायतका हिमाली क्षेत्रको ३०००-९००० मिटर उचाई तह'
+            ? 'सगरमाथा, अन्नपूर्ण, मनास्लु, लाङटाङ लगायतका हिमाली क्षेत्रको ३०००-९००० मिटर उचाइ तह'
             : 'Multi-layer atmospheric metrics across Everest, Annapurna, Manaslu, Langtang, and Dhaulagiri corridors.'}
         </p>
       </div>
 
-      <span class="rounded-lg bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-bold text-indigo-700">
+      <span class="rounded-lg bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-bold text-indigo-700 self-start sm:self-auto">
         {isNe ? 'अद्यावधिक:' : 'Issued:'} {new Date(weather.issueDate).toLocaleDateString(isNe ? 'ne-NP' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
       </span>
     </header>
 
-    <!-- Mountain Corridors Grid: Flatted Cards -->
+    <!-- Mountain Corridors Grid: Flattened Hierarchy & CSS Containment -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {weather.divisions.map((div) => (
-        <article class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 hover:border-indigo-300 transition-colors" id={`division-${div.divisionId}`}>
+      {weather.divisions.map((div, idx) => (
+        <article
+          class="division-telemetry-card rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 hover:border-indigo-300 transition-colors"
+          id={`division-${div.divisionId}`}
+          style={idx >= 2 ? 'content-visibility: auto; contain-intrinsic-size: 1px 260px;' : undefined}
+        >
           <header class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
               <Icon name="mountain" class="w-4 h-4 text-indigo-600 shrink-0" />
@@ -53,14 +57,13 @@ function degToCompass(deg: number | null): string {
             </span>
           </header>
 
-          <!-- Weather Condition Summary -->
           {div.conditions && div.conditions.length > 0 && (
-            <p class="mb-3 rounded-lg bg-indigo-50/70 p-2 border border-indigo-100 text-xs text-indigo-950 font-medium">
+            <p class="mb-2.5 rounded-lg bg-indigo-50/70 p-2 border border-indigo-100 text-xs text-indigo-950 font-medium">
               <strong class="font-bold">{isNe ? 'पूर्वानुमान:' : 'Forecast:'}</strong> {div.conditions.join(' ')}
             </p>
           )}
 
-          <!-- Altitude Layer Telemetry Table: Zero inner-div bloat -->
+          <!-- Optimized Flat Telemetry Table: Zero Redundant Wrapper Spans -->
           <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
             <table class="w-full text-left text-xs border-collapse">
               <thead>
@@ -77,10 +80,11 @@ function degToCompass(deg: number | null): string {
                   const isSummit = alt.altitudeM >= 8000 || alt.altitudeM === 9000;
                   const isBaseCamp = alt.altitudeM === 5500;
                   const isSubZero = alt.tempC !== null && alt.tempC < 0;
+                  const tempDisplay = alt.tempC !== null ? (alt.tempC > 0 ? `+${alt.tempC}°C` : `${alt.tempC}°C`) : '-';
 
                   return (
-                    <tr class={isSummit ? 'bg-red-50/30' : isBaseCamp ? 'bg-indigo-50/20' : ''}>
-                      <td class="py-2.5 px-3 font-sans font-bold text-slate-900 whitespace-nowrap">
+                    <tr class={isSummit ? 'bg-red-50/40' : isBaseCamp ? 'bg-indigo-50/30' : undefined}>
+                      <td class="py-2 px-3 font-sans font-bold text-slate-900 whitespace-nowrap">
                         {alt.altitudeM} m
                         {isSummit && (
                           <span class="ml-1 text-[9px] rounded bg-red-100 text-red-700 font-black px-1.5 py-0.5">
@@ -93,26 +97,14 @@ function degToCompass(deg: number | null): string {
                           </span>
                         )}
                       </td>
-                      <td class="py-2.5 px-3 text-center whitespace-nowrap">
-                        {alt.windDirectionDeg !== null ? (
-                          <span>
-                            <strong class="font-bold text-slate-800">{degToCompass(alt.windDirectionDeg)}</strong>
-                            <span class="text-slate-400 text-[11px] ml-1">({alt.windDirectionDeg}°)</span>
-                          </span>
-                        ) : '-'}
+                      <td class="py-2 px-3 text-center whitespace-nowrap">
+                        {alt.windDirectionDeg !== null ? `${degToCompass(alt.windDirectionDeg)} (${alt.windDirectionDeg}°)` : '-'}
                       </td>
-                      <td class="py-2.5 px-3 text-right whitespace-nowrap">
-                        {alt.windSpeedKt !== null ? (
-                          <span>
-                            <strong class={alt.windSpeedKt >= 25 ? 'text-red-600 font-bold' : 'text-slate-800 font-bold'}>
-                              {alt.windSpeedKt} kt
-                            </strong>
-                            <span class="text-[10px] text-slate-400 ml-1">({kmh} km/h)</span>
-                          </span>
-                        ) : '-'}
+                      <td class="py-2 px-3 text-right whitespace-nowrap">
+                        {alt.windSpeedKt !== null ? `${alt.windSpeedKt} kt (${kmh} km/h)` : '-'}
                       </td>
-                      <td class={`py-2.5 px-3 text-right font-bold whitespace-nowrap ${isSubZero ? 'text-blue-600' : 'text-slate-800'}`}>
-                        {alt.tempC !== null ? (alt.tempC > 0 ? `+${alt.tempC}°C` : `${alt.tempC}°C`) : '-'}
+                      <td class={`py-2 px-3 text-right font-bold whitespace-nowrap ${isSubZero ? 'text-blue-600' : 'text-slate-800'}`}>
+                        {tempDisplay}
                       </td>
                     </tr>
                   );
@@ -123,18 +115,5 @@ function degToCompass(deg: number | null): string {
         </article>
       ))}
     </div>
-
-    <!-- High-Altitude Safety Note -->
-    <footer class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 flex items-start gap-2">
-      <Icon name="compass" class="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-      <p class="leading-relaxed text-[11px]">
-        <strong class="text-slate-800 font-bold">Mountaineering Safety Note:</strong>
-        Wind speeds above 25 knots (46 km/h) at summit ridges (7,000m - 9,000m) significantly escalate frostbite risk and wind-chill hazard. Ensure expedition teams consult official MFD bulletins before committing to high-camp pushes.
-      </p>
-    </footer>
-  </section>
-) : (
-  <section class="rounded-2xl border border-slate-200 bg-white p-6 text-center text-xs text-slate-500 mb-8">
-    No mountaineering forecast available at this moment.
   </section>
 )}

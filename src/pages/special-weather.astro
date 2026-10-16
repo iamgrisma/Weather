@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import RefreshBar from '../components/RefreshBar.astro';
 import SpecialWeatherCard from '../components/SpecialWeatherCard.astro';
+import AdSlot from '../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
 
 export const prerender = false;
@@ -44,4 +45,7 @@ const description = 'Live special weather bulletins, flood emergency warnings, m
     activeNotice={snapshot.specialWeather?.activeNotice || null}
     lang="en"
   />
+
+  <!-- Ad Slot (Zero CLS) -->
+  <AdSlot position="in-article" lang="en" />
 </BaseLayout>
