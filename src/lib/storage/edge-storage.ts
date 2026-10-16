@@ -51,10 +51,12 @@ interface EdgeEnv {
 
 interface MemoryStore {
   snapshot: NepalWeatherSnapshot | null;
+  lastLoadedAt: number;
 }
 
 const memoryStore: MemoryStore = (globalThis as any).__NEPAL_WEATHER_MEM_STORE__ || {
   snapshot: null,
+  lastLoadedAt: 0,
 };
 (globalThis as any).__NEPAL_WEATHER_MEM_STORE__ = memoryStore;
 
@@ -79,14 +81,40 @@ export function getEdgeEnv(locals?: any): EdgeEnv {
 }
 
 /**
- * Reads the latest snapshot from KV or in-memory cache.
- * If empty on initial boot, hydrates live snapshot.
+ * Reads the latest snapshot with 3-tier caching:
+ * 1. Warm V8 Isolate RAM cache (2-minute TTL, zero latency & zero KV reads)
+ * 2. Cloudflare KV with edge colocation cacheTtl: 300 (cached at edge data center for 5 min)
+ * 3. Fresh upstream hydration on cold start miss
  */
 export async function getLatestSnapshot(env: EdgeEnv = {}): Promise<NepalWeatherSnapshot> {
+  const now = Date.now();
+  const RAM_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes RAM cache inside active isolate
+
+  // 1. Instant RAM cache hit within the active Worker isolate
+  if (
+    memoryStore.snapshot &&
+    Array.isArray(memoryStore.snapshot.riverWatch?.stations) &&
+    memoryStore.snapshot.riverWatch.stations.length > 0 &&
+    now - memoryStore.lastLoadedAt < RAM_CACHE_TTL_MS
+  ) {
+    return {
+      ...memoryStore.snapshot,
+      source: 'cached',
+    };
+  }
+
+  // 2. Query KV with edge colocation cacheTtl (5 minutes)
   if (env.WEATHER_KV) {
     try {
-      const cached = await env.WEATHER_KV.get(KV_KEY_LATEST, 'json');
-      if (cached && typeof cached === 'object' && Array.isArray(cached.riverWatch?.stations) && cached.riverWatch.stations.length > 0) {
+      const cached = await env.WEATHER_KV.get(KV_KEY_LATEST, { type: 'json', cacheTtl: 300 });
+      if (
+        cached &&
+        typeof cached === 'object' &&
+        Array.isArray(cached.riverWatch?.stations) &&
+        cached.riverWatch.stations.length > 0
+      ) {
+        memoryStore.snapshot = cached;
+        memoryStore.lastLoadedAt = now;
         return {
           ...cached,
           source: 'cached',
@@ -97,6 +125,7 @@ export async function getLatestSnapshot(env: EdgeEnv = {}): Promise<NepalWeather
     }
   }
 
+  // 3. Fallback to existing memory snapshot if KV was unreachable or empty
   if (memoryStore.snapshot && memoryStore.snapshot.riverWatch.stations.length > 0) {
     return {
       ...memoryStore.snapshot,
@@ -116,6 +145,7 @@ async function persistFullSnapshot(
   isChanged: boolean
 ): Promise<void> {
   memoryStore.snapshot = snapshot;
+  memoryStore.lastLoadedAt = Date.now();
 
   if (env.WEATHER_KV) {
     try {
