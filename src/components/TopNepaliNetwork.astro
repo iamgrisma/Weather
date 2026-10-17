@@ -1,0 +1,388 @@
+---
+// TopNepaliNetwork.astro — Ultra-lightweight, zero-emoji, minimal DOM 9-dot launcher
+interface Props {
+  currentApp?: 'blog' | 'tools' | 'typing' | 'fonts' | 'share' | 'election' | 'constitution' | 'weather';
+}
+
+const { currentApp = 'weather' } = Astro.props;
+
+const networkApps = [
+  { id: 'blog', name: 'TopNepali', url: 'https://topnepali.com', icon: 'book' },
+  { id: 'tools', name: 'TopTools', url: 'https://topnepali.com/tools', icon: 'tool' },
+  { id: 'typing', name: 'Nepali Typing', url: 'https://typing.topnepali.com', icon: 'keyboard' },
+  { id: 'fonts', name: 'FontsDir', url: 'https://fonts.topnepali.com', icon: 'type' },
+  { id: 'weather', name: 'Nepal Weather', url: 'https://weather.topnepali.com', icon: 'cloud-sun' },
+  { id: 'share', name: 'Flashare', url: 'https://share.topnepali.com', icon: 'zap' },
+  { id: 'election', name: 'Election Nepal', url: 'https://election.topnepali.com', icon: 'landmark' },
+  { id: 'constitution', name: 'Constitution', url: 'https://constitution.topnepali.com', icon: 'scale' }
+];
+---
+
+<div class="topnepali-network-root">
+  <button
+    type="button"
+    class="network-trigger-btn"
+    aria-label="TopNepali Network Apps"
+    aria-expanded="false"
+    title="TopNepali Network"
+  >
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="5" cy="5" r="2.2" />
+      <circle cx="12" cy="5" r="2.2" />
+      <circle cx="19" cy="5" r="2.2" />
+      <circle cx="5" cy="12" r="2.2" />
+      <circle cx="12" cy="12" r="2.2" />
+      <circle cx="19" cy="12" r="2.2" />
+      <circle cx="5" cy="19" r="2.2" />
+      <circle cx="12" cy="19" r="2.2" />
+      <circle cx="19" cy="19" r="2.2" />
+    </svg>
+  </button>
+
+  <nav class="network-dropdown-panel hidden" aria-label="TopNepali Ecosystem">
+    <div class="panel-header">
+      <span class="panel-title">TopNepali Network</span>
+      <a href="https://topnepali.com" target="_blank" rel="noopener" class="all-apps-link">Visit &rarr;</a>
+    </div>
+
+    <ul class="apps-list">
+      {networkApps.map((app) => {
+        const isCurrent = app.id === currentApp;
+        return (
+          <li>
+            <a href={app.url} class={`app-item ${isCurrent ? 'current' : ''}`}>
+              {app.icon === 'book' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+              )}
+              {app.icon === 'tool' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                </svg>
+              )}
+              {app.icon === 'keyboard' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <line x1="6" y1="8" x2="6" y2="8.01" />
+                  <line x1="10" y1="8" x2="10" y2="8.01" />
+                  <line x1="14" y1="8" x2="14" y2="8.01" />
+                  <line x1="18" y1="8" x2="18" y2="8.01" />
+                  <line x1="6" y1="12" x2="6" y2="12.01" />
+                  <line x1="10" y1="12" x2="10" y2="12.01" />
+                  <line x1="14" y1="12" x2="14" y2="12.01" />
+                  <line x1="18" y1="12" x2="18" y2="12.01" />
+                  <line x1="7" y1="16" x2="17" y2="16" />
+                </svg>
+              )}
+              {app.icon === 'type' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="4 7 4 4 20 4 20 7" />
+                  <line x1="9" y1="20" x2="15" y2="20" />
+                  <line x1="12" y1="4" x2="12" y2="20" />
+                </svg>
+              )}
+              {app.icon === 'cloud-sun' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v2"/>
+                  <path d="m4.93 4.93 1.41 1.41"/>
+                  <path d="M20 12h2"/>
+                  <path d="m19.07 4.93-1.41 1.41"/>
+                  <path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/>
+                  <path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/>
+                </svg>
+              )}
+              {app.icon === 'zap' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+              )}
+              {app.icon === 'landmark' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="3" y1="21" x2="21" y2="21" />
+                  <line x1="5" y1="21" x2="5" y2="10" />
+                  <line x1="19" y1="21" x2="19" y2="10" />
+                  <path d="M12 3l9 7H3l9-7z" />
+                </svg>
+              )}
+              {app.icon === 'scale' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                  <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/>
+                  <path d="M7 21h10"/>
+                  <path d="M12 3v18"/>
+                  <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+                </svg>
+              )}
+
+              <span class="app-name">{app.name}</span>
+              {isCurrent && <span class="active-badge">ACTIVE</span>}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+</div>
+
+<style>
+  .topnepali-network-root {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .network-trigger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .network-trigger-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+    transform: scale(1.03);
+  }
+
+  .network-trigger-btn:active {
+    transform: scale(0.96);
+  }
+
+  .network-trigger-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .network-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 224px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+    padding: 6px;
+    z-index: 9999;
+  }
+
+  @media (max-width: 480px) {
+    .network-dropdown-panel {
+      right: -6px;
+      width: 216px;
+    }
+  }
+
+  .network-dropdown-panel.hidden {
+    display: none !important;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px 6px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 4px;
+  }
+
+  .panel-title {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+  }
+
+  .all-apps-link {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #2563eb;
+    text-decoration: none;
+  }
+
+  .all-apps-link:hover {
+    text-decoration: underline;
+  }
+
+  .apps-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .app-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1e293b;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+
+  .app-item:hover {
+    background: #f8fafc;
+    color: #2563eb;
+  }
+
+  .app-item.current {
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 700;
+    pointer-events: none;
+  }
+
+  .item-icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: #64748b;
+    transition: color 0.12s ease;
+  }
+
+  .app-item:hover .item-icon {
+    color: #2563eb;
+  }
+
+  .app-item.current .item-icon {
+    color: #2563eb;
+  }
+
+  .app-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .active-badge {
+    font-size: 8px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  :global(.dark) .network-trigger-btn {
+    border-color: #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+
+  :global(.dark) .network-trigger-btn:hover {
+    background: #1e293b;
+    border-color: #475569;
+    color: #ffffff;
+  }
+
+  :global(.dark) .network-dropdown-panel {
+    background: #0f172a;
+    border-color: #1e293b;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+  }
+
+  :global(.dark) .panel-header {
+    border-bottom-color: #1e293b;
+  }
+
+  :global(.dark) .panel-title {
+    color: #94a3b8;
+  }
+
+  :global(.dark) .all-apps-link {
+    color: #60a5fa;
+  }
+
+  :global(.dark) .app-item {
+    color: #e2e8f0;
+  }
+
+  :global(.dark) .app-item:hover {
+    background: #1e293b;
+    color: #60a5fa;
+  }
+
+  :global(.dark) .app-item.current {
+    background: #172554;
+    color: #60a5fa;
+  }
+
+  :global(.dark) .item-icon {
+    color: #94a3b8;
+  }
+
+  :global(.dark) .app-item:hover .item-icon,
+  :global(.dark) .app-item.current .item-icon {
+    color: #60a5fa;
+  }
+
+  :global(.dark) .active-badge {
+    background: #1e3a8a;
+    color: #93c5fd;
+  }
+</style>
+
+<script>
+  function setupNetworkDrawers() {
+    const roots = document.querySelectorAll('.topnepali-network-root');
+    roots.forEach((root) => {
+      const trigger = root.querySelector('.network-trigger-btn');
+      const panel = root.querySelector('.network-dropdown-panel');
+      if (!trigger || !panel) return;
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = !panel.classList.contains('hidden');
+        panel.classList.toggle('hidden', isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!panel.contains(e.target as Node) && e.target !== trigger) {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !panel.classList.contains('hidden')) {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      window.addEventListener('scroll', () => {
+        if (!panel.classList.contains('hidden')) {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      }, { passive: true });
+    });
+  }
+
+  setupNetworkDrawers();
+  document.addEventListener('astro:page-load', setupNetworkDrawers);
+</script>
