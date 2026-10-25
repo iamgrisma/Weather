@@ -125,8 +125,8 @@ export async function getLatestSnapshot(env: EdgeEnv = {}): Promise<NepalWeather
     }
   }
 
-  // 3. Fallback to existing memory snapshot if KV was unreachable or empty
-  if (memoryStore.snapshot && memoryStore.snapshot.riverWatch.stations.length > 0) {
+  // 3. Fallback to existing memory snapshot if KV was unreachable or empty (reused across build pages)
+  if (memoryStore.snapshot) {
     return {
       ...memoryStore.snapshot,
       source: 'cached',

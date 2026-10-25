@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-export const prerender = false;
+export const prerender = true;
 
 const ADS_TXT = `google.com, pub-5410507143596599, DIRECT, f08c47fec0942fa0
 ezoic.ai, dbf5a1854ebbfd3400f48fcd724aac5a, DIRECT

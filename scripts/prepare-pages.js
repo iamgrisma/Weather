@@ -121,24 +121,15 @@ export default {
 fs.writeFileSync(workerFile, workerContent);
 console.log('[prepare-pages] Created dist/_worker.js delegating to serverEntry with static asset support');
 
-// 3. Ensure _routes.json excludes static assets for optimal Cloudflare Edge serving
+// 3. Ensure _routes.json ONLY includes dynamic API endpoints so static pages bypass the Worker completely
 const routesJsonFile = path.join(distDir, '_routes.json');
 const routes = {
   version: 1,
-  include: ['/*'],
-  exclude: [
-    '/_astro/*',
-    '/favicon.ico',
-    '/favicon.svg',
-    '/favicon-16x16.png',
-    '/favicon-32x32.png',
-    '/apple-touch-icon.png',
-    '/sitemap.xsl',
-    '/ads.txt'
-  ]
+  include: ['/api/*'],
+  exclude: []
 };
 fs.writeFileSync(routesJsonFile, JSON.stringify(routes, null, 2));
-console.log('[prepare-pages] Created dist/_routes.json with static asset exclusions');
+console.log('[prepare-pages] Created dist/_routes.json targeting /api/* only (0 Worker Invocations for pages)');
 
 // 3.1 Create _headers file for static asset caching
 const headersFile = path.join(distDir, '_headers');

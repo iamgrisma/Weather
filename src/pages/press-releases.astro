@@ -5,7 +5,7 @@ import PressReleasesList from '../components/PressReleasesList.astro';
 import AdSlot from '../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
 
-export const prerender = false;
+export const prerender = true;
 
 const env = getEdgeEnv(Astro.locals);
 const snapshot = await getLatestSnapshot(env);

@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-export const prerender = false;
+export const prerender = true;
 
 const routes = [
   { path: '', priority: '1.0', changefreq: 'hourly' },
