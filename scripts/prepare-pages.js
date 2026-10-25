@@ -139,16 +139,11 @@ const headersContent = `/_astro/*
 fs.writeFileSync(headersFile, headersContent);
 console.log('[prepare-pages] Created dist/_headers for optimal edge CDN caching');
 
-// 4. Update .assetsignore so Cloudflare Pages doesn't serve _worker.js and server files as raw downloads
+// 4. Update .assetsignore for Cloudflare Pages (do not ignore _worker.js or server)
 const assetsIgnoreFile = path.join(distDir, '.assetsignore');
-let assetsIgnore = '';
-if (fs.existsSync(assetsIgnoreFile)) {
-  assetsIgnore = fs.readFileSync(assetsIgnoreFile, 'utf8');
-}
-if (!assetsIgnore.includes('_worker.js')) assetsIgnore += '\n_worker.js';
-if (!assetsIgnore.includes('server/**')) assetsIgnore += '\nserver/**';
-fs.writeFileSync(assetsIgnoreFile, assetsIgnore.trim() + '\n');
-console.log('[prepare-pages] Updated dist/.assetsignore');
+let assetsIgnore = 'wrangler.json\n.dev.vars\n';
+fs.writeFileSync(assetsIgnoreFile, assetsIgnore);
+console.log('[prepare-pages] Cleaned dist/.assetsignore (ensures _worker.js and assets are recognized)');
 
 // 5. Clean up .wrangler and dist/server/wrangler.json to prevent validation errors
 if (fs.existsSync(dotWranglerDir)) {
