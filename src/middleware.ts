@@ -44,16 +44,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
     pathname.startsWith('/_astro/') ||
     pathname.endsWith('.webp') ||
     pathname.endsWith('.png') ||
-    pathname.endsWith('.ico')
+    pathname.endsWith('.ico') ||
+    pathname.endsWith('.svg')
   ) {
     // Static immutable hashed assets: 1 year cache
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    response.headers.set('CDN-Cache-Control', 'public, max-age=31536000, immutable');
+    response.headers.set('Cloudflare-CDN-Cache-Control', 'max-age=31536000, immutable');
   } else if (!response.headers.has('Cache-Control')) {
     // SSR HTML Pages: Browser caches 1 min, Cloudflare Edge caches 10 mins, SWR 20 mins
     response.headers.set(
       'Cache-Control',
       'public, max-age=60, s-maxage=600, stale-while-revalidate=1200'
     );
+    response.headers.set('CDN-Cache-Control', 'public, max-age=600, stale-while-revalidate=1200');
+    response.headers.set('Cloudflare-CDN-Cache-Control', 'max-age=600, stale-while-revalidate=1200');
   }
 
   return response;

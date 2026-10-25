@@ -38,6 +38,28 @@ if (fs.existsSync(path.join(rootDir, 'public'))) {
   });
 }
 
+// 1.2 Copy all directory index.html files to flat .html files alongside them
+// (e.g. dist/about/index.html -> dist/about.html) WITHOUT deleting the directory!
+// This allows Cloudflare Pages to serve /about with 200 OK (no 308 redirect)
+// while keeping directory assets intact for Astro manifest!
+function copyDirectoryIndexToFlatHtml(dir) {
+  if (!fs.existsSync(dir)) return;
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isDirectory() && !['_astro', 'server', 'client'].includes(entry.name)) {
+      const fullPath = path.join(dir, entry.name);
+      copyDirectoryIndexToFlatHtml(fullPath);
+      const indexPath = path.join(fullPath, 'index.html');
+      const flatHtml = `${fullPath}.html`;
+      if (fs.existsSync(indexPath)) {
+        fs.copyFileSync(indexPath, flatHtml);
+        console.log(`[prepare-pages] Created flat ${path.relative(distDir, flatHtml)} alongside index.html`);
+      }
+    }
+  }
+}
+copyDirectoryIndexToFlatHtml(distDir);
+
 // Remove _redirects completely (Zero Redirection policy)
 [path.join(clientDir, '_redirects'), path.join(distDir, '_redirects')].forEach((f) => {
   if (fs.existsSync(f)) {
