@@ -27,6 +27,33 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const result = await refreshScopedWithCooldown(scope, env, force);
 
+    // Invalidate Edge Cache Shield (caches.default) when data has updated
+    if (result.status === 'updated') {
+      try {
+        const cache = (globalThis as any).caches?.default;
+        if (cache) {
+          const purgePaths = ['/', '/ne', '/api/data'];
+          if (result.scope === 'river' || result.scope === 'all') purgePaths.push('/river-watch', '/ne/river-watch');
+          if (result.scope === 'weather' || result.scope === 'all') purgePaths.push('/weather', '/ne/weather');
+          if (result.scope === 'bulletin' || result.scope === 'all') purgePaths.push('/bulletin', '/ne/bulletin');
+          if (result.scope === 'cities' || result.scope === 'all') purgePaths.push('/city-forecast', '/ne/city-forecast');
+          if (result.scope === 'mountain' || result.scope === 'all') purgePaths.push('/mountaineering', '/ne/mountaineering');
+          if (result.scope === 'special' || result.scope === 'all') purgePaths.push('/special-weather', '/ne/special-weather');
+          if (result.scope === 'nwp' || result.scope === 'all') purgePaths.push('/nwp', '/ne/nwp');
+          if (result.scope === 'press' || result.scope === 'all') purgePaths.push('/press-releases', '/ne/press-releases');
+
+          const origin = url.origin;
+          for (const p of purgePaths) {
+            try {
+              cache.delete(new Request(`${origin}${p}`));
+            } catch {}
+          }
+        }
+      } catch (purgeErr) {
+        console.warn('[API/refresh] Edge cache purge error:', purgeErr);
+      }
+    }
+
     const headers = new Headers({
       'Content-Type': 'application/json; charset=utf-8',
       'Cache-Control': 'no-store, no-cache, must-revalidate',

@@ -12,7 +12,7 @@ import AdSlot from '../../components/AdSlot.astro';
 import { getProxiedImageUrl } from '../../lib/utils/image';
 import { getEdgeEnv, getLatestSnapshot } from '../../lib/storage/edge-storage';
 
-export const prerender = true;
+export const prerender = false;
 
 const env = getEdgeEnv(Astro.locals);
 const snapshot = await getLatestSnapshot(env);

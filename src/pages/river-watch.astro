@@ -8,7 +8,7 @@ import RiverTable from '../components/RiverTable.astro';
 import AdSlot from '../components/AdSlot.astro';
 import { getEdgeEnv, getLatestSnapshot } from '../lib/storage/edge-storage';
 
-export const prerender = true;
+export const prerender = false;
 
 const env = getEdgeEnv(Astro.locals);
 const snapshot = await getLatestSnapshot(env);

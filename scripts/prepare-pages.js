@@ -27,10 +27,11 @@ if (fs.existsSync(clientDir)) {
 }
 
 // 1.1 Ensure root-level public files are present at dist/ root
-if (fs.existsSync(path.join(rootDir, 'public'))) {
-  const pubFiles = fs.readdirSync(path.join(rootDir, 'public'));
-  pubFiles.forEach((asset) => {
-    const pubPath = path.join(rootDir, 'public', asset);
+const publicDir = path.join(rootDir, 'public');
+const publicFileNames = fs.existsSync(publicDir) ? new Set(fs.readdirSync(publicDir)) : new Set();
+if (fs.existsSync(publicDir)) {
+  publicFileNames.forEach((asset) => {
+    const pubPath = path.join(publicDir, asset);
     if (fs.statSync(pubPath).isFile()) {
       fs.copyFileSync(pubPath, path.join(distDir, asset));
       console.log(`[prepare-pages] Copied ${asset} to dist/ root`);
@@ -38,27 +39,46 @@ if (fs.existsSync(path.join(rootDir, 'public'))) {
   });
 }
 
-// 1.2 Copy all directory index.html files to flat .html files alongside them
-// (e.g. dist/about/index.html -> dist/about.html) WITHOUT deleting the directory!
-// This allows Cloudflare Pages to serve /about with 200 OK (no 308 redirect)
-// while keeping directory assets intact for Astro manifest!
-function copyDirectoryIndexToFlatHtml(dir) {
-  if (!fs.existsSync(dir)) return;
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.isDirectory() && !['_astro', 'server', 'client'].includes(entry.name)) {
-      const fullPath = path.join(dir, entry.name);
-      copyDirectoryIndexToFlatHtml(fullPath);
-      const indexPath = path.join(fullPath, 'index.html');
-      const flatHtml = `${fullPath}.html`;
-      if (fs.existsSync(indexPath)) {
-        fs.copyFileSync(indexPath, flatHtml);
-        console.log(`[prepare-pages] Created flat ${path.relative(distDir, flatHtml)} alongside index.html`);
-      }
-    }
+// 1.2 Clean up any stale SSR route HTML files/directories to guarantee Cloudflare Worker SSR invocation
+// Dynamic routes must NEVER have static .html files in dist/, otherwise Cloudflare Pages serves stale files!
+const ssrRoutes = [
+  'index',
+  'weather',
+  'river-watch',
+  'bulletin',
+  'city-forecast',
+  'mountaineering',
+  'special-weather',
+  'nwp',
+  'press-releases',
+  'ne/index',
+  'ne/weather',
+  'ne/river-watch',
+  'ne/bulletin',
+  'ne/city-forecast',
+  'ne/mountaineering',
+  'ne/special-weather',
+  'ne/nwp',
+  'ne/press-releases'
+];
+
+ssrRoutes.forEach((route) => {
+  const flatHtml = path.join(distDir, `${route}.html`);
+  const dirHtml = path.join(distDir, route, 'index.html');
+  const dir = path.join(distDir, route);
+
+  if (fs.existsSync(flatHtml)) {
+    fs.rmSync(flatHtml, { force: true });
+    console.log(`[prepare-pages] Pruned stale SSR static HTML: ${route}.html`);
   }
-}
-copyDirectoryIndexToFlatHtml(distDir);
+  if (fs.existsSync(dirHtml)) {
+    fs.rmSync(dirHtml, { force: true });
+    console.log(`[prepare-pages] Pruned stale SSR directory index: ${route}/index.html`);
+  }
+  if (fs.existsSync(dir) && fs.readdirSync(dir).length === 0) {
+    fs.rmdirSync(dir);
+  }
+});
 
 // Remove _redirects completely (Zero Redirection policy)
 [path.join(clientDir, '_redirects'), path.join(distDir, '_redirects')].forEach((f) => {
@@ -68,30 +88,79 @@ copyDirectoryIndexToFlatHtml(distDir);
   }
 });
 
-// 2. Create _worker.js pointing to server/entry.mjs with ASSETS fallback and isolated cron triggers
+// 2. Create _worker.js delegating to server/entry.mjs with Edge Cache API Shield & scheduled crons
 const workerFile = path.join(distDir, '_worker.js');
 const workerContent = `import serverEntry from './server/entry.mjs';
+
+const STATIC_EXT_REGEX = /\\.(svg|ico|png|jpg|jpeg|webp|woff2?|ttf|eot|css|js|txt|xml|xsl|json|map)$/i;
 
 export default {
   async fetch(req, env, ctx) {
     globalThis.__CF_ENV__ = env;
-    if (env.ASSETS) {
-      const url = new URL(req.url);
-      if (
-        url.pathname === '/favicon.ico' ||
-        url.pathname.startsWith('/favicon') ||
-        url.pathname.startsWith('/apple-touch-icon') ||
-        url.pathname === '/robots.txt' ||
-        url.pathname === '/ads.txt' ||
-        url.pathname.endsWith('.ico') ||
-        url.pathname.endsWith('.png') ||
-        url.pathname.endsWith('.webp')
-      ) {
+    const url = new URL(req.url);
+
+    // Static Asset Fast-Path:
+    // Serve static bundle assets from Cloudflare Pages ASSETS binding directly.
+    const isStaticAsset = url.pathname.startsWith('/_astro/') ||
+      url.pathname === '/favicon.ico' ||
+      url.pathname === '/robots.txt' ||
+      url.pathname === '/ads.txt' ||
+      STATIC_EXT_REGEX.test(url.pathname);
+
+    if ((req.method === 'GET' || req.method === 'HEAD') && isStaticAsset && env.ASSETS) {
+      try {
         const assetRes = await env.ASSETS.fetch(req);
-        if (assetRes.status < 400) return assetRes;
-      }
+        if (assetRes && assetRes.status === 200) {
+          return assetRes;
+        }
+      } catch (e) {}
     }
-    return serverEntry.fetch(req, env, ctx);
+
+    // Edge Cache API Shield (GEMINI.md Rule 8): Query caches.default before SSR execution (0ms CPU)
+    if ((req.method === 'GET' || req.method === 'HEAD') && !url.pathname.startsWith('/api/')) {
+      try {
+        const cache = caches.default;
+        const cachedRes = await cache.match(req);
+        if (cachedRes) {
+          const resHeaders = new Headers(cachedRes.headers);
+          resHeaders.set('x-worker-cache', 'HIT');
+          if (req.method === 'HEAD') {
+            return new Response(null, {
+              status: cachedRes.status,
+              statusText: cachedRes.statusText,
+              headers: resHeaders,
+            });
+          }
+          return new Response(cachedRes.body, {
+            status: cachedRes.status,
+            statusText: cachedRes.statusText,
+            headers: resHeaders,
+          });
+        }
+      } catch (cErr) {}
+    }
+
+    const res = await serverEntry.fetch(req, env, ctx);
+
+    // Write successful public HTML responses into caches.default (0ms CPU for future visits)
+    if (req.method === 'GET' && res && res.status === 200 && !url.pathname.startsWith('/api/')) {
+      try {
+        const cc = res.headers.get('cache-control') || '';
+        const cl = res.headers.get('content-length');
+        if (!cc.includes('no-store') && !cc.includes('private') && !cc.includes('max-age=0') && cl !== '0') {
+          const cache = caches.default;
+          const resClone = res.clone();
+          try { resClone.headers.delete('Set-Cookie'); } catch (e) {}
+          if (ctx && typeof ctx.waitUntil === 'function') {
+            ctx.waitUntil(cache.put(req, resClone));
+          } else {
+            await cache.put(req, resClone);
+          }
+        }
+      } catch (cPutErr) {}
+    }
+
+    return res;
   },
 
   async scheduled(event, env, ctx) {
@@ -119,17 +188,26 @@ export default {
 };
 `;
 fs.writeFileSync(workerFile, workerContent);
-console.log('[prepare-pages] Created dist/_worker.js delegating to serverEntry with static asset support');
+console.log('[prepare-pages] Created dist/_worker.js delegating cleanly to serverEntry with Edge Cache API Shield');
 
-// 3. Ensure _routes.json ONLY includes dynamic API endpoints so static pages bypass the Worker completely
+// 3. Ensure _routes.json excludes static assets so Pages Functions handles all SSR routes
 const routesJsonFile = path.join(distDir, '_routes.json');
 const routes = {
   version: 1,
-  include: ['/api/*'],
-  exclude: []
+  include: ['/*'],
+  exclude: [
+    '/_astro/*',
+    '/favicon.ico',
+    '/favicon.svg',
+    '/favicon-16x16.png',
+    '/favicon-32x32.png',
+    '/apple-touch-icon.png',
+    '/sitemap.xsl',
+    '/ads.txt'
+  ]
 };
 fs.writeFileSync(routesJsonFile, JSON.stringify(routes, null, 2));
-console.log('[prepare-pages] Created dist/_routes.json targeting /api/* only (0 Worker Invocations for pages)');
+console.log('[prepare-pages] Created dist/_routes.json with static asset exclusions (SSR Worker handles content)');
 
 // 3.1 Create _headers file for static asset caching
 const headersFile = path.join(distDir, '_headers');
@@ -154,7 +232,7 @@ console.log('[prepare-pages] Created dist/_headers for optimal edge CDN caching'
 
 // 4. Update .assetsignore for Cloudflare Pages (do not ignore _worker.js or server)
 const assetsIgnoreFile = path.join(distDir, '.assetsignore');
-let assetsIgnore = 'wrangler.json\n.dev.vars\n';
+let assetsIgnore = 'wrangler.json\n.dev.vars\nserver/**\n_worker.js\n';
 fs.writeFileSync(assetsIgnoreFile, assetsIgnore);
 console.log('[prepare-pages] Cleaned dist/.assetsignore (ensures _worker.js and assets are recognized)');
 
@@ -169,17 +247,22 @@ if (fs.existsSync(serverWranglerJson)) {
 // 6. Ensure wrangler.toml exists
 const wranglerTomlFile = path.join(rootDir, 'wrangler.toml');
 if (!fs.existsSync(wranglerTomlFile)) {
-  const tomlContent = `name = "topnepali"
+  const tomlContent = `name = "weather"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "./dist"
 
 [vars]
-URL = "https://topnepali.com"
-WORDPRESS_URL = "https://wp.topnepali.com"
-PUBLIC_GTM_ID = "GTM-MD2NWFJ"
-PUBLIC_GA_ID = "G-K2R0GSQE0M"
-PUBLIC_ADSENSE_ID = "ca-pub-5410507143596599"
+SITE_URL = "https://weather.topnepali.com"
+
+[[kv_namespaces]]
+binding = "WEATHER_KV"
+id = "78c19571147c453aaa7d40b01beabe56"
+
+[[d1_databases]]
+binding = "WEATHER_DB"
+database_name = "weather-db"
+database_id = "adf3fcc7-642f-4e85-9182-eac62ac2af82"
 `;
   fs.writeFileSync(wranglerTomlFile, tomlContent);
   console.log('[prepare-pages] Created default wrangler.toml');
