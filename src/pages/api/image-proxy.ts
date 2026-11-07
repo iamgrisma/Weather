@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ request, redirect }) => {
       signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; NepalWeatherEdgeBot/1.0; +https://weather.topnepali.com)',
-        Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,application/pdf,*/*;q=0.8',
+        Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
       },
     }).finally(() => clearTimeout(timeout));
 
@@ -40,13 +40,27 @@ export const GET: APIRoute = async ({ request, redirect }) => {
       return redirect(targetUrl, 302);
     }
 
-    const contentType = upstreamRes.headers.get('content-type') || 'image/png';
+    const contentType = (upstreamRes.headers.get('content-type') || '').toLowerCase();
+    const contentLengthHeader = upstreamRes.headers.get('content-length');
+    const contentLength = contentLengthHeader ? parseInt(contentLengthHeader, 10) : 0;
+    const MAX_IMAGE_BYTES = 5242880; // 5MB (5,242,880 bytes)
+
+    // Prevent unbounded memory buffering: verify image content-type and check length before buffering
+    if (!contentType.startsWith('image/') || contentLength > MAX_IMAGE_BYTES) {
+      return redirect(targetUrl, 302);
+    }
+
     const body = await upstreamRes.arrayBuffer();
+
+    // Guard against chunked transfers without content-length header
+    if (body.byteLength > MAX_IMAGE_BYTES) {
+      return redirect(targetUrl, 302);
+    }
 
     return new Response(body, {
       status: 200,
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': contentType || 'image/png',
         'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400',
         'X-Proxied-By': 'NepalWeather-EdgeCache',
         'Access-Control-Allow-Origin': '*',

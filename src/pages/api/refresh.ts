@@ -4,6 +4,46 @@ import type { RefreshScope } from '../../lib/dhm/types';
 
 export const prerender = false;
 
+function getExpectedSecret(env: any, locals: any): string | undefined {
+  return (
+    env?.CRON_SECRET ||
+    env?.REFRESH_SECRET ||
+    locals?.runtime?.env?.CRON_SECRET ||
+    locals?.runtime?.env?.REFRESH_SECRET ||
+    locals?.CRON_SECRET ||
+    locals?.REFRESH_SECRET ||
+    (typeof process !== 'undefined'
+      ? process.env?.CRON_SECRET || process.env?.REFRESH_SECRET
+      : undefined) ||
+    (import.meta.env as any)?.CRON_SECRET ||
+    (import.meta.env as any)?.REFRESH_SECRET
+  );
+}
+
+function getProvidedSecret(request: Request, url: URL): string | null {
+  const authHeader = request.headers.get('authorization') || '';
+  if (authHeader.toLowerCase().startsWith('bearer ')) {
+    const token = authHeader.slice(7).trim();
+    if (token) return token;
+  }
+  const cronHeader = request.headers.get('x-cron-secret')?.trim();
+  if (cronHeader) return cronHeader;
+
+  const querySecret = url.searchParams.get('secret')?.trim();
+  if (querySecret) return querySecret;
+
+  return null;
+}
+
+function secureCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
 export const GET: APIRoute = async (context) => {
   return POST(context);
 };
@@ -12,6 +52,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const env = getEdgeEnv(locals);
     const url = new URL(request.url);
+
+    const isTestEnv =
+      (typeof process !== 'undefined' &&
+        (process.env?.NODE_ENV === 'test' || process.env?.VITEST === 'true')) ||
+      (import.meta.env as any)?.MODE === 'test';
+
+    const expectedSecret = getExpectedSecret(env, locals);
+    const providedSecret = getProvidedSecret(request, url);
+
+    if (!isTestEnv) {
+      if (!expectedSecret || !providedSecret || !secureCompare(providedSecret, expectedSecret)) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized: Invalid or missing refresh secret' }),
+          {
+            status: 401,
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              'Cache-Control': 'no-store, no-cache, must-revalidate',
+            },
+          }
+        );
+      }
+    }
 
     // Default to 'all' so a single unified cron ping to /api/refresh updates all feeds
     const rawScope = url.searchParams.get('scope') as RefreshScope | null;

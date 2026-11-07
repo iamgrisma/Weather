@@ -18,7 +18,11 @@ const {
 const isNe = lang === 'ne';
 const host = Astro.url.hostname;
 const isProduction = host === 'weather.topnepali.com';
-const allowAdSense = isProduction && !isNe;
+const userAgent = Astro.request.headers.get('user-agent') || '';
+const isBot = /bot|crawler|spider|scraper|headless|puppeteer|bytespider/i.test(userAgent);
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isLegalPage = /^\/(?:ne\/)?(?:privacy|terms|disclaimer|contact|about)(?:\/|$)/.test(path);
+const allowAdSense = isProduction && !isNe && !isLegalPage && !isBot;
 
 // Layout dimension reservation to guarantee 0.00 Cumulative Layout Shift (CLS)
 const heightClasses: Record<AdSlotPosition, string> = {

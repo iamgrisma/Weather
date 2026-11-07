@@ -1,7 +1,7 @@
 ---
 // TopNepaliNetwork.astro — Ultra-lightweight, zero-emoji, minimal DOM 9-dot launcher
 interface Props {
-  currentApp?: 'blog' | 'tools' | 'typing' | 'fonts' | 'share' | 'election' | 'constitution' | 'weather';
+  currentApp?: 'blog' | 'tools' | 'typing' | 'fonts' | 'share' | 'election' | 'constitution' | 'calendar' | 'weather';
 }
 
 const { currentApp = 'weather' } = Astro.props;
@@ -14,7 +14,8 @@ const networkApps = [
   { id: 'weather', name: 'Nepal Weather', url: 'https://weather.topnepali.com', icon: 'cloud-sun' },
   { id: 'share', name: 'Flashare', url: 'https://share.topnepali.com', icon: 'zap' },
   { id: 'election', name: 'Election Nepal', url: 'https://election.topnepali.com', icon: 'landmark' },
-  { id: 'constitution', name: 'Constitution', url: 'https://constitution.topnepali.com', icon: 'scale' }
+  { id: 'constitution', name: 'Constitution', url: 'https://constitution.topnepali.com', icon: 'scale' },
+  { id: 'calendar', name: 'Nepali Calendar', url: 'https://calendar.topnepali.com', icon: 'calendar' },
 ];
 ---
 
@@ -42,7 +43,7 @@ const networkApps = [
   <nav class="network-dropdown-panel hidden" aria-label="TopNepali Ecosystem">
     <div class="panel-header">
       <span class="panel-title">TopNepali Network</span>
-      <a href="https://topnepali.com" target="_blank" rel="noopener" class="all-apps-link">Visit &rarr;</a>
+      <a href="https://topnepali.com" rel="noopener" class="all-apps-link">Visit &rarr;</a>
     </div>
 
     <ul class="apps-list">
@@ -113,6 +114,14 @@ const networkApps = [
                   <path d="M7 21h10"/>
                   <path d="M12 3v18"/>
                   <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>
+                </svg>
+              )}
+              {app.icon === 'calendar' && (
+                <svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
               )}
 
