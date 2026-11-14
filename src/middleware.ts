@@ -44,6 +44,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
       'Cache-Control',
       'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400'
     );
+    response.headers.set('CDN-Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+    response.headers.set('Cloudflare-CDN-Cache-Control', 'max-age=604800, stale-while-revalidate=86400');
   } else if (pathname.startsWith('/api/data')) {
     // API data: Browser caches 60s, Cloudflare Edge caches 8 min, SWR 10 min
     response.headers.set(

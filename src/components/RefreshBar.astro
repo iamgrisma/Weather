@@ -172,6 +172,11 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
     // Chrome Modern Web Guidance: trigger low-priority background freshness verification on idle
     if (typeof window !== 'undefined') {
       const triggerBackgroundSync = () => {
+        try {
+          const lastSync = Number(sessionStorage.getItem('nw_last_idle_sync')) || 0;
+          if (Date.now() - lastSync < 480000) return; // At most once per 8 minutes per browser session
+          sessionStorage.setItem('nw_last_idle_sync', String(Date.now()));
+        } catch {}
         fetch('/api/refresh', { method: 'GET', priority: 'low' }).catch(() => {});
       };
       if ('requestIdleCallback' in window) {

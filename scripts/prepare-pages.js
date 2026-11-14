@@ -128,10 +128,15 @@ export default {
       if (scope && /^[a-z]+$/.test(scope)) {
         cacheKeyUrl += '?type=' + scope;
       }
+    } else if (url.pathname === '/api/image-proxy') {
+      const imgTarget = url.searchParams.get('url');
+      if (imgTarget) {
+        cacheKeyUrl += '?url=' + encodeURIComponent(imgTarget);
+      }
     }
     const cacheKey = new Request(cacheKeyUrl, { method: 'GET' });
 
-    if ((req.method === 'GET' || req.method === 'HEAD') && !url.pathname.startsWith('/api/image-proxy')) {
+    if (req.method === 'GET' || req.method === 'HEAD') {
       try {
         const cache = caches.default;
         const cachedRes = await cache.match(cacheKey);
@@ -156,8 +161,8 @@ export default {
 
     const res = await serverEntry.fetch(req, env, ctx);
 
-    // Write successful public HTML/JSON responses into caches.default (0ms CPU for future visits)
-    if (req.method === 'GET' && res && res.status === 200 && !url.pathname.startsWith('/api/image-proxy')) {
+    // Write successful public HTML/JSON/Image & 404 responses into caches.default (0ms CPU for future visits)
+    if (req.method === 'GET' && res && (res.status === 200 || res.status === 404)) {
       try {
         const cc = res.headers.get('cache-control') || '';
         const cl = res.headers.get('content-length');
@@ -223,7 +228,20 @@ const routes = {
     '/sw.js',
     '/sitemap.xsl',
     '/ads.txt',
-    '/robots.txt'
+    '/robots.txt',
+    '/sitemap.xml',
+    '/about',
+    '/contact',
+    '/privacy',
+    '/terms',
+    '/disclaimer',
+    '/sitemap',
+    '/ne/about',
+    '/ne/contact',
+    '/ne/privacy',
+    '/ne/terms',
+    '/ne/disclaimer',
+    '/ne/sitemap'
   ]
 };
 fs.writeFileSync(routesJsonFile, JSON.stringify(routes, null, 2));
