@@ -231,17 +231,29 @@ const routes = {
     '/robots.txt',
     '/sitemap.xml',
     '/about',
+    '/about/*',
     '/contact',
+    '/contact/*',
     '/privacy',
+    '/privacy/*',
     '/terms',
+    '/terms/*',
     '/disclaimer',
+    '/disclaimer/*',
     '/sitemap',
+    '/sitemap/*',
     '/ne/about',
+    '/ne/about/*',
     '/ne/contact',
+    '/ne/contact/*',
     '/ne/privacy',
+    '/ne/privacy/*',
     '/ne/terms',
+    '/ne/terms/*',
     '/ne/disclaimer',
-    '/ne/sitemap'
+    '/ne/disclaimer/*',
+    '/ne/sitemap',
+    '/ne/sitemap/*'
   ]
 };
 fs.writeFileSync(routesJsonFile, JSON.stringify(routes, null, 2));
@@ -264,6 +276,66 @@ const headersContent = `/_astro/*
 
 /*.webp
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/about*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/contact*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/privacy*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/terms*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/disclaimer*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/sitemap*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/ne/about*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/ne/contact*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/ne/privacy*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/ne/terms*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/ne/disclaimer*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
+
+/ne/sitemap*
+  Cache-Control: public, max-age=3600, s-maxage=31536000, stale-while-revalidate=604800
+  CDN-Cache-Control: public, max-age=31536000
+  Cloudflare-CDN-Cache-Control: max-age=31536000
 `;
 fs.writeFileSync(headersFile, headersContent);
 console.log('[prepare-pages] Created dist/_headers for optimal edge CDN caching');
