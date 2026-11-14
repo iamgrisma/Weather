@@ -56,14 +56,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
     response.headers.set('CDN-Cache-Control', 'public, max-age=31536000, immutable');
     response.headers.set('Cloudflare-CDN-Cache-Control', 'max-age=31536000, immutable');
-  } else if (!response.headers.has('Cache-Control')) {
-    // SSR HTML Pages: Browser caches 1 min, Cloudflare Edge caches 10 mins, SWR 20 mins
-    response.headers.set(
-      'Cache-Control',
-      'public, max-age=60, s-maxage=600, stale-while-revalidate=1200'
-    );
-    response.headers.set('CDN-Cache-Control', 'public, max-age=600, stale-while-revalidate=1200');
-    response.headers.set('Cloudflare-CDN-Cache-Control', 'max-age=600, stale-while-revalidate=1200');
+  } else {
+    // SSR HTML Pages: Browser caches 1 min, Cloudflare Edge caches 1 hour (purged on demand when live data updates)
+    const isHtml = response.headers.get('content-type')?.includes('text/html');
+    if (isHtml || !response.headers.has('Cache-Control')) {
+      response.headers.set(
+        'Cache-Control',
+        'public, max-age=60, s-maxage=3600, stale-while-revalidate=7200'
+      );
+      response.headers.set('CDN-Cache-Control', 'public, max-age=3600, stale-while-revalidate=7200');
+      response.headers.set('Cloudflare-CDN-Cache-Control', 'max-age=3600, stale-while-revalidate=7200');
+    }
   }
 
   return response;

@@ -18,18 +18,18 @@ import {
 
 const KV_KEY_LATEST = 'NEPAL_WEATHER_LATEST_SNAPSHOT';
 
-// Scope-specific minimum cooldowns in milliseconds
+// Scope-specific minimum cooldowns in milliseconds (clean 8-minute intervals, capped at ~1 hour)
 export const COOLDOWN_DURATIONS: Record<RefreshScope, number> = {
-  river: 8 * 60 * 1000,     // 8 minutes: dynamic flood water levels (allows reliable 10m cron)
-  weather: 25 * 60 * 1000,  // 25 minutes: 24h forecast & manual obs
-  tourism: 110 * 60 * 1000, // 110 minutes: trekking stations
-  bulletin: 50 * 60 * 1000, // 50 minutes: 3-day synoptic bulletin
-  mountain: 50 * 60 * 1000, // 50 minutes: mountaineering telemetry
-  cities: 25 * 60 * 1000,   // 25 minutes: 19 city forecasts
-  special: 12 * 60 * 1000,  // 12 minutes: special weather advisories & warnings
-  press: 50 * 60 * 1000,    // 50 minutes: DHM press releases
-  nwp: 170 * 60 * 1000,     // 170 minutes: NWP numerical weather prediction models
-  all: 8 * 60 * 1000,       // 8 minutes: overall composite (guarantees 10m cron never throttles)
+  river: 8 * 60 * 1000,     // 8 minutes (base heartbeat)
+  special: 16 * 60 * 1000,  // 16 minutes (8m x 2)
+  weather: 24 * 60 * 1000,  // 24 minutes (8m x 3)
+  cities: 24 * 60 * 1000,   // 24 minutes (8m x 3)
+  bulletin: 48 * 60 * 1000, // 48 minutes (8m x 6)
+  mountain: 48 * 60 * 1000, // 48 minutes (8m x 6)
+  press: 48 * 60 * 1000,    // 48 minutes (8m x 6)
+  tourism: 56 * 60 * 1000,  // 56 minutes (8m x 7)
+  nwp: 64 * 60 * 1000,      // 64 minutes (8m x 8, max ~1 hour)
+  all: 8 * 60 * 1000,       // 8 minutes
 };
 
 interface EdgeEnv {
@@ -354,9 +354,7 @@ export interface MultiRefreshResult {
   cooldowns: Record<string, {
     lastCheckedAt: number;
     lastFetchedAt: number;
-    ttlSeconds: number;
-    remainingSeconds: number;
-    isStale: boolean;
+    ttlMinutes: number;
   }>;
   snapshot: NepalWeatherSnapshot;
   status: 'updated' | 'unchanged' | 'throttled';
@@ -392,20 +390,18 @@ export async function refreshStaleScopes(
 
   for (const scope of targetScopes) {
     const ttlMs = COOLDOWN_DURATIONS[scope] || 8 * 60 * 1000;
+    const ttlMinutes = Math.round(ttlMs / 60000);
     const lastCheckedAt = getScopeLastCheckedAt(currentSnapshot, scope);
     const lastFetchedAt = getScopeFetchedAt(currentSnapshot, scope);
     const elapsedMs = now - lastCheckedAt;
-    const remainingMs = Math.max(0, ttlMs - elapsedMs);
-    const isStale = force || remainingMs === 0;
+    const isStale = force || elapsedMs >= ttlMs;
 
     if (!isStale) {
       freshScopes.push(scope);
       cooldowns[scope] = {
         lastCheckedAt,
         lastFetchedAt,
-        ttlSeconds: Math.round(ttlMs / 1000),
-        remainingSeconds: Math.round(remainingMs / 1000),
-        isStale: false,
+        ttlMinutes,
       };
       continue;
     }
@@ -421,9 +417,7 @@ export async function refreshStaleScopes(
       cooldowns[scope] = {
         lastCheckedAt: now,
         lastFetchedAt: getScopeFetchedAt(currentSnapshot, scope),
-        ttlSeconds: Math.round(ttlMs / 1000),
-        remainingSeconds: Math.round(ttlMs / 1000),
-        isStale: false,
+        ttlMinutes,
       };
     } catch (scopeErr) {
       console.warn(`[AutoRefresh] Error syncing scope '${scope}':`, scopeErr);
@@ -431,9 +425,7 @@ export async function refreshStaleScopes(
       cooldowns[scope] = {
         lastCheckedAt,
         lastFetchedAt,
-        ttlSeconds: Math.round(ttlMs / 1000),
-        remainingSeconds: Math.round(remainingMs / 1000),
-        isStale: true,
+        ttlMinutes,
       };
     }
   }
@@ -445,14 +437,14 @@ export async function refreshStaleScopes(
   }
 
   let status: 'updated' | 'unchanged' | 'throttled' = 'throttled';
-  let message = 'All requested data is currently fresh within its cooldown window.';
+  let message = 'All weather and river data is currently up to date.';
 
   if (updatedScopes.length > 0) {
     status = 'updated';
-    message = `Fresh live data updated for: ${updatedScopes.join(', ')}.`;
+    message = `Live data updated for: ${updatedScopes.join(', ')}.`;
   } else if (unchangedScopes.length > 0) {
     status = 'unchanged';
-    message = `Upstream verified against DHM: No new readings published for ${unchangedScopes.join(', ')}.`;
+    message = 'Latest government station readings verified. Current bulletin remains active.';
   }
 
   return {

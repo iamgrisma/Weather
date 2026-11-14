@@ -32,6 +32,7 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
   id="refresh-widget"
   data-fetched-at={fetchedAt}
   data-scope={scope}
+  data-is-ne={isNe ? 'true' : 'false'}
 >
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div class="flex items-center gap-3.5">
@@ -78,6 +79,7 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
 
     const fetchedAt = Number(container.getAttribute('data-fetched-at')) || Date.now();
     const scope = container.getAttribute('data-scope') || 'river';
+    const isNe = container.getAttribute('data-is-ne') === 'true';
     const badge = document.getElementById('time-ago-badge');
     const refreshBtn = document.getElementById('manual-refresh-btn') as HTMLButtonElement | null;
     const btnText = document.getElementById('btn-text');
@@ -93,11 +95,11 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
 
       if (badge) {
         if (minutes === 0) {
-          badge.textContent = `Live (${seconds}s ago)`;
+          badge.textContent = isNe ? `ताजा (${seconds} सेकेन्ड अघि)` : `Live (${seconds}s ago)`;
         } else if (minutes === 1) {
-          badge.textContent = `Updated 1 min ago`;
+          badge.textContent = isNe ? '१ मिनेट अगाडि' : 'Updated 1 min ago';
         } else {
-          badge.textContent = `Updated ${minutes} mins ago`;
+          badge.textContent = isNe ? `${minutes} मिनेट अगाडि` : `Updated ${minutes} mins ago`;
         }
       }
     }
@@ -109,7 +111,7 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
       refreshBtn.addEventListener('click', async () => {
         refreshBtn.disabled = true;
         if (spinner) spinner.classList.add('animate-spin');
-        if (btnText) btnText.textContent = 'Contacting DHM Gateway...';
+        if (btnText) btnText.textContent = isNe ? 'सरकारी सर्भर सम्पर्क गरिँदै...' : 'Checking station status...';
 
         try {
           // Chrome Modern Web Guidance: apply priority: 'low' to background fetch requests
@@ -121,27 +123,41 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
 
           if (toast) {
             toast.classList.remove('hidden', 'bg-amber-50', 'border-amber-200', 'text-amber-800', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'bg-blue-50', 'border-blue-200', 'text-blue-800');
-            
+
+            const scopeInfo = (json.cooldowns && json.cooldowns[scope]) || (json.cooldowns && json.cooldowns.river);
+            const lastChecked = scopeInfo ? scopeInfo.lastCheckedAt : (json.refreshedAt || Date.now());
+            const ttlMins = scopeInfo ? scopeInfo.ttlMinutes : 8;
+            const elapsedMins = Math.floor(Math.max(0, Date.now() - lastChecked) / 60000);
+            const waitMins = Math.max(1, ttlMins - elapsedMins);
+
             const isUpdated = json.status === 'updated' || (Array.isArray(json.updatedScopes) && json.updatedScopes.includes(scope));
             const isUnchanged = json.status === 'unchanged' || (Array.isArray(json.unchangedScopes) && json.unchangedScopes.includes(scope));
 
             if (isUpdated) {
               toast.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
-              toast.textContent = `Fresh live ${scope} data loaded! Reloading view...`;
+              toast.textContent = isNe
+                ? 'नयाँ आधिकारिक तथ्यांक प्राप्त भयो। पृष्ठ ताजा हुँदैछ...'
+                : 'Fresh readings loaded from official station. Updating view...';
               setTimeout(() => window.location.reload(), 800);
             } else if (isUnchanged) {
               toast.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
-              toast.textContent = json.message || 'Upstream data has not changed yet.';
+              toast.textContent = isNe
+                ? `जल तथा मौसम विभागको तथ्यांक भर्खरै परीक्षण गरियो, हालसम्म कुनै फेरबदल छैन। अर्को जाँच ~${waitMins} मिनेटमा हुनेछ।`
+                : `Latest government readings verified: Data is current and active. Next update check in ~${waitMins} min.`;
             } else {
               toast.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
-              toast.textContent = json.message || 'Cooldown window active. Please wait.';
+              toast.textContent = isNe
+                ? `तथ्यांक अद्यावधिक छ (${elapsedMins === 0 ? 'भर्खरै' : elapsedMins + ' मिनेट अघि'} जाँच गरिएको)। कृपया अर्को जाँचका लागि ~${waitMins} मिनेट पर्खनुहोस्।`
+                : `Data is already current (verified ${elapsedMins === 0 ? 'just now' : elapsedMins + ' min ago'}). Next live check in ~${waitMins} min.`;
             }
           }
         } catch (err: any) {
           if (toast) {
             toast.classList.remove('hidden');
             toast.classList.add('bg-red-50', 'border-red-200', 'text-red-800');
-            toast.textContent = 'Network error while contacting DHM servers.';
+            toast.textContent = isNe
+              ? 'सरकारी सर्भरसँग सम्पर्क हुन सकेन। कृपया केहीबेरमा प्रयास गर्नुहोस्।'
+              : 'Network error while contacting DHM servers. Please try again.';
           }
         } finally {
           refreshBtn.disabled = false;

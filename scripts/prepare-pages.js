@@ -15,6 +15,10 @@ if (process.env.DEPLOY_TARGET === 'node') {
 
 console.log('[prepare-pages] Adapting Astro build for Cloudflare Pages Advanced Mode...');
 
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
+}
+
 // 1. Copy client assets to root of dist/
 if (fs.existsSync(clientDir)) {
   const items = fs.readdirSync(clientDir);
@@ -120,7 +124,8 @@ export default {
     if ((req.method === 'GET' || req.method === 'HEAD') && !url.pathname.startsWith('/api/image-proxy')) {
       try {
         const cache = caches.default;
-        const cachedRes = await cache.match(req);
+        const cacheKey = new Request(url.toString(), { method: 'GET' });
+        const cachedRes = await cache.match(cacheKey);
         if (cachedRes) {
           const resHeaders = new Headers(cachedRes.headers);
           resHeaders.set('x-worker-cache', 'HIT');
@@ -149,12 +154,13 @@ export default {
         const cl = res.headers.get('content-length');
         if (!cc.includes('no-store') && !cc.includes('private') && !cc.includes('max-age=0') && cl !== '0') {
           const cache = caches.default;
+          const cacheKey = new Request(url.toString(), { method: 'GET' });
           const resClone = res.clone();
           try { resClone.headers.delete('Set-Cookie'); } catch (e) {}
           if (ctx && typeof ctx.waitUntil === 'function') {
-            ctx.waitUntil(cache.put(req, resClone));
+            ctx.waitUntil(cache.put(cacheKey, resClone));
           } else {
-            await cache.put(req, resClone);
+            await cache.put(cacheKey, resClone);
           }
         }
       } catch (cPutErr) {}
@@ -205,8 +211,11 @@ const routes = {
     '/favicon-16x16.png',
     '/favicon-32x32.png',
     '/apple-touch-icon.png',
+    '/manifest.json',
+    '/sw.js',
     '/sitemap.xsl',
-    '/ads.txt'
+    '/ads.txt',
+    '/robots.txt'
   ]
 };
 fs.writeFileSync(routesJsonFile, JSON.stringify(routes, null, 2));
