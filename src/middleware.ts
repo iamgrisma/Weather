@@ -27,19 +27,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const pathname = url.pathname;
 
   if (pathname.startsWith('/api/refresh')) {
-    // Always bypass cache for manual/cron revalidation triggers
-    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    if (url.searchParams.get('force') === 'true') {
+      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+      response.headers.delete('CDN-Cache-Control');
+      response.headers.delete('Cloudflare-CDN-Cache-Control');
+    }
   } else if (pathname.startsWith('/api/image-proxy')) {
     response.headers.set(
       'Cache-Control',
       'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400'
     );
   } else if (pathname.startsWith('/api/data')) {
-    // API data: Browser caches 30s, Cloudflare Edge caches 5 min, SWR 10 min
+    // API data: Browser caches 60s, Cloudflare Edge caches 8 min, SWR 10 min
     response.headers.set(
       'Cache-Control',
-      'public, max-age=30, s-maxage=300, stale-while-revalidate=600'
+      'public, max-age=60, s-maxage=480, stale-while-revalidate=600'
     );
+    response.headers.set('CDN-Cache-Control', 'public, max-age=480, stale-while-revalidate=600');
+    response.headers.set('Cloudflare-CDN-Cache-Control', 'max-age=480, stale-while-revalidate=600');
   } else if (
     pathname.startsWith('/_astro/') ||
     pathname.endsWith('.webp') ||

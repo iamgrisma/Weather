@@ -20,11 +20,16 @@ export const GET: APIRoute = async ({ request, locals, url }) => {
 
     const headers = new Headers({
       'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'public, max-age=60, s-maxage=480, stale-while-revalidate=600',
-      'CDN-Cache-Control': 'public, max-age=480, stale-while-revalidate=600',
-      'Cloudflare-CDN-Cache-Control': 'max-age=480, stale-while-revalidate=600',
+      'Cache-Control': force
+        ? 'no-store, no-cache, must-revalidate'
+        : 'public, max-age=60, s-maxage=480, stale-while-revalidate=600',
       'X-Refresh-Status': result.status,
     });
+
+    if (!force) {
+      headers.set('CDN-Cache-Control', 'public, max-age=480, stale-while-revalidate=600');
+      headers.set('Cloudflare-CDN-Cache-Control', 'max-age=480, stale-while-revalidate=600');
+    }
 
     const includeFull = url.searchParams.get('full') === 'true';
     const payload = includeFull

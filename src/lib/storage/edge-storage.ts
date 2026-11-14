@@ -206,6 +206,19 @@ async function persistFullSnapshot(
   }
 }
 
+export function getScopeLastCheckedAt(snapshot: NepalWeatherSnapshot, scope: RefreshScope): number {
+  if (scope === 'river') return snapshot.riverWatch?.lastCheckedAt || snapshot.riverWatch?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'weather') return snapshot.manualWeather?.lastCheckedAt || snapshot.manualWeather?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'tourism') return snapshot.tourismWeather?.lastCheckedAt || snapshot.tourismWeather?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'bulletin') return snapshot.threeDayBulletin?.lastCheckedAt || snapshot.threeDayBulletin?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'mountain') return snapshot.mountaineeringWeather?.lastCheckedAt || snapshot.mountaineeringWeather?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'cities') return snapshot.cityForecasts?.lastCheckedAt || snapshot.cityForecasts?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'special') return snapshot.specialWeather?.lastCheckedAt || snapshot.specialWeather?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'press') return snapshot.pressReleases?.lastCheckedAt || snapshot.pressReleases?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'nwp') return snapshot.nwpModels?.lastCheckedAt || snapshot.nwpModels?.fetchedAt || snapshot.fetchedAt;
+  return snapshot.lastCheckedAt || snapshot.fetchedAt;
+}
+
 export function getScopeFetchedAt(snapshot: NepalWeatherSnapshot, scope: RefreshScope): number {
   if (scope === 'river') return snapshot.riverWatch?.fetchedAt || snapshot.fetchedAt;
   if (scope === 'weather') return snapshot.manualWeather?.fetchedAt || snapshot.fetchedAt;
@@ -339,6 +352,7 @@ export interface MultiRefreshResult {
   unchangedScopes: RefreshScope[];
   freshScopes: RefreshScope[];
   cooldowns: Record<string, {
+    lastCheckedAt: number;
     lastFetchedAt: number;
     ttlSeconds: number;
     remainingSeconds: number;
@@ -378,20 +392,21 @@ export async function refreshStaleScopes(
 
   for (const scope of targetScopes) {
     const ttlMs = COOLDOWN_DURATIONS[scope] || 8 * 60 * 1000;
+    const lastCheckedAt = getScopeLastCheckedAt(currentSnapshot, scope);
     const lastFetchedAt = getScopeFetchedAt(currentSnapshot, scope);
-    const elapsedMs = now - lastFetchedAt;
+    const elapsedMs = now - lastCheckedAt;
     const remainingMs = Math.max(0, ttlMs - elapsedMs);
     const isStale = force || remainingMs === 0;
 
-    cooldowns[scope] = {
-      lastFetchedAt,
-      ttlSeconds: Math.round(ttlMs / 1000),
-      remainingSeconds: Math.round(remainingMs / 1000),
-      isStale,
-    };
-
     if (!isStale) {
       freshScopes.push(scope);
+      cooldowns[scope] = {
+        lastCheckedAt,
+        lastFetchedAt,
+        ttlSeconds: Math.round(ttlMs / 1000),
+        remainingSeconds: Math.round(remainingMs / 1000),
+        isStale: false,
+      };
       continue;
     }
 
@@ -403,9 +418,23 @@ export async function refreshStaleScopes(
       } else {
         unchangedScopes.push(scope);
       }
+      cooldowns[scope] = {
+        lastCheckedAt: now,
+        lastFetchedAt: getScopeFetchedAt(currentSnapshot, scope),
+        ttlSeconds: Math.round(ttlMs / 1000),
+        remainingSeconds: Math.round(ttlMs / 1000),
+        isStale: false,
+      };
     } catch (scopeErr) {
       console.warn(`[AutoRefresh] Error syncing scope '${scope}':`, scopeErr);
       unchangedScopes.push(scope);
+      cooldowns[scope] = {
+        lastCheckedAt,
+        lastFetchedAt,
+        ttlSeconds: Math.round(ttlMs / 1000),
+        remainingSeconds: Math.round(remainingMs / 1000),
+        isStale: true,
+      };
     }
   }
 
