@@ -219,6 +219,8 @@ export function getScopeFetchedAt(snapshot: NepalWeatherSnapshot, scope: Refresh
   return snapshot.fetchedAt;
 }
 
+export const getScopeLastFetchedAt = getScopeFetchedAt;
+
 async function refreshIndividualScope(
   currentSnapshot: NepalWeatherSnapshot,
   scope: RefreshScope,
@@ -376,7 +378,7 @@ export async function refreshStaleScopes(
 
   for (const scope of targetScopes) {
     const ttlMs = COOLDOWN_DURATIONS[scope] || 8 * 60 * 1000;
-    const lastFetchedAt = getScopeLastFetchedAt(currentSnapshot, scope);
+    const lastFetchedAt = getScopeFetchedAt(currentSnapshot, scope);
     const elapsedMs = now - lastFetchedAt;
     const remainingMs = Math.max(0, ttlMs - elapsedMs);
     const isStale = force || remainingMs === 0;
