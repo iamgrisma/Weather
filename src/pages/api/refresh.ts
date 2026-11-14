@@ -65,25 +65,33 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const expectedSecret = getExpectedSecret(env, locals);
     const providedSecret = getProvidedSecret(request, url);
 
-    if (!isTestEnv) {
-      if (!expectedSecret || !providedSecret || !secureCompare(providedSecret, expectedSecret)) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized: Invalid or missing refresh secret' }),
-          {
-            status: 401,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Cache-Control': 'no-store, no-cache, must-revalidate',
-            },
-          }
-        );
-      }
+    // Verify secret authorization if provided or configured
+    const hasValidSecret = Boolean(
+      isTestEnv ||
+      (expectedSecret && providedSecret && secureCompare(providedSecret, expectedSecret))
+    );
+
+    // If a secret was explicitly provided but invalid, reject with 401
+    if (providedSecret && !hasValidSecret) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Invalid refresh secret' }),
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Cache-Control': 'no-store, no-cache, must-revalidate',
+          },
+        }
+      );
     }
 
     // Default to 'all' so a single unified cron ping to /api/refresh updates all feeds
     const rawScope = url.searchParams.get('scope') as RefreshScope | null;
     let scope: RefreshScope = rawScope || 'all';
-    const force = url.searchParams.get('force') === 'true';
+
+    // Only callers with a valid secret or test runners can force-bypass cooldown
+    const forceRequested = url.searchParams.get('force') === 'true';
+    const force = forceRequested && hasValidSecret;
 
     try {
       if (request.headers.get('content-type')?.includes('application/json')) {

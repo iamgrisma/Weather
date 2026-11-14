@@ -180,7 +180,10 @@ export default {
       console.log(\`[Cloudflare Cron] Running scheduled scope '\${scope}'\`);
       const refreshReq = new Request(\`https://weather.topnepali.com/api/refresh?scope=\${scope}&force=true\`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(env.CRON_SECRET ? { 'x-cron-secret': env.CRON_SECRET } : {}),
+        },
       });
       ctx.waitUntil(serverEntry.fetch(refreshReq, env, ctx));
     }
