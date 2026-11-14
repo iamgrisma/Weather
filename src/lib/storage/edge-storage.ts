@@ -206,292 +206,302 @@ async function persistFullSnapshot(
   }
 }
 
-/**
- * SCOPED REFRESH ENGINE:
- * Only hits upstream for the specific domain the user/cron requested.
- * Prevents CPU time waste and upstream timeouts.
- */
+export function getScopeFetchedAt(snapshot: NepalWeatherSnapshot, scope: RefreshScope): number {
+  if (scope === 'river') return snapshot.riverWatch?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'weather') return snapshot.manualWeather?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'tourism') return snapshot.tourismWeather?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'bulletin') return snapshot.threeDayBulletin?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'mountain') return snapshot.mountaineeringWeather?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'cities') return snapshot.cityForecasts?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'special') return snapshot.specialWeather?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'press') return snapshot.pressReleases?.fetchedAt || snapshot.fetchedAt;
+  if (scope === 'nwp') return snapshot.nwpModels?.fetchedAt || snapshot.fetchedAt;
+  return snapshot.fetchedAt;
+}
+
+async function refreshIndividualScope(
+  currentSnapshot: NepalWeatherSnapshot,
+  scope: RefreshScope,
+  now: number
+): Promise<{ changed: boolean; message: string }> {
+  if (scope === 'river') {
+    const freshRiver = await fetchLiveRiverWatch();
+    if (freshRiver.stations.length === 0 && currentSnapshot.riverWatch.stations.length > 0) {
+      return { changed: false, message: 'Upstream DHM unreachable. Retained active river stations.' };
+    }
+    if (freshRiver.hash === currentSnapshot.riverWatch.hash) {
+      currentSnapshot.riverWatch.lastCheckedAt = now;
+      currentSnapshot.lastCheckedAt = now;
+      return { changed: false, message: 'River levels verified against DHM: No new readings published.' };
+    }
+    currentSnapshot.riverWatch = freshRiver;
+    currentSnapshot.fetchedAt = now;
+    currentSnapshot.lastCheckedAt = now;
+    return { changed: true, message: 'Fresh river water levels updated.' };
+  }
+
+  if (scope === 'weather') {
+    const freshWeather = await fetchLiveWeather();
+    if (
+      freshWeather.manualWeather.hash === currentSnapshot.manualWeather.hash &&
+      freshWeather.countryForecast.hash === currentSnapshot.countryForecast.hash
+    ) {
+      currentSnapshot.manualWeather.lastCheckedAt = now;
+      currentSnapshot.countryForecast.lastCheckedAt = now;
+      currentSnapshot.lastCheckedAt = now;
+      return { changed: false, message: 'Weather forecast verified: Current bulletin remains active.' };
+    }
+    currentSnapshot.manualWeather = freshWeather.manualWeather;
+    currentSnapshot.countryForecast = freshWeather.countryForecast;
+    currentSnapshot.fetchedAt = now;
+    currentSnapshot.lastCheckedAt = now;
+    return { changed: true, message: 'Fresh national weather forecast updated.' };
+  }
+
+  if (scope === 'tourism') {
+    const freshTourism = await fetchLiveTourism();
+    if (freshTourism.hash === currentSnapshot.tourismWeather.hash) {
+      currentSnapshot.tourismWeather.lastCheckedAt = now;
+      return { changed: false, message: 'Tourism stations verified: Station status is current.' };
+    }
+    currentSnapshot.tourismWeather = freshTourism;
+    return { changed: true, message: 'Fresh tourism weather updated.' };
+  }
+
+  if (scope === 'bulletin') {
+    const freshBulletin = await fetchLiveThreeDayBulletin();
+    if (freshBulletin.hash === currentSnapshot.threeDayBulletin?.hash) {
+      if (currentSnapshot.threeDayBulletin) currentSnapshot.threeDayBulletin.lastCheckedAt = now;
+      return { changed: false, message: '3-Day Bulletin verified: Current bulletin remains active.' };
+    }
+    currentSnapshot.threeDayBulletin = freshBulletin;
+    return { changed: true, message: 'Fresh 3-day synoptic bulletin updated.' };
+  }
+
+  if (scope === 'mountain') {
+    const freshMountain = await fetchLiveMountaineering();
+    if (freshMountain.hash === currentSnapshot.mountaineeringWeather?.hash) {
+      if (currentSnapshot.mountaineeringWeather) currentSnapshot.mountaineeringWeather.lastCheckedAt = now;
+      return { changed: false, message: 'Mountaineering telemetry verified: High-altitude data is current.' };
+    }
+    currentSnapshot.mountaineeringWeather = freshMountain;
+    return { changed: true, message: 'Fresh mountaineering telemetry updated.' };
+  }
+
+  if (scope === 'cities') {
+    const freshCities = await fetchLiveCityForecasts();
+    if (freshCities.hash === currentSnapshot.cityForecasts?.hash) {
+      if (currentSnapshot.cityForecasts) currentSnapshot.cityForecasts.lastCheckedAt = now;
+      return { changed: false, message: 'City forecasts verified: Multi-day forecasts are current.' };
+    }
+    currentSnapshot.cityForecasts = freshCities;
+    return { changed: true, message: 'Fresh 19-city forecasts updated.' };
+  }
+
+  if (scope === 'special') {
+    const freshSpecial = await fetchLiveSpecialWeather();
+    if (freshSpecial.hash === currentSnapshot.specialWeather?.hash) {
+      if (currentSnapshot.specialWeather) currentSnapshot.specialWeather.lastCheckedAt = now;
+      return { changed: false, message: 'Special weather advisories verified: Active advisories are current.' };
+    }
+    currentSnapshot.specialWeather = freshSpecial;
+    return { changed: true, message: 'Fresh special weather advisory updated.' };
+  }
+
+  if (scope === 'press') {
+    const freshPress = await fetchLivePressReleases();
+    if (freshPress.hash === currentSnapshot.pressReleases?.hash) {
+      if (currentSnapshot.pressReleases) currentSnapshot.pressReleases.lastCheckedAt = now;
+      return { changed: false, message: 'DHM Press releases verified: Publications are current.' };
+    }
+    currentSnapshot.pressReleases = freshPress;
+    return { changed: true, message: 'Fresh DHM press releases updated.' };
+  }
+
+  if (scope === 'nwp') {
+    const freshNwp = await fetchLiveNwpModels();
+    if (freshNwp.hash === currentSnapshot.nwpModels?.hash) {
+      if (currentSnapshot.nwpModels) currentSnapshot.nwpModels.lastCheckedAt = now;
+      return { changed: false, message: 'NWP numerical models verified: Model outputs are current.' };
+    }
+    currentSnapshot.nwpModels = freshNwp;
+    return { changed: true, message: 'Fresh NWP numerical models updated.' };
+  }
+
+  return { changed: false, message: 'Unknown scope' };
+}
+
+export interface MultiRefreshResult {
+  refreshedAt: number;
+  updatedScopes: RefreshScope[];
+  unchangedScopes: RefreshScope[];
+  freshScopes: RefreshScope[];
+  cooldowns: Record<string, {
+    lastFetchedAt: number;
+    ttlSeconds: number;
+    remainingSeconds: number;
+    isStale: boolean;
+  }>;
+  snapshot: NepalWeatherSnapshot;
+  status: 'updated' | 'unchanged' | 'throttled';
+  message: string;
+}
+
+export async function refreshStaleScopes(
+  env: EdgeEnv = {},
+  requestedScope: RefreshScope = 'all',
+  force = false
+): Promise<MultiRefreshResult> {
+  const currentSnapshot = await getLatestSnapshot(env);
+  const now = Date.now();
+  const updatedScopes: RefreshScope[] = [];
+  const unchangedScopes: RefreshScope[] = [];
+  const freshScopes: RefreshScope[] = [];
+  const cooldowns: MultiRefreshResult['cooldowns'] = {};
+  let hasAnyChanged = false;
+
+  const ALL_SCOPES: RefreshScope[] = [
+    'river',
+    'special',
+    'weather',
+    'cities',
+    'bulletin',
+    'mountain',
+    'press',
+    'tourism',
+    'nwp'
+  ];
+
+  const targetScopes = requestedScope === 'all' ? ALL_SCOPES : [requestedScope];
+
+  for (const scope of targetScopes) {
+    const ttlMs = COOLDOWN_DURATIONS[scope] || 8 * 60 * 1000;
+    const lastFetchedAt = getScopeLastFetchedAt(currentSnapshot, scope);
+    const elapsedMs = now - lastFetchedAt;
+    const remainingMs = Math.max(0, ttlMs - elapsedMs);
+    const isStale = force || remainingMs === 0;
+
+    cooldowns[scope] = {
+      lastFetchedAt,
+      ttlSeconds: Math.round(ttlMs / 1000),
+      remainingSeconds: Math.round(remainingMs / 1000),
+      isStale,
+    };
+
+    if (!isStale) {
+      freshScopes.push(scope);
+      continue;
+    }
+
+    try {
+      const res = await refreshIndividualScope(currentSnapshot, scope, now);
+      if (res.changed) {
+        updatedScopes.push(scope);
+        hasAnyChanged = true;
+      } else {
+        unchangedScopes.push(scope);
+      }
+    } catch (scopeErr) {
+      console.warn(`[AutoRefresh] Error syncing scope '${scope}':`, scopeErr);
+      unchangedScopes.push(scope);
+    }
+  }
+
+  // Update timestamps and persist
+  if (hasAnyChanged || updatedScopes.length > 0 || unchangedScopes.length > 0) {
+    currentSnapshot.lastCheckedAt = now;
+    await persistFullSnapshot(currentSnapshot, env, hasAnyChanged);
+  }
+
+  let status: 'updated' | 'unchanged' | 'throttled' = 'throttled';
+  let message = 'All requested data is currently fresh within its cooldown window.';
+
+  if (updatedScopes.length > 0) {
+    status = 'updated';
+    message = `Fresh live data updated for: ${updatedScopes.join(', ')}.`;
+  } else if (unchangedScopes.length > 0) {
+    status = 'unchanged';
+    message = `Upstream verified against DHM: No new readings published for ${unchangedScopes.join(', ')}.`;
+  }
+
+  return {
+    refreshedAt: now,
+    updatedScopes,
+    unchangedScopes,
+    freshScopes,
+    cooldowns,
+    snapshot: currentSnapshot,
+    status,
+    message,
+  };
+}
+
+export function purgeEdgeCacheForScopes(origin: string, updatedScopes: RefreshScope[]): void {
+  try {
+    const cache = (globalThis as any).caches?.default;
+    if (!cache) return;
+
+    const purgePaths = new Set<string>(['/', '/ne', '/api/data', '/api/refresh']);
+    for (const scope of updatedScopes) {
+      if (scope === 'river' || scope === 'all') {
+        purgePaths.add('/river-watch');
+        purgePaths.add('/ne/river-watch');
+      }
+      if (scope === 'weather' || scope === 'all') {
+        purgePaths.add('/weather');
+        purgePaths.add('/ne/weather');
+      }
+      if (scope === 'bulletin' || scope === 'all') {
+        purgePaths.add('/bulletin');
+        purgePaths.add('/ne/bulletin');
+      }
+      if (scope === 'cities' || scope === 'all') {
+        purgePaths.add('/city-forecast');
+        purgePaths.add('/ne/city-forecast');
+      }
+      if (scope === 'mountain' || scope === 'all') {
+        purgePaths.add('/mountaineering');
+        purgePaths.add('/ne/mountaineering');
+      }
+      if (scope === 'special' || scope === 'all') {
+        purgePaths.add('/special-weather');
+        purgePaths.add('/ne/special-weather');
+      }
+      if (scope === 'nwp' || scope === 'all') {
+        purgePaths.add('/nwp');
+        purgePaths.add('/ne/nwp');
+      }
+      if (scope === 'press' || scope === 'all') {
+        purgePaths.add('/press-releases');
+        purgePaths.add('/ne/press-releases');
+      }
+    }
+
+    for (const path of purgePaths) {
+      try {
+        cache.delete(new Request(`${origin}${path}`));
+      } catch {}
+    }
+  } catch (err) {
+    console.warn('[Storage] Edge cache purge error:', err);
+  }
+}
+
 export async function refreshScopedWithCooldown(
   scope: RefreshScope = 'river',
   env: EdgeEnv = {},
   force = false
 ): Promise<RefreshResult> {
-  const currentSnapshot = await getLatestSnapshot(env);
-  const now = Date.now();
-  const allowedCooldown = COOLDOWN_DURATIONS[scope];
+  const result = await refreshStaleScopes(env, scope, force);
+  const remainingMins = Math.ceil((COOLDOWN_DURATIONS[scope] || 8 * 60 * 1000) / 60000);
 
-  // Determine last fetched time for this scope
-  let lastFetchedAt = currentSnapshot.fetchedAt;
-  let lastCheckedAt = currentSnapshot.lastCheckedAt;
-
-  if (scope === 'river') {
-    lastFetchedAt = currentSnapshot.riverWatch.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.riverWatch.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  } else if (scope === 'weather') {
-    lastFetchedAt = currentSnapshot.manualWeather.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.manualWeather.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  } else if (scope === 'tourism') {
-    lastFetchedAt = currentSnapshot.tourismWeather.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.tourismWeather.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  } else if (scope === 'bulletin') {
-    lastFetchedAt = currentSnapshot.threeDayBulletin?.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.threeDayBulletin?.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  } else if (scope === 'mountain') {
-    lastFetchedAt = currentSnapshot.mountaineeringWeather?.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.mountaineeringWeather?.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  } else if (scope === 'cities') {
-    lastFetchedAt = currentSnapshot.cityForecasts?.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.cityForecasts?.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  } else if (scope === 'special') {
-    lastFetchedAt = currentSnapshot.specialWeather?.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.specialWeather?.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  } else if (scope === 'press') {
-    lastFetchedAt = currentSnapshot.pressReleases?.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.pressReleases?.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  } else if (scope === 'nwp') {
-    lastFetchedAt = currentSnapshot.nwpModels?.fetchedAt || currentSnapshot.fetchedAt;
-    lastCheckedAt = currentSnapshot.nwpModels?.lastCheckedAt || currentSnapshot.lastCheckedAt;
-  }
-
-  const elapsedMs = now - lastFetchedAt;
-  const remainingMs = allowedCooldown - elapsedMs;
-
-  // 1. Throttle if within scope cooldown
-  if (!force && remainingMs > 0) {
-    const remainingMins = Math.ceil(remainingMs / 60000);
-    const elapsedMins = Math.floor(elapsedMs / 60000);
-    return {
-      status: 'throttled',
-      scope,
-      message: `${scope.toUpperCase()} data was updated ${elapsedMins} min ago. Please wait ${remainingMins} min before requesting another fresh fetch.`,
-      cooldownRemainingMinutes: remainingMins,
-      lastFetchedAt,
-      lastCheckedAt,
-      snapshot: currentSnapshot,
-    };
-  }
-
-  // 2. Cooldown passed: fetch ONLY requested scope
-  try {
-    let hasChanged = false;
-
-    if (scope === 'river') {
-      const freshRiver = await fetchLiveRiverWatch();
-      if (freshRiver.stations.length === 0 && currentSnapshot.riverWatch.stations.length > 0) {
-        return {
-          status: 'error',
-          scope,
-          message: 'Upstream DHM temporarily unreachable. Retaining active station data.',
-          cooldownRemainingMinutes: 1,
-          lastFetchedAt: currentSnapshot.riverWatch.fetchedAt,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      if (freshRiver.hash === currentSnapshot.riverWatch.hash) {
-        // Unchanged: touch timestamp, DO NOT write to D1
-        currentSnapshot.riverWatch.lastCheckedAt = now;
-        currentSnapshot.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: 'River levels verified against DHM: No new readings published yet.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.river / 60000),
-          lastFetchedAt: currentSnapshot.riverWatch.fetchedAt,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.riverWatch = freshRiver;
-      currentSnapshot.fetchedAt = now;
-      currentSnapshot.lastCheckedAt = now;
-      hasChanged = true;
-    } else if (scope === 'weather') {
-      const freshWeather = await fetchLiveWeather();
-      if (
-        freshWeather.manualWeather.hash === currentSnapshot.manualWeather.hash &&
-        freshWeather.countryForecast.hash === currentSnapshot.countryForecast.hash
-      ) {
-        currentSnapshot.manualWeather.lastCheckedAt = now;
-        currentSnapshot.countryForecast.lastCheckedAt = now;
-        currentSnapshot.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: 'Weather forecast verified against MFD: Current bulletin remains active.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.weather / 60000),
-          lastFetchedAt: currentSnapshot.manualWeather.fetchedAt,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.manualWeather = freshWeather.manualWeather;
-      currentSnapshot.countryForecast = freshWeather.countryForecast;
-      currentSnapshot.fetchedAt = now;
-      currentSnapshot.lastCheckedAt = now;
-      hasChanged = true;
-    } else if (scope === 'tourism') {
-      const freshTourism = await fetchLiveTourism();
-      if (freshTourism.hash === currentSnapshot.tourismWeather.hash) {
-        currentSnapshot.tourismWeather.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: 'Tourism stations verified: Station status is current.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.tourism / 60000),
-          lastFetchedAt: currentSnapshot.tourismWeather.fetchedAt,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.tourismWeather = freshTourism;
-      hasChanged = true;
-    } else if (scope === 'bulletin') {
-      const freshBulletin = await fetchLiveThreeDayBulletin();
-      if (freshBulletin.hash === currentSnapshot.threeDayBulletin?.hash) {
-        if (currentSnapshot.threeDayBulletin) currentSnapshot.threeDayBulletin.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: '3-Day Bulletin verified: Current bulletin remains active.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.bulletin / 60000),
-          lastFetchedAt: currentSnapshot.threeDayBulletin?.fetchedAt || now,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.threeDayBulletin = freshBulletin;
-      hasChanged = true;
-    } else if (scope === 'mountain') {
-      const freshMountain = await fetchLiveMountaineering();
-      if (freshMountain.hash === currentSnapshot.mountaineeringWeather?.hash) {
-        if (currentSnapshot.mountaineeringWeather) currentSnapshot.mountaineeringWeather.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: 'Mountaineering telemetry verified: High-altitude data is current.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.mountain / 60000),
-          lastFetchedAt: currentSnapshot.mountaineeringWeather?.fetchedAt || now,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.mountaineeringWeather = freshMountain;
-      hasChanged = true;
-    } else if (scope === 'cities') {
-      const freshCities = await fetchLiveCityForecasts();
-      if (freshCities.hash === currentSnapshot.cityForecasts?.hash) {
-        if (currentSnapshot.cityForecasts) currentSnapshot.cityForecasts.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: 'City forecasts verified: Multi-day forecasts are current.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.cities / 60000),
-          lastFetchedAt: currentSnapshot.cityForecasts?.fetchedAt || now,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.cityForecasts = freshCities;
-      hasChanged = true;
-    } else if (scope === 'special') {
-      const freshSpecial = await fetchLiveSpecialWeather();
-      if (freshSpecial.hash === currentSnapshot.specialWeather?.hash) {
-        if (currentSnapshot.specialWeather) currentSnapshot.specialWeather.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: 'Special weather advisories verified: Active advisories are current.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.special / 60000),
-          lastFetchedAt: currentSnapshot.specialWeather?.fetchedAt || now,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.specialWeather = freshSpecial;
-      hasChanged = true;
-    } else if (scope === 'press') {
-      const freshPress = await fetchLivePressReleases();
-      if (freshPress.hash === currentSnapshot.pressReleases?.hash) {
-        if (currentSnapshot.pressReleases) currentSnapshot.pressReleases.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: 'DHM Press releases verified: Publications are current.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.press / 60000),
-          lastFetchedAt: currentSnapshot.pressReleases?.fetchedAt || now,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.pressReleases = freshPress;
-      hasChanged = true;
-    } else if (scope === 'nwp') {
-      const freshNwp = await fetchLiveNwpModels();
-      if (freshNwp.hash === currentSnapshot.nwpModels?.hash) {
-        if (currentSnapshot.nwpModels) currentSnapshot.nwpModels.lastCheckedAt = now;
-        await persistFullSnapshot(currentSnapshot, env, false);
-        return {
-          status: 'unchanged',
-          scope,
-          message: 'NWP numerical models verified: Model outputs are current.',
-          cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS.nwp / 60000),
-          lastFetchedAt: currentSnapshot.nwpModels?.fetchedAt || now,
-          lastCheckedAt: now,
-          snapshot: currentSnapshot,
-        };
-      }
-      currentSnapshot.nwpModels = freshNwp;
-      hasChanged = true;
-    } else {
-      // Scope === 'all'
-      const freshAll = await fetchLiveNepalWeatherSnapshot();
-      currentSnapshot.riverWatch = freshAll.riverWatch;
-      currentSnapshot.manualWeather = freshAll.manualWeather;
-      currentSnapshot.countryForecast = freshAll.countryForecast;
-      currentSnapshot.tourismWeather = freshAll.tourismWeather;
-      currentSnapshot.bulletins = freshAll.bulletins;
-      currentSnapshot.threeDayBulletin = freshAll.threeDayBulletin;
-      currentSnapshot.specialWeather = freshAll.specialWeather;
-      currentSnapshot.pressReleases = freshAll.pressReleases;
-      currentSnapshot.nwpModels = freshAll.nwpModels;
-      currentSnapshot.mountaineeringWeather = freshAll.mountaineeringWeather;
-      currentSnapshot.cityForecasts = freshAll.cityForecasts;
-      currentSnapshot.fetchedAt = now;
-      currentSnapshot.lastCheckedAt = now;
-      hasChanged = true;
-    }
-
-    // Persist new updated snapshot (and log to D1 if changed)
-    await persistFullSnapshot(currentSnapshot, env, hasChanged);
-
-    return {
-      status: 'updated',
-      scope,
-      message: `Fresh live ${scope} data successfully retrieved and cached at the edge.`,
-      cooldownRemainingMinutes: Math.ceil(COOLDOWN_DURATIONS[scope] / 60000),
-      lastFetchedAt: now,
-      lastCheckedAt: now,
-      snapshot: currentSnapshot,
-    };
-  } catch (err: any) {
-    console.error(`[Storage] Refresh failed for scope ${scope}:`, err);
-    return {
-      status: 'error',
-      scope,
-      message: `Upstream query failed for ${scope}: ${err?.message || 'Network timeout'}. Serving cached data.`,
-      cooldownRemainingMinutes: 0,
-      lastFetchedAt,
-      lastCheckedAt,
-      snapshot: currentSnapshot,
-    };
-  }
+  return {
+    status: result.status,
+    scope,
+    message: result.message,
+    cooldownRemainingMinutes: remainingMins,
+    lastFetchedAt: getScopeFetchedAt(result.snapshot, scope),
+    lastCheckedAt: result.snapshot.lastCheckedAt,
+    snapshot: result.snapshot,
+  };
 }

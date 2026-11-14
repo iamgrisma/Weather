@@ -117,7 +117,7 @@ export default {
     }
 
     // Edge Cache API Shield (GEMINI.md Rule 8): Query caches.default before SSR execution (0ms CPU)
-    if ((req.method === 'GET' || req.method === 'HEAD') && !url.pathname.startsWith('/api/')) {
+    if ((req.method === 'GET' || req.method === 'HEAD') && !url.pathname.startsWith('/api/image-proxy')) {
       try {
         const cache = caches.default;
         const cachedRes = await cache.match(req);
@@ -142,8 +142,8 @@ export default {
 
     const res = await serverEntry.fetch(req, env, ctx);
 
-    // Write successful public HTML responses into caches.default (0ms CPU for future visits)
-    if (req.method === 'GET' && res && res.status === 200 && !url.pathname.startsWith('/api/')) {
+    // Write successful public HTML/JSON responses into caches.default (0ms CPU for future visits)
+    if (req.method === 'GET' && res && res.status === 200 && !url.pathname.startsWith('/api/image-proxy')) {
       try {
         const cc = res.headers.get('cache-control') || '';
         const cl = res.headers.get('content-length');

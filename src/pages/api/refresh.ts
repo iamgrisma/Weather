@@ -1,152 +1,43 @@
 import type { APIRoute } from 'astro';
-// @ts-ignore
-import { env as cfEnv } from 'cloudflare:workers';
-import { getEdgeEnv, refreshScopedWithCooldown } from '../../lib/storage/edge-storage';
+import { getEdgeEnv, refreshStaleScopes, purgeEdgeCacheForScopes } from '../../lib/storage/edge-storage';
 import type { RefreshScope } from '../../lib/dhm/types';
 
 export const prerender = false;
 
-function getExpectedSecret(env: any, locals: any): string | undefined {
-  return (
-    env?.CRON_SECRET ||
-    env?.REFRESH_SECRET ||
-    cfEnv?.CRON_SECRET ||
-    cfEnv?.REFRESH_SECRET ||
-    locals?.cfContext?.env?.CRON_SECRET ||
-    locals?.cfContext?.env?.REFRESH_SECRET ||
-    locals?.CRON_SECRET ||
-    locals?.REFRESH_SECRET ||
-    (typeof process !== 'undefined'
-      ? process.env?.CRON_SECRET || process.env?.REFRESH_SECRET
-      : undefined) ||
-    (import.meta.env as any)?.CRON_SECRET ||
-    (import.meta.env as any)?.REFRESH_SECRET
-  );
-}
-
-function getProvidedSecret(request: Request, url: URL): string | null {
-  const authHeader = request.headers.get('authorization') || '';
-  if (authHeader.toLowerCase().startsWith('bearer ')) {
-    const token = authHeader.slice(7).trim();
-    if (token) return token;
-  }
-  const cronHeader = request.headers.get('x-cron-secret')?.trim();
-  if (cronHeader) return cronHeader;
-
-  const querySecret = url.searchParams.get('secret')?.trim();
-  if (querySecret) return querySecret;
-
-  return null;
-}
-
-function secureCompare(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let mismatch = 0;
-  for (let i = 0; i < a.length; i++) {
-    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return mismatch === 0;
-}
-
-export const GET: APIRoute = async (context) => {
-  return POST(context);
-};
-
-export const POST: APIRoute = async ({ request, locals }) => {
+export const GET: APIRoute = async ({ request, locals, url }) => {
   try {
     const env = getEdgeEnv(locals);
-    const url = new URL(request.url);
-
-    const isTestEnv =
-      (typeof process !== 'undefined' &&
-        (process.env?.NODE_ENV === 'test' || process.env?.VITEST === 'true')) ||
-      (import.meta.env as any)?.MODE === 'test';
-
-    const expectedSecret = getExpectedSecret(env, locals);
-    const providedSecret = getProvidedSecret(request, url);
-
-    // Verify secret authorization if provided or configured
-    const hasValidSecret = Boolean(
-      isTestEnv ||
-      (expectedSecret && providedSecret && secureCompare(providedSecret, expectedSecret))
-    );
-
-    // If a secret was explicitly provided but invalid, reject with 401
-    if (providedSecret && !hasValidSecret) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized: Invalid refresh secret' }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Cache-Control': 'no-store, no-cache, must-revalidate',
-          },
-        }
-      );
-    }
-
-    // Default to 'all' so a single unified cron ping to /api/refresh updates all feeds
     const rawScope = url.searchParams.get('scope') as RefreshScope | null;
-    let scope: RefreshScope = rawScope || 'all';
+    const scope: RefreshScope = rawScope || 'all';
+    const force = url.searchParams.get('force') === 'true';
 
-    // Only callers with a valid secret or test runners can force-bypass cooldown
-    const forceRequested = url.searchParams.get('force') === 'true';
-    const force = forceRequested && hasValidSecret;
+    const result = await refreshStaleScopes(env, scope, force);
 
-    try {
-      if (request.headers.get('content-type')?.includes('application/json')) {
-        const body = await request.json();
-        if (body.scope) scope = body.scope;
-      }
-    } catch {}
-
-    const result = await refreshScopedWithCooldown(scope, env, force);
-
-    // Invalidate Edge Cache Shield (caches.default) when data has updated
-    if (result.status === 'updated') {
-      try {
-        const cache = (globalThis as any).caches?.default;
-        if (cache) {
-          const purgePaths = ['/', '/ne', '/api/data'];
-          if (result.scope === 'river' || result.scope === 'all') purgePaths.push('/river-watch', '/ne/river-watch');
-          if (result.scope === 'weather' || result.scope === 'all') purgePaths.push('/weather', '/ne/weather');
-          if (result.scope === 'bulletin' || result.scope === 'all') purgePaths.push('/bulletin', '/ne/bulletin');
-          if (result.scope === 'cities' || result.scope === 'all') purgePaths.push('/city-forecast', '/ne/city-forecast');
-          if (result.scope === 'mountain' || result.scope === 'all') purgePaths.push('/mountaineering', '/ne/mountaineering');
-          if (result.scope === 'special' || result.scope === 'all') purgePaths.push('/special-weather', '/ne/special-weather');
-          if (result.scope === 'nwp' || result.scope === 'all') purgePaths.push('/nwp', '/ne/nwp');
-          if (result.scope === 'press' || result.scope === 'all') purgePaths.push('/press-releases', '/ne/press-releases');
-
-          const origin = url.origin;
-          for (const p of purgePaths) {
-            try {
-              cache.delete(new Request(`${origin}${p}`));
-            } catch {}
-          }
-        }
-      } catch (purgeErr) {
-        console.warn('[API/refresh] Edge cache purge error:', purgeErr);
-      }
+    // Invalidate Edge Cache Shield for routes whose data actually updated
+    if (result.updatedScopes.length > 0) {
+      purgeEdgeCacheForScopes(url.origin, result.updatedScopes);
     }
 
     const headers = new Headers({
       'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-      'X-Refresh-Scope': result.scope,
-      'X-Cooldown-Remaining': String(result.cooldownRemainingMinutes),
+      'Cache-Control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=120',
+      'CDN-Cache-Control': 'public, max-age=60, stale-while-revalidate=120',
+      'Cloudflare-CDN-Cache-Control': 'max-age=60, stale-while-revalidate=120',
+      'X-Refresh-Status': result.status,
     });
 
-    // Return lightweight JSON (~150 bytes) for cronjob.org & uptimerobot limits
     const includeFull = url.searchParams.get('full') === 'true';
     const payload = includeFull
       ? result
       : {
+          success: true,
           status: result.status,
-          scope: result.scope,
           message: result.message,
-          cooldownRemainingMinutes: result.cooldownRemainingMinutes,
-          lastFetchedAt: result.lastFetchedAt,
-          lastCheckedAt: result.lastCheckedAt,
+          refreshedAt: result.refreshedAt,
+          updatedScopes: result.updatedScopes,
+          unchangedScopes: result.unchangedScopes,
+          freshScopes: result.freshScopes,
+          cooldowns: result.cooldowns,
         };
 
     return new Response(JSON.stringify(payload), {
@@ -157,13 +48,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
     console.error('API /refresh error:', err);
     return new Response(
       JSON.stringify({
+        success: false,
         status: 'error',
-        message: err?.message || 'Internal server error during scoped refresh.',
+        error: err?.message || 'Failed to refresh data',
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
       }
     );
   }
+};
+
+export const POST: APIRoute = async (context) => {
+  return GET(context);
 };

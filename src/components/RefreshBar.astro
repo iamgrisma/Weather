@@ -112,27 +112,29 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
         if (btnText) btnText.textContent = 'Contacting DHM Gateway...';
 
         try {
+          // Chrome Modern Web Guidance: apply priority: 'low' to background fetch requests
           const res = await fetch(`/api/refresh?scope=${encodeURIComponent(scope)}`, {
             method: 'POST',
+            priority: 'low',
           });
           const json = await res.json();
 
           if (toast) {
             toast.classList.remove('hidden', 'bg-amber-50', 'border-amber-200', 'text-amber-800', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-800', 'bg-blue-50', 'border-blue-200', 'text-blue-800');
             
-            if (json.status === 'throttled') {
-              toast.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
-              toast.textContent = json.message || 'Cooldown window active. Please wait.';
-            } else if (json.status === 'unchanged') {
-              toast.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
-              toast.textContent = json.message || 'Upstream data has not changed yet.';
-            } else if (json.status === 'updated') {
+            const isUpdated = json.status === 'updated' || (Array.isArray(json.updatedScopes) && json.updatedScopes.includes(scope));
+            const isUnchanged = json.status === 'unchanged' || (Array.isArray(json.unchangedScopes) && json.unchangedScopes.includes(scope));
+
+            if (isUpdated) {
               toast.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
               toast.textContent = `Fresh live ${scope} data loaded! Reloading view...`;
               setTimeout(() => window.location.reload(), 800);
+            } else if (isUnchanged) {
+              toast.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-800');
+              toast.textContent = json.message || 'Upstream data has not changed yet.';
             } else {
               toast.classList.add('bg-amber-50', 'border-amber-200', 'text-amber-800');
-              toast.textContent = json.message || 'Response received.';
+              toast.textContent = json.message || 'Cooldown window active. Please wait.';
             }
           }
         } catch (err: any) {
@@ -147,6 +149,18 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
           if (btnText) btnText.textContent = defaultBtnLabel;
         }
       });
+    }
+
+    // Chrome Modern Web Guidance: trigger low-priority background freshness verification on idle
+    if (typeof window !== 'undefined') {
+      const triggerBackgroundSync = () => {
+        fetch('/api/refresh', { method: 'GET', priority: 'low' }).catch(() => {});
+      };
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(triggerBackgroundSync, { timeout: 4000 });
+      } else {
+        setTimeout(triggerBackgroundSync, 2500);
+      }
     }
   }
 
