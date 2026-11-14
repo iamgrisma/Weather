@@ -31,6 +31,7 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
   class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm"
   id="refresh-widget"
   data-fetched-at={fetchedAt}
+  data-last-checked-at={lastCheckedAt || fetchedAt}
   data-scope={scope}
   data-is-ne={isNe ? 'true' : 'false'}
 >
@@ -50,7 +51,7 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
           </span>
         </div>
         <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-normal" id="last-sync-time">
-          {isNe ? 'सरकारी सर्भरसँग स्वचालित समक्रमण • १०-मिनेट कुलडाउन सुरक्षा' : 'Direct edge cache from DHM / MFD • 10-Minute Upstream Shield'}
+          {isNe ? 'जल तथा मौसम विभागको आधिकारिक तथ्यांक • स्वचालित समक्रमण' : 'Official DHM / MFD live surveillance • Automatic sync'}
         </p>
       </div>
     </div>
@@ -78,6 +79,7 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
     if (!container) return;
 
     const fetchedAt = Number(container.getAttribute('data-fetched-at')) || Date.now();
+    const lastCheckedAt = Number(container.getAttribute('data-last-checked-at')) || fetchedAt;
     const scope = container.getAttribute('data-scope') || 'river';
     const isNe = container.getAttribute('data-is-ne') === 'true';
     const badge = document.getElementById('time-ago-badge');
@@ -89,7 +91,7 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
 
     function updateTimeAgo() {
       const now = Date.now();
-      const elapsedMs = Math.max(0, now - fetchedAt);
+      const elapsedMs = Math.max(0, now - lastCheckedAt);
       const minutes = Math.floor(elapsedMs / 60000);
       const seconds = Math.floor((elapsedMs % 60000) / 1000);
 
@@ -97,9 +99,9 @@ const activeLabel = buttonLabels[scope] || buttonLabels.river;
         if (minutes === 0) {
           badge.textContent = isNe ? `ताजा (${seconds} सेकेन्ड अघि)` : `Live (${seconds}s ago)`;
         } else if (minutes === 1) {
-          badge.textContent = isNe ? '१ मिनेट अगाडि' : 'Updated 1 min ago';
+          badge.textContent = isNe ? '१ मिनेट अगाडि' : 'Checked 1 min ago';
         } else {
-          badge.textContent = isNe ? `${minutes} मिनेट अगाडि` : `Updated ${minutes} mins ago`;
+          badge.textContent = isNe ? `${minutes} मिनेट अगाडि` : `Checked ${minutes} mins ago`;
         }
       }
     }
