@@ -124,9 +124,9 @@ export default {
     // Normalize Cache Key to defeat query-string cache busting & DDOS attacks
     let cacheKeyUrl = url.origin + url.pathname;
     if (url.pathname === '/api/refresh' || url.pathname === '/api/data') {
-      const scope = url.searchParams.get('scope');
+      const scope = url.searchParams.get('scope') || url.searchParams.get('type');
       if (scope && /^[a-z]+$/.test(scope)) {
-        cacheKeyUrl += '?scope=' + scope;
+        cacheKeyUrl += '?type=' + scope;
       }
     }
     const cacheKey = new Request(cacheKeyUrl, { method: 'GET' });
