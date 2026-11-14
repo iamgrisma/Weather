@@ -121,10 +121,19 @@ export default {
     }
 
     // Edge Cache API Shield (GEMINI.md Rule 8): Query caches.default before SSR execution (0ms CPU)
+    // Normalize Cache Key to defeat query-string cache busting & DDOS attacks
+    let cacheKeyUrl = url.origin + url.pathname;
+    if (url.pathname === '/api/refresh' || url.pathname === '/api/data') {
+      const scope = url.searchParams.get('scope');
+      if (scope && /^[a-z]+$/.test(scope)) {
+        cacheKeyUrl += '?scope=' + scope;
+      }
+    }
+    const cacheKey = new Request(cacheKeyUrl, { method: 'GET' });
+
     if ((req.method === 'GET' || req.method === 'HEAD') && !url.pathname.startsWith('/api/image-proxy')) {
       try {
         const cache = caches.default;
-        const cacheKey = new Request(url.toString(), { method: 'GET' });
         const cachedRes = await cache.match(cacheKey);
         if (cachedRes) {
           const resHeaders = new Headers(cachedRes.headers);
@@ -154,7 +163,6 @@ export default {
         const cl = res.headers.get('content-length');
         if (!cc.includes('no-store') && !cc.includes('private') && !cc.includes('max-age=0') && cl !== '0') {
           const cache = caches.default;
-          const cacheKey = new Request(url.toString(), { method: 'GET' });
           const resClone = res.clone();
           try { resClone.headers.delete('Set-Cookie'); } catch (e) {}
           if (ctx && typeof ctx.waitUntil === 'function') {

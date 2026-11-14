@@ -9,7 +9,12 @@ export const GET: APIRoute = async ({ request, locals, url }) => {
     const env = getEdgeEnv(locals);
     const rawScope = url.searchParams.get('scope') as RefreshScope | null;
     const scope: RefreshScope = rawScope || 'all';
-    const force = url.searchParams.get('force') === 'true';
+
+    // Anti-DDOS protection on force=true:
+    // Only internal scheduled crons or requests with valid CRON_SECRET can force-bypass cooldowns
+    const cronSecret = request.headers.get('x-cron-secret') || url.searchParams.get('secret');
+    const isAuthorized = Boolean(env.CRON_SECRET && cronSecret === env.CRON_SECRET);
+    const force = isAuthorized && url.searchParams.get('force') === 'true';
 
     const result = await refreshStaleScopes(env, scope, force);
 

@@ -27,10 +27,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const pathname = url.pathname;
 
   if (pathname.startsWith('/api/refresh')) {
-    if (url.searchParams.get('force') === 'true') {
-      response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    // Only bypass edge cache if the endpoint explicitly authenticated and emitted no-store
+    if (response.headers.get('Cache-Control')?.includes('no-store')) {
       response.headers.delete('CDN-Cache-Control');
       response.headers.delete('Cloudflare-CDN-Cache-Control');
+    } else {
+      response.headers.set(
+        'Cache-Control',
+        'public, max-age=60, s-maxage=480, stale-while-revalidate=600'
+      );
+      response.headers.set('CDN-Cache-Control', 'public, max-age=480, stale-while-revalidate=600');
+      response.headers.set('Cloudflare-CDN-Cache-Control', 'max-age=480, stale-while-revalidate=600');
     }
   } else if (pathname.startsWith('/api/image-proxy')) {
     response.headers.set(
