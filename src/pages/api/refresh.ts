@@ -1,4 +1,6 @@
 import type { APIRoute } from 'astro';
+// @ts-ignore
+import { env as cfEnv } from 'cloudflare:workers';
 import { getEdgeEnv, refreshScopedWithCooldown } from '../../lib/storage/edge-storage';
 import type { RefreshScope } from '../../lib/dhm/types';
 
@@ -8,8 +10,10 @@ function getExpectedSecret(env: any, locals: any): string | undefined {
   return (
     env?.CRON_SECRET ||
     env?.REFRESH_SECRET ||
-    locals?.runtime?.env?.CRON_SECRET ||
-    locals?.runtime?.env?.REFRESH_SECRET ||
+    cfEnv?.CRON_SECRET ||
+    cfEnv?.REFRESH_SECRET ||
+    locals?.cfContext?.env?.CRON_SECRET ||
+    locals?.cfContext?.env?.REFRESH_SECRET ||
     locals?.CRON_SECRET ||
     locals?.REFRESH_SECRET ||
     (typeof process !== 'undefined'

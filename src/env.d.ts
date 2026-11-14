@@ -6,11 +6,19 @@ type D1Database = import('@cloudflare/workers-types').D1Database;
 type ENV = {
   WEATHER_KV: KVNamespace;
   WEATHER_DB: D1Database;
-  SITE_URL: string;
+  SITE_URL?: string;
+  CRON_SECRET?: string;
+  REFRESH_SECRET?: string;
 };
 
-type Runtime = import('@astrojs/cloudflare').Runtime<ENV>;
+declare module 'cloudflare:workers' {
+  interface Env extends ENV {}
+  export const env: Env;
+}
 
 declare namespace App {
-  interface Locals extends Runtime {}
+  interface Locals {
+    cfContext?: any;
+    [key: string]: any;
+  }
 }

@@ -92,6 +92,9 @@ if (isAndroidArm64) {
           default: '/bin/sh'
         };
       }
+      if (request === 'cloudflare:workers') {
+        return { env: process.env || {} };
+      }
       return origLoad.apply(this, arguments);
     };
 
@@ -107,6 +110,9 @@ if (isAndroidArm64) {
           binPath: '/bin/sh',
           default: '/bin/sh'
         };
+      }
+      if (id === 'cloudflare:workers') {
+        return { env: process.env || {} };
       }
       return origRequire.apply(this, arguments);
     };

@@ -54,31 +54,34 @@ interface MemoryStore {
   lastLoadedAt: number;
 }
 
+// @ts-ignore
+import { env as cfEnv } from 'cloudflare:workers';
+
 const memoryStore: MemoryStore = (globalThis as any).__NEPAL_WEATHER_MEM_STORE__ || {
   snapshot: null,
   lastLoadedAt: 0,
 };
 (globalThis as any).__NEPAL_WEATHER_MEM_STORE__ = memoryStore;
 
-let cloudflareEnv: any = null;
-try {
-  // @ts-ignore
-  const cfWorkers = await import('cloudflare:workers');
-  if (cfWorkers && cfWorkers.env) {
-    cloudflareEnv = cfWorkers.env;
-  }
-} catch {
-  // Gracefully ignored in Node.js / standalone dev server
-}
-
 export function getEdgeEnv(locals?: any): EdgeEnv {
-  if (cloudflareEnv) return cloudflareEnv;
+  try {
+    if (cfEnv && (cfEnv.WEATHER_KV || cfEnv.WEATHER_DB || Object.keys(cfEnv).length > 0)) {
+      return cfEnv as EdgeEnv;
+    }
+  } catch {}
   if ((globalThis as any).__CF_ENV__) return (globalThis as any).__CF_ENV__;
+  if (locals?.cfContext?.env) return locals.cfContext.env;
+  if (locals?.env) return locals.env;
   try {
     if (locals && (locals.WEATHER_KV || locals.WEATHER_DB)) return locals;
   } catch {}
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env as any;
+  }
   return {};
 }
+
+export { cfEnv as env };
 
 /**
  * Reads the latest snapshot with 3-tier caching:

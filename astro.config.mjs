@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import node from '@astrojs/node';
 import cloudflare from '@astrojs/cloudflare';
+import { fileURLToPath } from 'node:url';
 
 const isCloudflare = process.env.DEPLOY_TARGET === 'cloudflare' || Boolean(process.env.CF_PAGES);
 
@@ -35,6 +36,14 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    resolve: {
+      alias: [
+        { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
+        ...(!isCloudflare ? [
+          { find: 'cloudflare:workers', replacement: fileURLToPath(new URL('./src/lib/cloudflare-workers-shim.ts', import.meta.url)) },
+        ] : []),
+      ],
+    },
     build: {
       cssMinify: true,
       minify: 'esbuild',
