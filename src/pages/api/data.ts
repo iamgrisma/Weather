@@ -10,9 +10,9 @@ export const GET: APIRoute = async ({ locals }) => {
 
     const headers = new Headers({
       'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'public, max-age=60, s-maxage=180, stale-while-revalidate=600',
-      'CDN-Cache-Control': 'public, max-age=180, stale-while-revalidate=600',
-      'Cloudflare-CDN-Cache-Control': 'max-age=180, stale-while-revalidate=600',
+      'Cache-Control': 'public, max-age=60, s-maxage=480, stale-while-revalidate=600',
+      'CDN-Cache-Control': 'public, max-age=480, stale-while-revalidate=600',
+      'Cloudflare-CDN-Cache-Control': 'max-age=480, stale-while-revalidate=600',
       'ETag': `"${snapshot.hash}"`,
       'X-Data-Source': snapshot.source,
       'X-Fetched-At': new Date(snapshot.fetchedAt).toISOString(),
